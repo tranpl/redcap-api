@@ -71,7 +71,7 @@ namespace Redcap
             throw new NotImplementedException();
         }
         /// <summary>
-        /// This method allows you to export the metadata for a project. Overload method. 
+        /// This method allows you to export the metadata for a project. 
         /// </summary>
         /// <param name="redcapFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <param name="returnFormat"></param>
@@ -91,8 +91,8 @@ namespace Redcap
                     delimiters = new char[] { ',', ' ' };
                 }
                 
-                var fieldsResult = await GetFields(fields, delimiters);
-                var formsResult = await GetForms(forms, delimiters);
+                var fieldsResult = await ExtractFields(fields, delimiters);
+                var formsResult = await ExtractForms(forms, delimiters);
                 // Handle optional parameters
 
                 var (format, retFormat) = await HandleFormat(redcapFormat, returnFormat);
@@ -198,7 +198,7 @@ namespace Redcap
         /// <param name="forms"></param>
         /// <param name="delimiters"></param>
         /// <returns>List<string></returns>
-        private async Task<List<string>> GetForms(string forms, char[] delimiters)
+        private async Task<List<string>> ExtractForms(string forms, char[] delimiters)
         {
             if (!String.IsNullOrEmpty(forms))
             {
@@ -227,7 +227,7 @@ namespace Redcap
         /// <param name="fields"></param>
         /// <param name="delimiters"></param>
         /// <returns>List<string></returns>
-        private async Task<List<string>> GetFields(string fields, char[] delimiters)
+        private async Task<List<string>> ExtractFields(string fields, char[] delimiters)
         {
             if (!String.IsNullOrEmpty(fields))
             {
@@ -633,9 +633,9 @@ namespace Redcap
         /// <param name="redcapDataType"></param>
         /// <param name="returnFormat"></param>
         /// <param name="overwriteBehavior"></param>
-        /// <param name="DateFormat"></param>
-        /// <returns></returns>
-        public async Task<string> SaveRecordsAsync(List<string> data, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, OverwriteBehavior? overwriteBehavior, string DateFormat = "MDY")
+        /// <param name="dateFormat"></param>
+        /// <returns>string</returns>
+        public async Task<string> SaveRecordsAsync(List<string> data, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, OverwriteBehavior? overwriteBehavior, string dateFormat = "MDY")
         {
             try
             {
@@ -644,11 +644,11 @@ namespace Redcap
                 var dataType = "";
                 var overwrite = "";
                 var response = String.Empty;
-                var dateFormat = DateFormat;
+                var _dateFormat = dateFormat;
                 // Handle optional parameters
-                if (String.IsNullOrEmpty(dateFormat))
+                if (string.IsNullOrEmpty((string)_dateFormat))
                 {
-                    dateFormat = "MDY";
+                    _dateFormat = "MDY";
                 }
                 if (redcapFormat == null || returnFormat == null || redcapDataType == null)
                 {
@@ -677,7 +677,7 @@ namespace Redcap
                         { "format", format },
                         { "type", dataType },
                         { "overwriteBehavior", overwrite },
-                        { "dateFormat", dateFormat },
+                        { "dateFormat", _dateFormat },
                         { "returnFormat", retFormat },
                         { "returnContent", "ids" },
                         { "data", serializedData }
