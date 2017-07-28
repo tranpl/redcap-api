@@ -15,17 +15,15 @@ namespace Redcap
     /// Go to your http://redcap_instance/api/help for Redcap Api documentations
     /// Author: Michael Tran tranpl@outlook.com
     /// </summary>
-    public class Redcap: IRedcap
+    public class RedcapApi: IRedcap
     {
         private static string _apiToken;
         private static Uri _redcapApiUri;
         public static string Version;
-        public Redcap(string apiToken, string  redcapApiUrl)
+        public RedcapApi(string apiToken, string  redcapApiUrl)
         {
             _apiToken = apiToken?.ToString();
             _redcapApiUri = new Uri(redcapApiUrl.ToString());
-            // Obtain redcap version
-            Version = GetRedcapVersionAsync(RedcapFormat.json, RedcapDataType.flat).Result;
         }
         public delegate Task<string> GetRedcapVersion(RedcapFormat format, RedcapDataType type);
         /// <summary>
@@ -402,7 +400,7 @@ namespace Redcap
                     // Execute send request
                     response = await SendRequest(payload);
                 }
-                return response;
+                return await Task.FromResult(response);
             }
             catch (Exception Ex)
             {
@@ -542,13 +540,14 @@ namespace Redcap
             string responseString;
             using (var client = new HttpClient())
             {
+                client.BaseAddress = _redcapApiUri;
                 // Encode the values for payload
                 var content = new FormUrlEncodedContent(payload);
                 var response = await client.PostAsync(client.BaseAddress, content);
                 responseString = await response.Content.ReadAsStringAsync();
 
             }
-            return responseString;
+            return await Task.FromResult(responseString);
         }
         /// <summary>
         /// This method allows you to import a set of records for a project.
