@@ -400,7 +400,7 @@ namespace Redcap
                     // Execute send request
                     response = await SendRequest(payload);
                 }
-                return response;
+                return await Task.FromResult(response);
             }
             catch (Exception Ex)
             {
@@ -547,7 +547,7 @@ namespace Redcap
                 responseString = await response.Content.ReadAsStringAsync();
 
             }
-            return responseString;
+            return await Task.FromResult(responseString);
         }
         /// <summary>
         /// This method allows you to import a set of records for a project.
