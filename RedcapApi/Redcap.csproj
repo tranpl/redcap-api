@@ -8,6 +8,14 @@
     <RepositoryUrl>https://github.com/cctrbic/redcap-api</RepositoryUrl>
     <PackageProjectUrl>https://github.com/cctrbic/redcap-api</PackageProjectUrl>
     <Description>Redcap Api Library for C#</Description>
+    <Product>Redcap Api Library</Product>
+    <PackageId>RedcapAPI</PackageId>
+    <Version>0.1.0</Version>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>True</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
