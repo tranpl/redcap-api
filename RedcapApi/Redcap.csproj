@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <Authors>Michael Tran</Authors>
+    <Company>Virginia Commonwealth University</Company>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/cctrbic/redcap-api</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/cctrbic/redcap-api</PackageProjectUrl>
+    <Description>Redcap Api Library for C#</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Serilog" Version="2.5.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.4.0-preview2-25405-01" />
+  </ItemGroup>
+
+</Project>

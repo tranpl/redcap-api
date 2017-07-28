@@ -1,26 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using RedcapApi.Interfaces;
+using Redcap.Interfaces;
 using System.Net.Http;
 using Serilog;
 using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace RedcapApi
+namespace Redcap
 {
     /// <summary>
     /// This api interacts with redcap instances. https://project-redcap.org
     /// Go to your http://redcap_instance/api/help for Redcap Api documentations
     /// Author: Michael Tran tranpl@outlook.com
     /// </summary>
-    public class RedcapApi : IRedcapApi
+    public class Redcap: IRedcap
     {
         private static string _apiToken;
         private static Uri _redcapApiUri;
         public static string Version;
-        public RedcapApi(string apiToken, string  redcapApiUrl)
+        public Redcap(string apiToken, string  redcapApiUrl)
         {
             _apiToken = apiToken?.ToString();
             _redcapApiUri = new Uri(redcapApiUrl.ToString());

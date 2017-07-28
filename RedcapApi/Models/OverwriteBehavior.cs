@@ -1,4 +1,4 @@
-﻿namespace RedcapApi.Interfaces
+﻿namespace Redcap.Interfaces
 {
     /// <summary>
     /// normal - blank/empty values will be ignored [default]
