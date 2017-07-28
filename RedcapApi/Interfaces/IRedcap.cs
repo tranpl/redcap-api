@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace RedcapApi.Interfaces
+namespace Redcap.Interfaces
 {
     /// <summary>
     /// REDCAP API VERSION 7.2.2
@@ -16,7 +16,7 @@ namespace RedcapApi.Interfaces
     /// 
     /// Author: Michael Tran tranpl@outlook.com
     /// </summary>
-    public interface IRedcapApi
+    public interface IRedcap
     {
         /// <summary>
         /// This method returns the current REDCap version number as plain text (e.g., 4.13.18, 5.12.2, 6.0.0).

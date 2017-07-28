@@ -1,4 +1,4 @@
-﻿namespace RedcapApi.Interfaces
+﻿namespace Redcap.Interfaces
 {
     /// <summary>
     /// The format which is provided when requesting through Redcap API

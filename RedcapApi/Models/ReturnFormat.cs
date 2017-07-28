@@ -1,4 +1,4 @@
-﻿namespace RedcapApi.Interfaces
+﻿namespace Redcap.Interfaces
 {
     /// <summary>
     /// The format that the response object should be when returned from Redcap API.
