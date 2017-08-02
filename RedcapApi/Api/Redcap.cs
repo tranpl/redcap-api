@@ -653,7 +653,6 @@ namespace Redcap
         {
             try
             {
-                var _overWriteBehavior = await ExtractBehaviorAsync(overwriteBehavior);
                 string _dateFormat = dateFormat;
                 // Handle optional parameters
                 if (String.IsNullOrEmpty(_dateFormat))
@@ -662,6 +661,8 @@ namespace Redcap
                 }
                 var (_redcapFormat, _returnFormat, _redcapDataType) = await HandleFormat(redcapFormat, returnFormat, redcapDataType);
                 var _returnContent = await HandleReturnContent(returnContent);
+                var _overWriteBehavior = await ExtractBehaviorAsync(overwriteBehavior);
+
                 // Extract properties from object provided
                 if (data != null)
                 {
@@ -711,33 +712,17 @@ namespace Redcap
         {
             try
             {
-                var format = "";
-                var retFormat = "";
-                var dataType = "";
-                var overwrite = "";
-                var response = String.Empty;
+                var (_redcapFormat, _returnFormat, _redcapDataType) = await HandleFormat(redcapFormat, returnFormat, redcapDataType);
+                var _returnContent = await HandleReturnContent(returnContent);
+                var _overWriteBehavior = await ExtractBehaviorAsync(overwriteBehavior);
+
+                var _response = String.Empty;
                 var _dateFormat = dateFormat;
                 // Handle optional parameters
                 if (string.IsNullOrEmpty((string)_dateFormat))
                 {
                     _dateFormat = "MDY";
                 }
-                if (redcapFormat == null || returnFormat == null || redcapDataType == null)
-                {
-                    // Defaults to JSON if not provided
-                    format = RedcapFormat.json.ToString(); // Json Format
-                    retFormat = ReturnFormat.json.ToString(); // Json Format
-                    dataType = RedcapDataType.flat.ToString(); // Flat Type
-                    overwrite = OverwriteBehavior.overwrite.ToString(); // overwrite
-                }
-                else
-                {
-                    format = redcapFormat.ToString();
-                    retFormat = returnFormat.ToString();
-                    dataType = redcapDataType.ToString();
-                    overwrite = OverwriteBehavior.overwrite.ToString(); // overwrite
-                }
-
                 // Extract properties from object provided
                 if (data != null)
                 {
@@ -746,19 +731,19 @@ namespace Redcap
                     {
                         { "token", _apiToken },
                         { "content", "record" },
-                        { "format", format },
-                        { "type", dataType },
-                        { "overwriteBehavior", overwrite },
+                        { "format", _redcapFormat },
+                        { "type", _redcapDataType },
+                        { "overwriteBehavior", _overWriteBehavior },
                         { "dateFormat", _dateFormat },
-                        { "returnFormat", retFormat },
-                        { "returnContent", "ids" },
+                        { "returnFormat", _returnFormat },
+                        { "returnContent", _returnContent },
                         { "data", serializedData }
                     };
 
                     // Execute send request
-                    response = await SendRequest(content);
+                    _response = await SendRequest(content);
                 }
-                return response;
+                return _response;
             }
             catch (Exception Ex)
             {
