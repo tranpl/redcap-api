@@ -15,3 +15,7 @@ __Usage__:
 __Install directly in Package Manager Console__
 
 ``` Install-Package RedcapAPI ```
+
+__Demo__
+
+https://github.com/cctrbic/redcap-api-demo
