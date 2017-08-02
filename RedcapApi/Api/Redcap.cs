@@ -256,7 +256,6 @@ namespace Redcap
                 return await Task.FromResult((_redcapFormat, _returnFormat, _redcapDataType));
             }
         }
-
         /// <summary>
         /// Method gets / extracts forms into list from string
         /// </summary>
@@ -371,7 +370,6 @@ namespace Redcap
                 return await Task.FromResult(String.Empty);
             }
         }
-
         /// <summary>
         /// This method allows you to export a set of records for a project.
         /// example: "1,2,3,4"<br/>
@@ -496,14 +494,6 @@ namespace Redcap
                 Log.Error($"{Ex.Message}");
                 return String.Empty;
             }
-        }
-        /// <summary>
-        /// This method allows you to export the list of users for a project, including their user privileges and also email address, first name, and last name. Note: If the user has been assigned to a user role, it will return the user with the role's defined privileges.
-        /// </summary>
-        /// <returns></returns>
-        public Task<string> ExportUsers()
-        {
-            throw new NotImplementedException();
         }
         /// <summary>
         /// This method extracts and converts an object's properties and associated values to redcap type and values.
@@ -688,17 +678,17 @@ namespace Redcap
                     var results = await SendRequest(payload);
                     return results;
                 }
-                return null;
+                return String.Empty;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return null;
+                return await Task.FromResult(String.Empty);
             }
 
         }
         /// <summary>
-        /// Bulk Import
+        /// Method allows for bulk import of records into redcap project.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="redcapApiKey"></param>
@@ -748,7 +738,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return await Task.FromResult(String.Empty);
             }
 
         }

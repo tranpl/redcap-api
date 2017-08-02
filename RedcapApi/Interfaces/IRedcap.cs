@@ -114,6 +114,5 @@ namespace Redcap.Interfaces
         /// <param name="DateFormat"></param>
         /// <returns></returns>
         Task<string> SaveRecordsAsync(List<string> data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string DateFormat = "MDY");
-        Task<string> ExportUsers();
     }
 }
