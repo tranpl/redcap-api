@@ -7,6 +7,7 @@ using Serilog;
 using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
+using Redcap.Models;
 
 namespace Redcap
 {
@@ -75,16 +76,45 @@ namespace Redcap
         /// </summary>
         /// <param name="redcapFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <param name="returnFormat"></param>
-        /// <param name="fields">example: "firstName, lastName, age"</param>
-        /// <param name="forms">example: "demographics, labs, administration"</param>
         /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
-        public async Task<string> GetMetaData(RedcapFormat? redcapFormat, ReturnFormat? returnFormat, char[] delimiters, string fields = "", string forms = "")
+        public async Task<string> GetMetaDataAsync(RedcapFormat? redcapFormat, ReturnFormat? returnFormat)
         {
             try
             {
-                var fieldsParam = "";
-                var formsParam = "";
                 var response = String.Empty;
+                // Handle optional parameters
+                var (_redcapFormat, _returnFormat) = await HandleFormat(redcapFormat, returnFormat);
+                var payload = new Dictionary<string, string>
+                    {
+                        { "token", _apiToken },
+                        { "content", "metadata" },
+                        { "format", _redcapFormat },
+                        { "returnFormat", _returnFormat }
+                    };
+                response = await SendRequest(payload);
+                return await Task.FromResult(response);
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return String.Empty;
+            }
+        }
+        /// <summary>
+        /// This method allows you to export the metadata for a project. 
+        /// </summary>
+        /// <param name="redcapFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
+        /// <param name="returnFormat"></param>
+        /// <param name="fields">example: "firstName, lastName, age"</param>
+        /// <param name="forms">example: "demographics, labs, administration"</param>
+        /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
+        public async Task<string> GetMetaDataAsync(RedcapFormat? redcapFormat, ReturnFormat? returnFormat, char[] delimiters, string fields = "", string forms = "")
+        {
+            try
+            {
+                var _fieldsParam = "";
+                var _formsParam = "";
+                var _response = String.Empty;
                 if (delimiters.Length == 0)
                 {
                     // Provide some default delimiters, mostly comma and spaces for redcap
@@ -95,7 +125,7 @@ namespace Redcap
                 var formsResult = await ExtractForms(forms, delimiters);
                 // Handle optional parameters
 
-                var (format, retFormat) = await HandleFormat(redcapFormat, returnFormat);
+                var (_redcapFormat, _returnFormat) = await HandleFormat(redcapFormat, returnFormat);
 
                 if (!String.IsNullOrEmpty(fields))
                 {
@@ -103,29 +133,24 @@ namespace Redcap
                     //string[] fieldsArray = fieldsContainer.ToArray(typeof(string)) as string[];
                     string[] fieldsArray = fieldsResult.ToArray();
                     /// Convert string array into String
-                    fieldsParam = ConvertStringArraytoString(fieldsArray).Result;
+                    _fieldsParam = ConvertStringArraytoString(fieldsArray).Result;
                 }
                 if (!String.IsNullOrEmpty(forms))
                 {
                     //string[] formsArray = formsContainer.ToArray(typeof(string)) as string[];
                     string[] formsArray = formsResult.ToArray();
                     /// Convert string array into String
-                    formsParam = await ConvertStringArraytoString(formsArray);
+                    _formsParam = await ConvertStringArraytoString(formsArray);
                 }
-
-                using (var client = new HttpClient())
+                var payload = new Dictionary<string, string>
                 {
-                    client.BaseAddress = _redcapApiUri;
-                    var payload = new Dictionary<string, string>
-                    {
-                        { "token", _apiToken },
-                        { "content", "metadata" },
-                        { "format", format },
-                        { "returnFormat", retFormat }
-                    };
-                    response = await SendRequest(payload);
-                }
-                return response;
+                    { "token", _apiToken },
+                    { "content", "metadata" },
+                    { "format", _redcapFormat },
+                    { "returnFormat", _returnFormat }
+                };
+                _response = await SendRequest(payload);
+                return _response;
             }
             catch (Exception Ex)
             {
@@ -141,28 +166,51 @@ namespace Redcap
         /// <returns></returns>
         private async Task<(string redcapFormat, string returnFormat)> HandleFormat(RedcapFormat? redcapFormat, ReturnFormat? returnFormat)
         {
-            // default formatters
-            var rcFormat = RedcapFormat.json.ToString();
-            var retFormat = ReturnFormat.json.ToString();
+            // default
+            var _redcapFormat = RedcapFormat.json.ToString();
+            var _returnFormat = ReturnFormat.json.ToString();
+
             try
             {
 
-                if (redcapFormat == null || returnFormat == null)
+                switch (redcapFormat)
                 {
-                    rcFormat = RedcapFormat.json.ToString();
-                    retFormat = ReturnFormat.json.ToString();
+                    case RedcapFormat.json:
+                        _redcapFormat = RedcapFormat.json.ToString();
+                        break;
+                    case RedcapFormat.csv:
+                        _redcapFormat = RedcapFormat.csv.ToString();
+                        break;
+                    case RedcapFormat.xml:
+                        _redcapFormat = RedcapFormat.xml.ToString();
+                        break;
+                    default:
+                        _redcapFormat = RedcapFormat.json.ToString();
+                        break;
                 }
-                else
+
+                switch (returnFormat)
                 {
-                    rcFormat = redcapFormat.ToString();
-                    retFormat = returnFormat.ToString();
+                    case ReturnFormat.json:
+                        _returnFormat = ReturnFormat.json.ToString();
+                        break;
+                    case ReturnFormat.csv:
+                        _returnFormat = ReturnFormat.csv.ToString();
+                        break;
+                    case ReturnFormat.xml:
+                        _returnFormat = ReturnFormat.xml.ToString();
+                        break;
+                    default:
+                        _returnFormat = ReturnFormat.json.ToString();
+                        break;
                 }
-                return await Task.FromResult((rcFormat, retFormat));
+
+                return await Task.FromResult((_redcapFormat, _returnFormat));
             }
             catch (Exception Ex)
             {
                 Log.Error(Ex.Message);
-                return await Task.FromResult((rcFormat, retFormat));
+                return await Task.FromResult((_redcapFormat, _returnFormat));
             }
         }
         private async Task<(string redcapFormat, string redcapDataType)> HandleFormat(RedcapFormat? redcapFormat, RedcapDataType? redcapDataType)
