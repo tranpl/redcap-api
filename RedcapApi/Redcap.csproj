@@ -10,8 +10,8 @@
     <Description>Redcap Api Library for C#</Description>
     <Product>Redcap Api Library</Product>
     <PackageId>RedcapAPI</PackageId>
-    <Version>0.1.1</Version>
-    <AssemblyVersion>0.1.1.0</AssemblyVersion>
+    <Version>0.2.1</Version>
+    <AssemblyVersion>0.2.1.0</AssemblyVersion>
     <PackageTags>redcap</PackageTags>
     <PackageReleaseNotes>initial alpha release</PackageReleaseNotes>
   </PropertyGroup>
