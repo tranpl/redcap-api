@@ -32,19 +32,19 @@ namespace Redcap
         /// gets converted to "["firstName","lastName","age"]" 
         /// This is used as optional arguments for the Redcap Api
         /// </summary>
-        /// <param name="array"></param>
+        /// <param name="inputArray"></param>
         /// <returns>string[]</returns>
-        private async Task<string> ConvertStringArraytoString(string[] array)
+        private async Task<string> ConvertStringArraytoString(string[] inputArray)
         {
             try {
                 StringBuilder builder = new StringBuilder();
                 ///builder.Append('[');
-                foreach (string v in array)
+                foreach (string v in inputArray)
                 {
 
                     builder.Append(v);
                     /// We do not need to append the , if less than or equal to 1 record
-                    if (array.Length <= 1)
+                    if (inputArray.Length <= 1)
                     {
                         return await Task.FromResult(builder.ToString());
                     }
@@ -83,14 +83,14 @@ namespace Redcap
             {
                 var response = String.Empty;
                 // Handle optional parameters
-                var (_redcapFormat, _returnFormat) = await HandleFormat(redcapFormat, returnFormat);
+                var (_redcapFormat, _returnFormat, _redcapDataType) = await HandleFormat(redcapFormat, returnFormat);
                 var payload = new Dictionary<string, string>
-                    {
-                        { "token", _apiToken },
-                        { "content", "metadata" },
-                        { "format", _redcapFormat },
-                        { "returnFormat", _returnFormat }
-                    };
+                {
+                    { "token", _apiToken },
+                    { "content", "metadata" },
+                    { "format", _redcapFormat },
+                    { "returnFormat", _returnFormat }
+                };
                 response = await SendRequest(payload);
                 return await Task.FromResult(response);
             }
@@ -123,21 +123,19 @@ namespace Redcap
                 
                 var fieldsResult = await ExtractFields(fields, delimiters);
                 var formsResult = await ExtractForms(forms, delimiters);
-                // Handle optional parameters
 
-                var (_redcapFormat, _returnFormat) = await HandleFormat(redcapFormat, returnFormat);
+                // Handle optional parameters
+                var (_redcapFormat, _returnFormat, _redcapDataType) = await HandleFormat(redcapFormat, returnFormat);
 
                 if (!String.IsNullOrEmpty(fields))
                 {
                     /// Convert Array List into string array
-                    //string[] fieldsArray = fieldsContainer.ToArray(typeof(string)) as string[];
                     string[] fieldsArray = fieldsResult.ToArray();
                     /// Convert string array into String
-                    _fieldsParam = ConvertStringArraytoString(fieldsArray).Result;
+                    _fieldsParam = await ConvertStringArraytoString(fieldsArray);
                 }
                 if (!String.IsNullOrEmpty(forms))
                 {
-                    //string[] formsArray = formsContainer.ToArray(typeof(string)) as string[];
                     string[] formsArray = formsResult.ToArray();
                     /// Convert string array into String
                     _formsParam = await ConvertStringArraytoString(formsArray);
@@ -158,17 +156,43 @@ namespace Redcap
                 return String.Empty;
             }
         }
+        private async Task<string> HandleReturnContent(ReturnContent returnContent = ReturnContent.count)
+        {
+            try
+            {
+                var _returnContent = returnContent.ToString();
+                switch (returnContent)
+                {
+                    case ReturnContent.ids:
+                        _returnContent = ReturnContent.ids.ToString();
+                        break;
+                    case ReturnContent.count:
+                        _returnContent = ReturnContent.count.ToString();
+                        break;
+                    default:
+                        _returnContent = ReturnContent.count.ToString();
+                        break;
+                }
+                return await Task.FromResult(_returnContent);
+            }
+            catch (Exception Ex)
+            {
+                Log.Error(Ex.Message);
+                return await Task.FromResult(String.Empty);
+            }
+        }
         /// <summary>
         /// Tuple that returns both redcapFormat and redcap returnFormat
         /// </summary>
         /// <param name="redcapFormat"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
-        private async Task<(string redcapFormat, string returnFormat)> HandleFormat(RedcapFormat? redcapFormat, ReturnFormat? returnFormat)
+        private async Task<(string redcapFormat, string returnFormat, string redcapDataType)> HandleFormat(RedcapFormat? redcapFormat = RedcapFormat.json, ReturnFormat? returnFormat = ReturnFormat.json, RedcapDataType? redcapDataType = RedcapDataType.flat)
         {
             // default
             var _redcapFormat = RedcapFormat.json.ToString();
             var _returnFormat = ReturnFormat.json.ToString();
+            var _redcapDataType = RedcapDataType.flat.ToString();
 
             try
             {
@@ -205,38 +229,31 @@ namespace Redcap
                         break;
                 }
 
-                return await Task.FromResult((_redcapFormat, _returnFormat));
+                switch (redcapDataType)
+                {
+                    case RedcapDataType.flat:
+                        _returnFormat = RedcapDataType.flat.ToString();
+                        break;
+                    case RedcapDataType.eav:
+                        _returnFormat = RedcapDataType.eav.ToString();
+                        break;
+                    case RedcapDataType.longitudinal:
+                        _returnFormat = RedcapDataType.longitudinal.ToString();
+                        break;
+                    case RedcapDataType.nonlongitudinal:
+                        _returnFormat = RedcapDataType.nonlongitudinal.ToString();
+                        break;
+                    default:
+                        _returnFormat = RedcapDataType.flat.ToString();
+                        break;
+                }
+
+                return await Task.FromResult((_redcapFormat, _returnFormat, _redcapDataType));
             }
             catch (Exception Ex)
             {
                 Log.Error(Ex.Message);
-                return await Task.FromResult((_redcapFormat, _returnFormat));
-            }
-        }
-        private async Task<(string redcapFormat, string redcapDataType)> HandleFormat(RedcapFormat? redcapFormat, RedcapDataType? redcapDataType)
-        {
-            // default formatters
-            var rcFormat = RedcapFormat.json.ToString();
-            var type = RedcapDataType.flat.ToString();
-            try
-            {
-
-                if (redcapFormat == null || redcapDataType == null)
-                {
-                    rcFormat = RedcapFormat.json.ToString();
-                    type = RedcapDataType.flat.ToString();
-                }
-                else
-                {
-                    rcFormat = redcapFormat.ToString();
-                    type = redcapDataType.ToString();
-                }
-                return await Task.FromResult((rcFormat, type));
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return await Task.FromResult((rcFormat, type));
+                return await Task.FromResult((_redcapFormat, _returnFormat, _redcapDataType));
             }
         }
 
@@ -268,7 +285,6 @@ namespace Redcap
             }
             return await Task.FromResult(new List<string> { });
         }
-
         /// <summary>
         /// Method gets / extracts fields into list from string
         /// </summary>
@@ -297,7 +313,13 @@ namespace Redcap
             }
             return await Task.FromResult(new List<string> { });
         }
-        private async Task<List<string>> ExtractRecords(string records, char[] delimiters)
+        /// <summary>
+        /// Method gets / extract records into list from string
+        /// </summary>
+        /// <param name="records"></param>
+        /// <param name="delimiters"></param>
+        /// <returns></returns>
+        private async Task<List<string>> ExtractRecordsAsync(string records, char[] delimiters)
         {
             if (!String.IsNullOrEmpty(records))
             {
@@ -320,6 +342,37 @@ namespace Redcap
             return await Task.FromResult(new List<string> { });
         }
         /// <summary>
+        /// Method gets the overwrite behavior type and converts into string
+        /// </summary>
+        /// <param name="overwriteBehavior"></param>
+        /// <returns></returns>
+        private async Task<string> ExtractBehaviorAsync(OverwriteBehavior overwriteBehavior)
+        {
+            try
+            {
+                var _overwriteBehavior = OverwriteBehavior.normal.ToString();
+                switch (overwriteBehavior)
+                {
+                    case OverwriteBehavior.overwrite:
+                        _overwriteBehavior = OverwriteBehavior.overwrite.ToString();
+                        break;
+                    case OverwriteBehavior.normal:
+                        _overwriteBehavior = OverwriteBehavior.normal.ToString();
+                        break;
+                    default:
+                        _overwriteBehavior = OverwriteBehavior.overwrite.ToString();
+                        break;
+                }
+                return await Task.FromResult(_overwriteBehavior);
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return await Task.FromResult(String.Empty);
+            }
+        }
+
+        /// <summary>
         /// This method allows you to export a set of records for a project.
         /// example: "1,2,3,4"<br/>
         /// This method allows you to export a set of records for a project.
@@ -335,46 +388,42 @@ namespace Redcap
         /// <param name="format">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <param name="type">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<string> GetRecordAsync(string records, RedcapFormat redcapFormat, RedcapDataType redcapDataType, char[] delimiters)
+        public async Task<string> GetRecordAsync(string records, RedcapFormat redcapFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
         {
             try
             {
-                string response;
+                string _response;
                 var _records = String.Empty;
                 if (delimiters.Length == 0)
                 {
                     // Provide some default delimiters, mostly comma and spaces for redcap
                     delimiters = new char[] { ',', ' ' };
                 }
-                var recordResults = await ExtractRecords(records, delimiters);
-                var (format, type) = await HandleFormat(redcapFormat, redcapDataType); 
-                using (var client = new HttpClient())
+                var recordResults = await ExtractRecordsAsync(records, delimiters);
+                var (_redcapFormat, _returnFormat, _redcapDataType) = await HandleFormat(redcapFormat, returnFormat, redcapDataType);
+                var payload = new Dictionary<string, string>
                 {
-                    client.BaseAddress = _redcapApiUri;
-                    var payload = new Dictionary<string, string>
-                    {
-                        { "token", _apiToken },
-                        { "content", "record" },
-                        { "format", format },
-                        { "type", type }
-                    };
-                    if (recordResults.Count == 0)
-                    {
-                        Log.Error($"Missing required informaion.");
-                        return _records;
-                    }
-                    else
-                    {
-                        /// Convert Array List into string array
-                        var inputRecords = recordResults.ToArray();
-                        /// Convert string array into String
-                        _records = await ConvertStringArraytoString(inputRecords);
-                        payload.Add("records", _records);
-                    }
-                    payload.Add("returnFormat", format);
-                    response = await SendRequest(payload);
+                    { "token", _apiToken },
+                    { "content", "record" },
+                    { "format", _redcapFormat },
+                    { "returnFormat", _returnFormat },
+                    { "type", _redcapDataType }
+                };
+                if (recordResults.Count == 0)
+                {
+                    Log.Error($"Missing required informaion.");
+                    return _records;
                 }
-                return response;
+                else
+                {
+                    /// Convert Array List into string array
+                    var inputRecords = recordResults.ToArray();
+                    /// Convert string array into String
+                    _records = await ConvertStringArraytoString(inputRecords);
+                    payload.Add("records", _records);
+                }
+                _response = await SendRequest(payload);
+                return _response;
             }
             catch (Exception Ex)
             {
@@ -395,25 +444,21 @@ namespace Redcap
         /// <param name="format">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <param name="type">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<string> GetRecordsAsync(RedcapFormat redcapFormat, RedcapDataType redcapDataType, char[] delimiters)
+        public async Task<string> GetRecordsAsync(RedcapFormat redcapFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
         {
             try
             {
-                var (format, type) = await HandleFormat(redcapFormat, redcapDataType);
+                var (_redcapFormat, _returnFormat, _redcapDataType) = await HandleFormat(redcapFormat, returnFormat, redcapDataType);
                 var response = String.Empty;
-                using (var client = new HttpClient())
+                var payload = new Dictionary<string, string>
                 {
-                    client.BaseAddress = _redcapApiUri;
-                    var payload = new Dictionary<string, string>
-                    {
-                        { "token", _apiToken },
-                        { "content", "record" },
-                        { "format", format },
-                        { "type", type },
-                        { "returnFormat", format }
-                    };
-                    response = await SendRequest(payload);
-                }
+                    { "token", _apiToken },
+                    { "content", "record" },
+                    { "format", _redcapFormat },
+                    { "returnFormat", _returnFormat },
+                    { "type", _redcapDataType }
+                };
+                response = await SendRequest(payload);
                 return response;
             }
             catch (Exception Ex)
@@ -432,30 +477,25 @@ namespace Redcap
         {
             try
             {
-                var (format, type) = await HandleFormat(redcapFormat, redcapDataType);
-                var response = String.Empty;
-                using (var client = new HttpClient())
+                var _response = String.Empty;
+                var (_redcapFormat, _returnFormat, _redcapDataType) = await HandleFormat(redcapFormat, ReturnFormat.json, redcapDataType);
+                var payload = new Dictionary<string, string>
                 {
-                    // Set the base address 
-                    client.BaseAddress = _redcapApiUri;
-                    var payload = new Dictionary<string, string>
-                    {
-                        { "token", _apiToken },
-                        { "content", "version" },
-                        { "format", format },
-                        { "type", type }
-                    };
-                    // Execute send request
-                    response = await SendRequest(payload);
-                }
-                return await Task.FromResult(response);
+                    { "token", _apiToken },
+                    { "content", "version" },
+                    { "format", _redcapFormat },
+                    { "type", _redcapDataType }
+                };
+                // Execute send request
+                _response = await SendRequest(payload);
+
+                return await Task.FromResult(_response);
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
                 return String.Empty;
             }
-
         }
         /// <summary>
         /// This method allows you to export the list of users for a project, including their user privileges and also email address, first name, and last name. Note: If the user has been assigned to a user role, it will return the user with the role's defined privileges.
@@ -468,20 +508,20 @@ namespace Redcap
         /// <summary>
         /// This method extracts and converts an object's properties and associated values to redcap type and values.
         /// </summary>
-        /// <param name="item">Object</param>
+        /// <param name="input">Object</param>
         /// <returns>Dictionary of key value pair.</returns>
-        private async Task<Dictionary<string, string>> GetProperties(object item)
+        private async Task<Dictionary<string, string>> GetProperties(object input)
         {
             try
             {
-                if (item != null)
+                if (input != null)
                 {
                     // Get the type
-                    var type = item.GetType();
+                    var type = input.GetType();
                     var obj = new Dictionary<string, string>();
                     // Get the properties
                     var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-                    PropertyInfo[] properties = item.GetType().GetProperties();
+                    PropertyInfo[] properties = input.GetType().GetProperties();
                     foreach (var prop in properties)
                     {
                         // get type of column
@@ -491,7 +531,7 @@ namespace Redcap
                         // We need to set lower case for REDCap's variable nameing convention (lower casing)
                         string propName = prop.Name.ToLower();
                         // We check for null values
-                        var propValue = type.GetProperty(prop.Name).GetValue(item, null)?.ToString();
+                        var propValue = type.GetProperty(prop.Name).GetValue(input, null)?.ToString();
                         if (propValue != null)
                         {
                             var t = columnType.GetGenericArguments();
@@ -539,11 +579,11 @@ namespace Redcap
         /// <param name="redcapDataType"></param>
         /// <param name="returnFormat"></param>
         /// <returns>ReturnFormat</returns>
-        public async Task<string> SaveRecordsAsync(object data, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat)
+        public async Task<string> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat)
         {
             try
             {
-                var (format, type) = await HandleFormat(redcapFormat, redcapDataType);
+                var (_redcapFormat, _returnFormat, _redcapDataType) = await HandleFormat(redcapFormat, returnFormat, redcapDataType);
                 if (data != null)
                 {
                     List<object> dataList = new List<object>
@@ -551,15 +591,16 @@ namespace Redcap
                         data
                     };
                     var serializedData = JsonConvert.SerializeObject(dataList);
+                    var _overWriteBehavior = await ExtractBehaviorAsync(overwriteBehavior);
                     var payload = new Dictionary<string, string>
                     {
                         { "token", _apiToken },
                         { "content", "record" },
-                        { "format", format },
-                        { "type", type },
-                        { "overwriteBehavior", "overwrite" },
+                        { "format", _redcapFormat },
+                        { "type", _redcapDataType },
+                        { "overwriteBehavior", _overWriteBehavior },
                         { "dateFormat", "MDY" },
-                        { "returnFormat", format },
+                        { "returnFormat", _redcapFormat },
                         { "returnContent", "count" },
                         { "data", serializedData }
                     };
@@ -608,36 +649,19 @@ namespace Redcap
         /// <param name="overwriteBehavior"></param>
         /// <param name="DateFormat"></param>
         /// <returns>returnFormat</returns>
-        public async Task<string> SaveRecordsAsync(object data, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, OverwriteBehavior? overwriteBehavior, string DateFormat = "MDY")
+        public async Task<string> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string dateFormat = "MDY")
         {
             try
             {
-                var format = redcapFormat.ToString();
-                var retFormat = returnFormat.ToString();
-                var dataType = redcapDataType.ToString();
-                var overwrite = overwriteBehavior.ToString();
-                string dateFormat = DateFormat;
+                var _overWriteBehavior = await ExtractBehaviorAsync(overwriteBehavior);
+                string _dateFormat = dateFormat;
                 // Handle optional parameters
-                if (String.IsNullOrEmpty(dateFormat))
+                if (String.IsNullOrEmpty(_dateFormat))
                 {
-                    dateFormat = "MDY";
+                    _dateFormat = "MDY";
                 }
-                if (redcapFormat == null || returnFormat == null || redcapDataType == null)
-                {
-                    // Defaults to JSON if not provided
-                    format = RedcapFormat.json.ToString(); // Json Format
-                    retFormat = ReturnFormat.json.ToString(); // Json Format
-                    dataType = RedcapDataType.flat.ToString(); // Flat Type
-                    overwrite = OverwriteBehavior.overwrite.ToString(); // overwrite
-                }
-                else
-                {
-                    format = redcapFormat.ToString();
-                    retFormat = returnFormat.ToString();
-                    dataType = redcapDataType.ToString();
-                    overwrite = OverwriteBehavior.overwrite.ToString(); // overwrite
-                }
-
+                var (_redcapFormat, _returnFormat, _redcapDataType) = await HandleFormat(redcapFormat, returnFormat, redcapDataType);
+                var _returnContent = await HandleReturnContent(returnContent);
                 // Extract properties from object provided
                 if (data != null)
                 {
@@ -650,12 +674,12 @@ namespace Redcap
                     {
                         { "token", _apiToken },
                         { "content", "record" },
-                        { "format", format },
-                        { "type", dataType },
-                        { "overwriteBehavior", overwrite },
-                        { "dateFormat", dateFormat },
-                        { "returnFormat", format },
-                        { "returnContent", "ids" },
+                        { "format", _redcapFormat },
+                        { "type", _redcapDataType },
+                        { "overwriteBehavior", _overWriteBehavior },
+                        { "dateFormat", _dateFormat },
+                        { "returnFormat", _redcapFormat },
+                        { "returnContent", _returnContent },
                         { "data", formattedData }
                     };
 
@@ -683,7 +707,7 @@ namespace Redcap
         /// <param name="overwriteBehavior"></param>
         /// <param name="dateFormat"></param>
         /// <returns>string</returns>
-        public async Task<string> SaveRecordsAsync(List<string> data, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, OverwriteBehavior? overwriteBehavior, string dateFormat = "MDY")
+        public async Task<string> SaveRecordsAsync(List<string> data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string dateFormat = "MDY")
         {
             try
             {
