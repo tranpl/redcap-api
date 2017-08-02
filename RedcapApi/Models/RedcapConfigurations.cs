@@ -1,4 +1,4 @@
-﻿namespace Redcap.Interfaces
+﻿namespace Redcap.Models
 {
     /// <summary>
     /// apiToken = 0

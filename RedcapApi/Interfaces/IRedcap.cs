@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Redcap.Models;
 
 namespace Redcap.Interfaces
 {
@@ -35,10 +36,10 @@ namespace Redcap.Interfaces
         /// To make sure that no data is unnecessarily filtered out of your API request, 
         /// you should have "Full Data Set" export rights in the project.
         /// </summary>
-        /// <param name="RedcapFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
+        /// <param name="redcapFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        Task<string> GetRecordsAsync(RedcapFormat RedcapFormat, RedcapDataType redcapDataType, char[] delimiters);
+        Task<string> GetRecordsAsync(RedcapFormat redcapFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters);
         /// <summary>
         /// This method allows you to export a set of records for a project.
         /// example: "1,2,3,4"<br/>
@@ -52,10 +53,10 @@ namespace Redcap.Interfaces
         /// you should have "Full Data Set" export rights in the project.
         /// </summary>
         /// <param name="record"></param>
-        /// <param name="RedcapFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
+        /// <param name="redcapFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        Task<string> GetRecordAsync(string record, RedcapFormat RedcapFormat, RedcapDataType redcapDataType, char[] delimiters);
+        Task<string> GetRecordAsync(string record, RedcapFormat redcapFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters);
         /// <summary>
         /// This method allows you to export the metadata for a project. 
         /// </summary>
@@ -70,7 +71,15 @@ namespace Redcap.Interfaces
         /// <param name="fields">example: "firstName, lastName, age"</param>
         /// <param name="forms">example: "demographics, labs, administration"</param>
         /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
-        Task<string> GetMetaData(RedcapFormat? RedcapFormat, ReturnFormat? returnFormat, char[] delimiters, string fields = "", string forms = "");
+        Task<string> GetMetaDataAsync(RedcapFormat? RedcapFormat, ReturnFormat? returnFormat, char[] delimiters, string fields = "", string forms = "");
+        /// <summary>
+        /// This method allows you to export the metadata for a project. Overload method. 
+        /// </summary>
+        /// <param name="format">0 = JSON (default), 1 = CSV, 2 = XML</param>
+        /// <param name="returnFormat"></param>
+        /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
+        Task<string> GetMetaDataAsync(RedcapFormat? RedcapFormat, ReturnFormat? returnFormat);
+
         /// <summary>
         /// This method allows you to import a set of records for a project
         /// </summary>
@@ -80,7 +89,7 @@ namespace Redcap.Interfaces
         /// <param name="returnFormat"></param>
         /// <param name="dateFormat"></param>
         /// <returns>Http Status Code</returns>
-        Task<string> SaveRecordsAsync(object data, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat);
+        Task<string> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat);
         /// <summary>
         /// This method allows you to import a set of records for a project.
         /// </summary>
@@ -92,7 +101,7 @@ namespace Redcap.Interfaces
         /// <param name="overwriteBehavior"></param>
         /// <param name="DateFormat"></param>
         /// <returns></returns>
-        Task<string> SaveRecordsAsync(object data, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, OverwriteBehavior? overwriteBehavior, string DateFormat = "MDY");
+        Task<string> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string DateFormat = "MDY");
         /// <summary>
         /// Bulk Import
         /// </summary>
@@ -104,7 +113,6 @@ namespace Redcap.Interfaces
         /// <param name="overwriteBehavior"></param>
         /// <param name="DateFormat"></param>
         /// <returns></returns>
-        Task<string> SaveRecordsAsync(List<string> data, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, OverwriteBehavior? overwriteBehavior, string DateFormat = "MDY");
-        Task<string> ExportUsers();
+        Task<string> SaveRecordsAsync(List<string> data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string DateFormat = "MDY");
     }
 }
