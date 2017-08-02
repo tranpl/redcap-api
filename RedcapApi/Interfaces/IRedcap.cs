@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Redcap.Models;
 
 namespace Redcap.Interfaces
 {
@@ -70,7 +71,15 @@ namespace Redcap.Interfaces
         /// <param name="fields">example: "firstName, lastName, age"</param>
         /// <param name="forms">example: "demographics, labs, administration"</param>
         /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
-        Task<string> GetMetaData(RedcapFormat? RedcapFormat, ReturnFormat? returnFormat, char[] delimiters, string fields = "", string forms = "");
+        Task<string> GetMetaDataAsync(RedcapFormat? RedcapFormat, ReturnFormat? returnFormat, char[] delimiters, string fields = "", string forms = "");
+        /// <summary>
+        /// This method allows you to export the metadata for a project. Overload method. 
+        /// </summary>
+        /// <param name="format">0 = JSON (default), 1 = CSV, 2 = XML</param>
+        /// <param name="returnFormat"></param>
+        /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
+        Task<string> GetMetaDataAsync(RedcapFormat? RedcapFormat, ReturnFormat? returnFormat);
+
         /// <summary>
         /// This method allows you to import a set of records for a project
         /// </summary>

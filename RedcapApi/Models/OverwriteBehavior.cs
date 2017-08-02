@@ -1,4 +1,4 @@
-﻿namespace Redcap.Interfaces
+﻿namespace Redcap.Models
 {
     /// <summary>
     /// normal - blank/empty values will be ignored [default]

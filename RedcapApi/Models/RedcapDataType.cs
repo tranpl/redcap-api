@@ -1,4 +1,4 @@
-﻿namespace Redcap.Interfaces
+﻿namespace Redcap.Models
 {
     /// <summary>
     /// The format which is provided when requesting a import through Redcap API
