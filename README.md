@@ -1,5 +1,7 @@
 # redcap-api
-Redcap Api Library for C#
+redcap-api is a C# API (Application Programming Interface) for REDCap, that lets you:
+    export/import/delete data in REDCap
+    export/import/delete project information (e.g., field names and types) in REDCap
 
 __Usage__:
 
