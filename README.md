@@ -8,9 +8,18 @@ __Usage__:
 3. Add "using Redcap.Interfaces" namespace (contains some enums for redcap optional params)
 4. instantiate a new instance of the redcapapi object
 
-```C# __var rc = new Redcap.RedcapApi("redcap token here", "your redcap api endpoint here")__```
+__Example__
+```C# 
 
-```C# __var version = await rc.GetRedcapVersionAsync(RedcapFormat.json, RedcapDataType.flat);__```
+var rc = new Redcap.RedcapApi("redcap token here", "your redcap api endpoint here")
+
+```
+
+```C# 
+
+var version = await rc.GetRedcapVersionAsync(RedcapFormat.json, RedcapDataType.flat);
+
+```
 
 __Install directly in Package Manager Console__
 

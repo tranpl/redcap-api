@@ -156,6 +156,13 @@ namespace Redcap
                 return String.Empty;
             }
         }
+        ///
+        /// <summary>
+        ///The method hands the return content from a request, the response.
+        /// The method allows the calling method to choose a return type.
+        /// </summary>
+        /// <param name="returnContent"></param>
+        /// <returns></returns>
         private async Task<string> HandleReturnContent(ReturnContent returnContent = ReturnContent.count)
         {
             try
