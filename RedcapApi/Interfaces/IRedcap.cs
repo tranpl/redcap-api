@@ -5,7 +5,7 @@ using Redcap.Models;
 namespace Redcap.Interfaces
 {
     /// <summary>
-    /// REDCAP API VERSION 7.2.2
+    /// REDCAP API VERSION 7.4.9
     /// This interface defines available methods for REDCap API.
     /// The REDCap API is an interface that allows external applications 
     /// to connect to REDCap remotely, and is used for programmatically 
@@ -15,17 +15,23 @@ namespace Redcap.Interfaces
     /// and other projects that interact with REDCap. Programs talk to the REDCap API 
     /// over HTTP, the same protocol that your browser uses to visit and interact with web pages.
     /// 
-    /// Author: Michael Tran tranpl@outlook.com
+    /// Virginia Commonwealth University
+    /// Author: Michael Tran tranpl@outlook.com, tranpl@vcu.edu
     /// </summary>
     public interface IRedcap
     {
+
         /// <summary>
         /// This method allows you to export the Arms for a project.
         /// NOTE: This only works for longitudinal projects. E.g. Arms are only available in longitudinal projects.
-        /// TODO
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="content"></param>
+        /// <param name="redcapFormat"></param>
+        /// <param name="returnFormat"></param>
+        /// <param name="arms"></param>
         /// <returns></returns>
-        Task<string> ExportArms(int[] arms, ReturnFormat returnFormat);
+        Task<T> ExportArms<T>(string content, RedcapFormat redcapFormat, ReturnFormat returnFormat = ReturnFormat.json, int[] arms = null);
         /// <summary>
         /// This method allows you to import Arms into a project or to rename existing Arms in a project. 
         /// You may use the parameter override=1 as a 'delete all + import' action in order to erase all existing Arms in the project while importing new Arms. 
@@ -38,7 +44,7 @@ namespace Redcap.Interfaces
         /// <param name="arms"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
-        Task<string> ImportArms(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ImportArms(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat redcapFormat, ReturnFormat returnFormat);
         /// <summary>
         /// This method allows you to delete Arms from a project. Notice: Because of this method's destructive nature, it is only available for use for projects in Development status. Additionally, please be aware that deleting an arm also automatically deletes all events that belong to that arm, and will also automatically delete any records/data that have been collected under that arm (this is non-reversible data loss).
         /// NOTE: This only works for longitudinal projects. 

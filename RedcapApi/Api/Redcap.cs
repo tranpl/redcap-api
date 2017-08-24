@@ -16,7 +16,7 @@ namespace Redcap
     /// Go to your http://redcap_instance/api/help for Redcap Api documentations
     /// Author: Michael Tran tranpl@outlook.com
     /// </summary>
-    public class RedcapApi: IRedcap
+    public class RedcapApi<T, U> where T: IComparable<T> where U: IEnumerable<U>, IRedcap
     {
         private static string _apiToken;
         private static Uri _redcapApiUri;
@@ -748,6 +748,146 @@ namespace Redcap
                 return await Task.FromResult(String.Empty);
             }
 
+        }
+
+        public Task<T1> ExportArms<T1>(string content, RedcapFormat redcapFormat, ReturnFormat returnFormat = ReturnFormat.json, int[] arms = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportArms(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat redcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> DeleteArms(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> DeleteEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportFields(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportFile(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportFile(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> DeleteFile(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportInstruments(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> CreateProject(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportProjectXml(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> GenerateNextRecordName(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportRecords(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportRecords(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> DeleteRecords(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportRedcapVersion(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportSurveyLink(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportSurveyParticipants(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportSurveyQueueLink(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportSurveyReturnCode(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportUsers(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportUsers(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
         }
     }
 }
