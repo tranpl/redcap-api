@@ -10,6 +10,8 @@ namespace RedcapApiDemo
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Redcap Api Demo Started!");
+
             var redcap_api = new RedcapApi("3D57A7FA57C8A43F6C8803A84BB3957B", "http://localhost/redcap/api/");
 
             var arm1 = new RedcapArm
