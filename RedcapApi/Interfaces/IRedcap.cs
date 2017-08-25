@@ -25,13 +25,13 @@ namespace Redcap.Interfaces
         /// This method allows you to export the Arms for a project.
         /// NOTE: This only works for longitudinal projects. E.g. Arms are only available in longitudinal projects.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="content"></param>
         /// <param name="redcapFormat"></param>
         /// <param name="returnFormat"></param>
         /// <param name="arms"></param>
-        /// <returns></returns>
-        Task<T> ExportArms<T>(string content, RedcapFormat redcapFormat, ReturnFormat returnFormat = ReturnFormat.json, int[] arms = null);
+        /// <returns>Arms for the project in the format specified</returns>
+        Task<string> ExportArms<T>(RedcapFormat redcapFormat, ReturnFormat returnFormat, List<T> arms);
+
         /// <summary>
         /// This method allows you to import Arms into a project or to rename existing Arms in a project. 
         /// You may use the parameter override=1 as a 'delete all + import' action in order to erase all existing Arms in the project while importing new Arms. 
@@ -41,20 +41,24 @@ namespace Redcap.Interfaces
         /// To use this method, you must have API Import/Update privileges *and* Project Design/Setup privileges in the project.
         /// 
         /// </summary>
-        /// <param name="arms"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data"></param>
+        /// <param name="overRide"></param>
+        /// <param name="redcapFormat"></param>
         /// <param name="returnFormat"></param>
-        /// <returns></returns>
-        Task<string> ImportArms(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat redcapFormat, ReturnFormat returnFormat);
+        /// <returns>Number of Arms imported</returns>
+        Task<string> DeleteArms<T>(List<T> data, Override overRide, RedcapFormat redcapFormat, ReturnFormat returnFormat);
         /// <summary>
         /// This method allows you to delete Arms from a project. Notice: Because of this method's destructive nature, it is only available for use for projects in Development status. Additionally, please be aware that deleting an arm also automatically deletes all events that belong to that arm, and will also automatically delete any records/data that have been collected under that arm (this is non-reversible data loss).
         /// NOTE: This only works for longitudinal projects. 
         /// </summary>
-        /// <param name="arms"></param>
-        /// <param name="overwriteBehavior"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data"></param>
+        /// <param name="overRide"></param>
         /// <param name="RedcapFormat"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
-        Task<string> DeleteArms(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> DeleteArms<T>(List<T> data);
         Task<string> ExportEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
         Task<string> ImportEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
         Task<string> DeleteEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
