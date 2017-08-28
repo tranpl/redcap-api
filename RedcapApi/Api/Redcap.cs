@@ -924,7 +924,7 @@ namespace Redcap
         /// <param name="redcapFormat"></param>
         /// <param name="returnFormat"></param>
         /// <returns>Number of Arms imported</returns>
-        public async Task<string> DeleteArms<T>(List<T> data, Override overRide, RedcapFormat redcapFormat, ReturnFormat returnFormat)
+        public async Task<string> ImportArms<T>(List<T> data, Override overRide, RedcapFormat redcapFormat, ReturnFormat returnFormat)
         {
             try
             {
@@ -963,7 +963,7 @@ namespace Redcap
         /// <param name="RedcapFormat"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
-        public async Task<string> DeleteArms<T>(List<T> data)
+        public async Task<string> DeleteArms<T>(T data)
         {
             try
             {
@@ -986,6 +986,11 @@ namespace Redcap
                 return await Task.FromResult(String.Empty);
             }
 
+        }
+
+        public Task<string> DeleteArms<T>(List<T> data, Override overRide, RedcapFormat redcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
         }
     }
 }

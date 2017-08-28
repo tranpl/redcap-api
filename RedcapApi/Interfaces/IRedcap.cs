@@ -58,7 +58,7 @@ namespace Redcap.Interfaces
         /// <param name="RedcapFormat"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
-        Task<string> DeleteArms<T>(List<T> data);
+        Task<string> DeleteArms<T>(T data);
         Task<string> ExportEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
         Task<string> ImportEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
         Task<string> DeleteEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
