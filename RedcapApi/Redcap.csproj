@@ -7,11 +7,11 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/cctrbic/redcap-api</RepositoryUrl>
     <PackageProjectUrl>https://github.com/cctrbic/redcap-api</PackageProjectUrl>
-    <Description>Redcap Api Library for C#</Description>
+    <Description>This library allows external applications to connect to REDCap remotely and is used to programmatically retrieve or modify data or settings within REDCap, e.g Import/Export records into Redcap</Description>
     <Product>Redcap Api Library</Product>
     <PackageId>RedcapAPI</PackageId>
-    <Version>0.2.1</Version>
-    <AssemblyVersion>0.2.1.0</AssemblyVersion>
+    <Version>0.2.4</Version>
+    <AssemblyVersion>0.2.4.0</AssemblyVersion>
     <PackageTags>redcap</PackageTags>
     <PackageReleaseNotes>initial alpha release</PackageReleaseNotes>
   </PropertyGroup>
