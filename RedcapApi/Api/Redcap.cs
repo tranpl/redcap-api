@@ -14,7 +14,7 @@ namespace Redcap
     /// <summary>
     /// This api interacts with redcap instances. https://project-redcap.org
     /// Go to your http://redcap_instance/api/help for Redcap Api documentations
-    /// Author: Michael Tran tranpl@outlook.com
+    /// Author: Michael Tran tranpl@outlook.com, tranpl@vcu.edu
     /// </summary>
     public class RedcapApi: IRedcap
     {
@@ -445,11 +445,12 @@ namespace Redcap
         /// fields *might* be removed and filtered out of the data set returned from the API. 
         /// To make sure that no data is unnecessarily filtered out of your API request, 
         /// you should have "Full Data Set" export rights in the project.
-        /// </summary>
-        /// <param name="format">0 = JSON (default), 1 = CSV, 2 = XML</param>
-        /// <param name="type">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
-        /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<string> GetRecordsAsync(RedcapFormat redcapFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
+        /// 
+        /// <param name="redcapFormat"></param>
+        /// <param name="returnFormat"></param>
+        /// <param name="redcapDataType"></param>
+        /// <returns></returns>
+        public async Task<string> GetRecordsAsync(RedcapFormat redcapFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType)
         {
             try
             {
@@ -587,7 +588,7 @@ namespace Redcap
                     {
                         data
                     };
-                    var serializedData = JsonConvert.SerializeObject(dataList);
+                    var _serializedData = JsonConvert.SerializeObject(dataList);
                     var _overWriteBehavior = await ExtractBehaviorAsync(overwriteBehavior);
                     var payload = new Dictionary<string, string>
                     {
@@ -599,7 +600,7 @@ namespace Redcap
                         { "dateFormat", "MDY" },
                         { "returnFormat", _redcapFormat },
                         { "returnContent", "count" },
-                        { "data", serializedData }
+                        { "data", _serializedData }
                     };
 
                     // Execute send request
@@ -723,8 +724,8 @@ namespace Redcap
                 // Extract properties from object provided
                 if (data != null)
                 {
-                    var serializedData = JsonConvert.SerializeObject(data);
-                    var content = new Dictionary<string, string>
+                    var _serializedData = JsonConvert.SerializeObject(data);
+                    var payload = new Dictionary<string, string>
                     {
                         { "token", _apiToken },
                         { "content", "record" },
@@ -734,11 +735,11 @@ namespace Redcap
                         { "dateFormat", _dateFormat },
                         { "returnFormat", _returnFormat },
                         { "returnContent", _returnContent },
-                        { "data", serializedData }
+                        { "data", _serializedData }
                     };
 
                     // Execute send request
-                    _response = await SendRequest(content);
+                    _response = await SendRequest(payload);
                 }
                 return _response;
             }
@@ -748,6 +749,275 @@ namespace Redcap
                 return await Task.FromResult(String.Empty);
             }
 
+        }
+
+        public Task<string> ExportEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> DeleteEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportFields(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportFile(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportFile(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> DeleteFile(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportInstruments(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> CreateProject(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportProjectXml(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> GenerateNextRecordName(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportRecords(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportRecords(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> DeleteRecords(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportRedcapVersion(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportSurveyLink(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportSurveyParticipants(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportSurveyQueueLink(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportSurveyReturnCode(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Method exports redcap users for a specific project.
+        /// </summary>
+        /// <param name="redcapFormat"></param>
+        /// <param name="returnFormat"></param>
+        /// <returns></returns>
+        public async Task<string> ExportUsers(RedcapFormat redcapFormat, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            try
+            {
+                var _response = String.Empty;
+                var _redcapFormat = redcapFormat.ToString();
+                var _returnFormat = returnFormat.ToString();
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", _apiToken },
+                    { "content", "user" },
+                    { "format", _redcapFormat },
+                    { "returnFormat", _returnFormat }
+                };
+
+                // Execute send request
+                _response = await SendRequest(payload);
+                return _response;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return await Task.FromResult(String.Empty);
+            }
+
+        }
+
+        public Task<string> ImportUsers(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<string> GetRecordsAsync(RedcapFormat redcapFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// This method allows you to export the Arms for a project.
+        /// NOTE: This only works for longitudinal projects. E.g. Arms are only available in longitudinal projects.
+        /// </summary>
+        public async Task<string> ExportArms<T>(RedcapFormat redcapFormat, ReturnFormat returnFormat, List<T> arms = null)
+        {
+            try
+            {
+                var _response = String.Empty;
+                var (_redcapFormat, _returnFormat, _redcapDataType) = await HandleFormat(redcapFormat, returnFormat);
+                var _serializedData = JsonConvert.SerializeObject(arms);
+                var payload = new Dictionary<string, string>
+                    {
+                        { "token", _apiToken },
+                        { "content", "arm" },
+                        { "format", _redcapFormat },
+                        { "type", _redcapDataType },
+                        { "returnFormat", _returnFormat },
+                        { "arms", _serializedData }
+                    };
+                // Execute send request
+                _response = await SendRequest(payload);
+                return await Task.FromResult(_response);
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return await Task.FromResult(String.Empty);
+            }
+        }
+        /// <summary>
+        /// This method allows you to import Arms into a project or to rename existing Arms in a project. 
+        /// You may use the parameter override=1 as a 'delete all + import' action in order to erase all existing Arms in the project while importing new Arms. 
+        /// Notice: Because of the 'override' parameter's destructive nature, this method may only use override=1 for projects in Development status.
+        /// NOTE: This only works for longitudinal projects. 
+        /// 
+        /// To use this method, you must have API Import/Update privileges *and* Project Design/Setup privileges in the project.
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data"></param>
+        /// <param name="overRide"></param>
+        /// <param name="redcapFormat"></param>
+        /// <param name="returnFormat"></param>
+        /// <returns>Number of Arms imported</returns>
+        public async Task<string> ImportArms<T>(List<T> data, Override overRide, RedcapFormat redcapFormat, ReturnFormat returnFormat)
+        {
+            try
+            {
+                var _response = String.Empty;
+                var (_redcapFormat, _returnFormat, _redcapDataType) = await HandleFormat(redcapFormat, returnFormat);
+                var _override = overRide.ToString();
+                var _serializedData = JsonConvert.SerializeObject(data);
+                var payload = new Dictionary<string, string>
+                    {
+                        { "token", _apiToken },
+                        { "content", "arm" },
+                        { "action", "import" },
+                        { "format", _redcapFormat },
+                        { "type", _redcapDataType },
+                        { "override", _override },
+                        { "returnFormat", _returnFormat },
+                        { "data", _serializedData }
+                    };
+                // Execute request
+                _response = await SendRequest(payload);
+                return await Task.FromResult(_response);
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return await Task.FromResult(String.Empty);
+            }
+        }
+        /// <summary>
+        /// This method allows you to delete Arms from a project. Notice: Because of this method's destructive nature, it is only available for use for projects in Development status. Additionally, please be aware that deleting an arm also automatically deletes all events that belong to that arm, and will also automatically delete any records/data that have been collected under that arm (this is non-reversible data loss).
+        /// NOTE: This only works for longitudinal projects. 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data"></param>
+        /// <param name="overRide"></param>
+        /// <param name="RedcapFormat"></param>
+        /// <param name="returnFormat"></param>
+        /// <returns></returns>
+        public async Task<string> DeleteArms<T>(T data)
+        {
+            try
+            {
+                var _response = String.Empty;
+                var _serializedData = JsonConvert.SerializeObject(data);
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", _apiToken },
+                    { "content", "arm" },
+                    { "action", "delete" },
+                    { "arms", _serializedData }
+                };
+                // Execute request
+                _response = await SendRequest(payload);
+                return await Task.FromResult(_response);
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return await Task.FromResult(String.Empty);
+            }
+
+        }
+
+        public Task<string> DeleteArms<T>(List<T> data, Override overRide, RedcapFormat redcapFormat, ReturnFormat returnFormat)
+        {
+            throw new NotImplementedException();
         }
     }
 }

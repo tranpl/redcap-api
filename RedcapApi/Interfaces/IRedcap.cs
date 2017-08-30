@@ -5,7 +5,7 @@ using Redcap.Models;
 namespace Redcap.Interfaces
 {
     /// <summary>
-    /// REDCAP API VERSION 7.2.2
+    /// REDCAP API VERSION 7.4.9
     /// This interface defines available methods for REDCap API.
     /// The REDCap API is an interface that allows external applications 
     /// to connect to REDCap remotely, and is used for programmatically 
@@ -15,10 +15,76 @@ namespace Redcap.Interfaces
     /// and other projects that interact with REDCap. Programs talk to the REDCap API 
     /// over HTTP, the same protocol that your browser uses to visit and interact with web pages.
     /// 
-    /// Author: Michael Tran tranpl@outlook.com
+    /// Virginia Commonwealth University
+    /// Author: Michael Tran tranpl@outlook.com, tranpl@vcu.edu
     /// </summary>
     public interface IRedcap
     {
+
+        /// <summary>
+        /// This method allows you to export the Arms for a project.
+        /// NOTE: This only works for longitudinal projects. E.g. Arms are only available in longitudinal projects.
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="redcapFormat"></param>
+        /// <param name="returnFormat"></param>
+        /// <param name="arms"></param>
+        /// <returns>Arms for the project in the format specified</returns>
+        Task<string> ExportArms<T>(RedcapFormat redcapFormat, ReturnFormat returnFormat, List<T> arms);
+
+        /// <summary>
+        /// This method allows you to import Arms into a project or to rename existing Arms in a project. 
+        /// You may use the parameter override=1 as a 'delete all + import' action in order to erase all existing Arms in the project while importing new Arms. 
+        /// Notice: Because of the 'override' parameter's destructive nature, this method may only use override=1 for projects in Development status.
+        /// NOTE: This only works for longitudinal projects. 
+        /// 
+        /// To use this method, you must have API Import/Update privileges *and* Project Design/Setup privileges in the project.
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data"></param>
+        /// <param name="overRide"></param>
+        /// <param name="redcapFormat"></param>
+        /// <param name="returnFormat"></param>
+        /// <returns>Number of Arms imported</returns>
+        Task<string> DeleteArms<T>(List<T> data, Override overRide, RedcapFormat redcapFormat, ReturnFormat returnFormat);
+        /// <summary>
+        /// This method allows you to delete Arms from a project. Notice: Because of this method's destructive nature, it is only available for use for projects in Development status. Additionally, please be aware that deleting an arm also automatically deletes all events that belong to that arm, and will also automatically delete any records/data that have been collected under that arm (this is non-reversible data loss).
+        /// NOTE: This only works for longitudinal projects. 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data"></param>
+        /// <param name="overRide"></param>
+        /// <param name="RedcapFormat"></param>
+        /// <param name="returnFormat"></param>
+        /// <returns></returns>
+        Task<string> DeleteArms<T>(T data);
+        Task<string> ExportEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ImportEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> DeleteEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportFields(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportFile(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ImportFile(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> DeleteFile(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportInstruments(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ImportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> CreateProject(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ImportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportProjectXml(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> GenerateNextRecordName(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportRecords(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ImportRecords(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> DeleteRecords(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportRedcapVersion(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportSurveyLink(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportSurveyParticipants(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportSurveyQueueLink(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportSurveyReturnCode(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportUsers(RedcapFormat RedcapFormat, ReturnFormat returnFormat = ReturnFormat.json);
+        Task<string> ImportUsers(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+
         /// <summary>
         /// This method returns the current REDCap version number as plain text (e.g., 4.13.18, 5.12.2, 6.0.0).
         /// </summary>
