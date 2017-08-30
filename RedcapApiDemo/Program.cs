@@ -14,14 +14,8 @@ namespace RedcapApiDemo
 
             var redcap_api = new RedcapApi("3D57A7FA57C8A43F6C8803A84BB3957B", "http://localhost/redcap/api/");
 
-            var arm1 = new RedcapArm
-            {
-              arm_num = "2",
-              name = "My Test Arm 2"
-            };
-            var armList = new List<RedcapArm> { };
-            armList.Add(arm1);
-            var result = redcap_api.DeleteArms(armList, Override.False, RedcapFormat.json, ReturnFormat.json).Result;
+            var armList = new List<int> {2 }.ToArray();
+            var result = redcap_api.DeleteArms(armList).Result;
             var data = JsonConvert.DeserializeObject(result);
             Console.WriteLine(data);
             Console.ReadLine();
