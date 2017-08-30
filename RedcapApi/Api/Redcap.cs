@@ -910,7 +910,7 @@ namespace Redcap
         /// This method allows you to export the Arms for a project.
         /// NOTE: This only works for longitudinal projects. E.g. Arms are only available in longitudinal projects.
         /// </summary>
-        public async Task<string> ExportArms<T>(RedcapFormat redcapFormat, ReturnFormat returnFormat, List<T> arms = null)
+        public async Task<string> ExportArmsAsync<T>(RedcapFormat redcapFormat, ReturnFormat returnFormat, List<T> arms = null)
         {
             try
             {
@@ -951,7 +951,7 @@ namespace Redcap
         /// <param name="redcapFormat"></param>
         /// <param name="returnFormat"></param>
         /// <returns>Number of Arms imported</returns>
-        public async Task<string> ImportArms<T>(List<T> data, Override overRide, RedcapFormat redcapFormat, ReturnFormat returnFormat)
+        public async Task<string> ImportArmsAsync<T>(List<T> data, Override overRide, RedcapFormat redcapFormat, ReturnFormat returnFormat)
         {
             try
             {
@@ -990,7 +990,7 @@ namespace Redcap
         /// <param name="RedcapFormat"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
-        public async Task<string> DeleteArms<T>(T data)
+        public async Task<string> DeleteArmsAsync<T>(T data)
         {
             try
             {
@@ -1015,7 +1015,7 @@ namespace Redcap
 
         }
 
-        public Task<string> DeleteArms<T>(List<T> data, Override overRide, RedcapFormat redcapFormat, ReturnFormat returnFormat)
+        public Task<string> DeleteArmsAsync<T>(List<T> data, Override overRide, RedcapFormat redcapFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
