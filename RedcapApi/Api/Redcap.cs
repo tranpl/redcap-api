@@ -865,10 +865,37 @@ namespace Redcap
         {
             throw new NotImplementedException();
         }
-
-        public Task<string> ExportUsers(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)
+        /// <summary>
+        /// Method exports redcap users for a specific project.
+        /// </summary>
+        /// <param name="redcapFormat"></param>
+        /// <param name="returnFormat"></param>
+        /// <returns></returns>
+        public async Task<string> ExportUsers(RedcapFormat redcapFormat, ReturnFormat returnFormat = ReturnFormat.json)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var _response = String.Empty;
+                var _redcapFormat = redcapFormat.ToString();
+                var _returnFormat = returnFormat.ToString();
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", _apiToken },
+                    { "content", "user" },
+                    { "format", _redcapFormat },
+                    { "returnFormat", _returnFormat }
+                };
+
+                // Execute send request
+                _response = await SendRequest(payload);
+                return _response;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return await Task.FromResult(String.Empty);
+            }
+
         }
 
         public Task<string> ImportUsers(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat)

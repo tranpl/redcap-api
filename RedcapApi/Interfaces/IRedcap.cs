@@ -82,7 +82,7 @@ namespace Redcap.Interfaces
         Task<string> ExportSurveyParticipants(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
         Task<string> ExportSurveyQueueLink(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
         Task<string> ExportSurveyReturnCode(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ExportUsers(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportUsers(RedcapFormat RedcapFormat, ReturnFormat returnFormat = ReturnFormat.json);
         Task<string> ImportUsers(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
 
         /// <summary>
