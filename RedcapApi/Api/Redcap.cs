@@ -871,7 +871,7 @@ namespace Redcap
         /// <param name="redcapFormat"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
-        public async Task<string> ExportUsers(RedcapFormat redcapFormat, ReturnFormat returnFormat = ReturnFormat.json)
+        public async Task<string> ExportUsersAsync(RedcapFormat redcapFormat, ReturnFormat returnFormat = ReturnFormat.json)
         {
             try
             {
