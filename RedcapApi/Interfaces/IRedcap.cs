@@ -123,6 +123,30 @@ namespace Redcap.Interfaces
         /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
         Task<string> GetRecordAsync(string record, RedcapFormat redcapFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters);
+
+        /// <summary>
+        /// This method allows you to export a set of records for a project.
+        /// example: "1,2,3,4"<br/>
+        /// This method allows you to export a set of records for a project.
+        /// Please be aware that Data Export user rights will be applied to this API request. 
+        /// For example, if you have "No Access" data export rights in the project, then the 
+        /// API data export will fail and return an error. And if you have "De-Identified" 
+        /// or "Remove all tagged Identifier fields" data export rights, then some data 
+        /// fields *might* be removed and filtered out of the data set returned from the API. 
+        /// To make sure that no data is unnecessarily filtered out of your API request, 
+        /// you should have "Full Data Set" export rights in the project.
+
+        /// <param name="record"></param>
+        /// <param name="forms"></param>
+        /// <param name="events"></param>
+        /// <param name="fields"></param>
+        /// <param name="redcapFormat"></param>
+        /// <param name="returnFormat"></param>
+        /// <param name="redcapDataType"></param>
+        /// <param name="delimiters"></param>
+        /// <returns></returns>
+        Task<string> GetRecordAsync(string record, RedcapFormat redcapFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
+
         /// <summary>
         /// This method allows you to export the metadata for a project. 
         /// </summary>
