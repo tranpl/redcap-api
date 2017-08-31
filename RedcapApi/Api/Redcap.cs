@@ -121,8 +121,8 @@ namespace Redcap
                     delimiters = new char[] { ',', ' ' };
                 }
                 
-                var fieldsResult = await ExtractFields(fields, delimiters);
-                var formsResult = await ExtractForms(forms, delimiters);
+                var fieldsResult = await ExtractFieldsAsync(fields, delimiters);
+                var formsResult = await ExtractFormsAsync(forms, delimiters);
 
                 // Handle optional parameters
                 var (_redcapFormat, _returnFormat, _redcapDataType) = await HandleFormat(redcapFormat, returnFormat);
@@ -264,12 +264,41 @@ namespace Redcap
             }
         }
         /// <summary>
+        /// Method extracts events into list from string
+        /// </summary>
+        /// <param name="events"></param>
+        /// <param name="delimiters"></param>
+        /// <returns></returns>
+        private async Task<List<string>> ExtractEventsAsync(string events, char[] delimiters)
+        {
+            if (!String.IsNullOrEmpty(events))
+            {
+                try
+                {
+                    var formItems = events.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+                    List<string> eventsResult = new List<string>();
+                    foreach (var form in formItems)
+                    {
+                        eventsResult.Add(form);
+                    }
+                    return await Task.FromResult(eventsResult);
+                }
+                catch (Exception Ex)
+                {
+                    Log.Error($"{Ex.Message}");
+                    return await Task.FromResult(new List<string> { });
+                }
+            }
+            return await Task.FromResult(new List<string> { });
+        }
+
+        /// <summary>
         /// Method gets / extracts forms into list from string
         /// </summary>
         /// <param name="forms"></param>
         /// <param name="delimiters"></param>
         /// <returns>List<string></returns>
-        private async Task<List<string>> ExtractForms(string forms, char[] delimiters)
+        private async Task<List<string>> ExtractFormsAsync(string forms, char[] delimiters)
         {
             if (!String.IsNullOrEmpty(forms))
             {
@@ -297,7 +326,7 @@ namespace Redcap
         /// <param name="fields"></param>
         /// <param name="delimiters"></param>
         /// <returns>List<string></returns>
-        private async Task<List<string>> ExtractFields(string fields, char[] delimiters)
+        private async Task<List<string>> ExtractFieldsAsync(string fields, char[] delimiters)
         {
             if (!String.IsNullOrEmpty(fields))
             {
@@ -389,11 +418,11 @@ namespace Redcap
         /// To make sure that no data is unnecessarily filtered out of your API request, 
         /// you should have "Full Data Set" export rights in the project.
         /// </summary>
-        /// <param name="records">string records e.g "1,2,3,4"</param>
+        /// <param name="record">string records e.g "1,2,3,4"</param>
         /// <param name="format">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <param name="type">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<string> GetRecordAsync(string records, RedcapFormat redcapFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
+        public async Task<string> GetRecordAsync(string record, RedcapFormat redcapFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
         {
             try
             {
@@ -404,7 +433,7 @@ namespace Redcap
                     // Provide some default delimiters, mostly comma and spaces for redcap
                     delimiters = new char[] { ',', ' ' };
                 }
-                var recordResults = await ExtractRecordsAsync(records, delimiters);
+                var recordResults = await ExtractRecordsAsync(record, delimiters);
                 var (_redcapFormat, _returnFormat, _redcapDataType) = await HandleFormat(redcapFormat, returnFormat, redcapDataType);
                 var payload = new Dictionary<string, string>
                 {
@@ -427,6 +456,95 @@ namespace Redcap
                     _records = await ConvertStringArraytoString(inputRecords);
                     payload.Add("records", _records);
                 }
+                _response = await SendRequest(payload);
+                return _response;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return String.Empty;
+            }
+        }
+        /// <summary>
+        /// This method allows you to export a set of records for a project.
+        /// example: "1,2,3,4"<br/>
+        /// This method allows you to export a set of records for a project.
+        /// Please be aware that Data Export user rights will be applied to this API request. 
+        /// For example, if you have "No Access" data export rights in the project, then the 
+        /// API data export will fail and return an error. And if you have "De-Identified" 
+        /// or "Remove all tagged Identifier fields" data export rights, then some data 
+        /// fields *might* be removed and filtered out of the data set returned from the API. 
+        /// To make sure that no data is unnecessarily filtered out of your API request, 
+        /// you should have "Full Data Set" export rights in the project.
+        /// </summary>
+        /// <param name="record"></param>
+        /// <param name="forms"></param>
+        /// <param name="events"></param>
+        /// <param name="fields"></param>
+        /// <param name="redcapFormat"></param>
+        /// <param name="returnFormat"></param>
+        /// <param name="redcapDataType"></param>
+        /// <param name="delimiters"></param>
+        /// <returns></returns>
+        public async Task<string> GetRecordAsync(string record, RedcapFormat redcapFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
+        {
+            try
+            {
+                string _response;
+                var _records = String.Empty;
+                if (delimiters == null)
+                {
+                    // Provide some default delimiters, mostly comma and spaces for redcap
+                    delimiters = new char[] { ',', ' ' };
+                }
+                var recordItems = await ExtractRecordsAsync(records: record, delimiters: delimiters);
+                var fieldItems = await ExtractFieldsAsync(fields: fields, delimiters: delimiters);
+                var formItems = await ExtractFormsAsync(forms: forms, delimiters: delimiters);
+                var eventItems = await ExtractEventsAsync(events: events, delimiters: delimiters);
+
+                var (_redcapFormat, _returnFormat, _redcapDataType) = await HandleFormat(redcapFormat, returnFormat, redcapDataType);
+
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", _apiToken },
+                    { "content", "record" },
+                    { "format", _redcapFormat },
+                    { "returnFormat", _returnFormat },
+                    { "type", _redcapDataType }
+                };
+                // Required
+                if (recordItems.Count == 0)
+                {
+                    Log.Error($"Missing required informaion.");
+                    return _records;
+                }
+                else
+                {
+                    /// Convert Array List into string array
+                    var _inputRecords = recordItems.ToArray();
+                    payload.Add("records", await ConvertStringArraytoString(_inputRecords));
+                }
+                // Optional
+                if(fieldItems.Count > 0)
+                {
+                    var _fields = fieldItems.ToArray();
+                    payload.Add("fields", await ConvertStringArraytoString(_fields));
+                }
+
+                // Optional
+                if(formItems.Count > 0)
+                {
+                    var _forms = formItems.ToArray();
+                    payload.Add("forms", await ConvertStringArraytoString(_forms));
+                }
+
+                // Optional
+                if(eventItems.Count > 0)
+                {
+                    var _events = eventItems.ToArray();
+                    payload.Add("events", await ConvertStringArraytoString(_events));
+                }
+
                 _response = await SendRequest(payload);
                 return _response;
             }
@@ -1019,5 +1137,6 @@ namespace Redcap
         {
             throw new NotImplementedException();
         }
+
     }
 }
