@@ -10,13 +10,13 @@
     <Description>This library allows external applications to connect to REDCap remotely and is used to programmatically retrieve or modify data or settings within REDCap, e.g Import/Export records into Redcap</Description>
     <Product>Redcap Api Library</Product>
     <PackageId>RedcapAPI</PackageId>
-    <Version>0.2.6-alpha-release</Version>
-    <AssemblyVersion>0.2.6.0</AssemblyVersion>
+    <Version>0.2.8-alpha</Version>
+    <AssemblyVersion>0.2.8.0</AssemblyVersion>
     <PackageTags>redcap</PackageTags>
     <PackageReleaseNotes>alpha release</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <ApplicationIcon />
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <StartupObject />
   </PropertyGroup>
 

@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.10
+VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Redcap", "RedcapApi\Redcap.csproj", "{E34E88C8-D30F-4924-8108-8E84D14C2E9A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedcapApiDemo", "RedcapApiDemo\RedcapApiDemo.csproj", "{CBAF5212-0D5F-44F1-A7C5-F1B0ED7AF43E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedcapApiTests", "RedcapApiTests\RedcapApiTests.csproj", "{F7B44B5F-7559-4507-AC25-2B2D08C1E078}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{CBAF5212-0D5F-44F1-A7C5-F1B0ED7AF43E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBAF5212-0D5F-44F1-A7C5-F1B0ED7AF43E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBAF5212-0D5F-44F1-A7C5-F1B0ED7AF43E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7B44B5F-7559-4507-AC25-2B2D08C1E078}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7B44B5F-7559-4507-AC25-2B2D08C1E078}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7B44B5F-7559-4507-AC25-2B2D08C1E078}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7B44B5F-7559-4507-AC25-2B2D08C1E078}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
