@@ -59,7 +59,7 @@ namespace Redcap.Interfaces
         /// <param name="returnFormat"></param>
         /// <returns></returns>
         Task<string> DeleteArmsAsync<T>(T data);
-        Task<string> ExportEvents(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportEventsAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json, int[] arms = null);
         Task<string> ImportEvents(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
         Task<string> DeleteEvents(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
         Task<string> ExportFields(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
@@ -74,7 +74,8 @@ namespace Redcap.Interfaces
         Task<string> ExportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
         Task<string> ExportProjectXml(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
         Task<string> GenerateNextRecordName(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ExportRecords(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportRecordAsync(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
+        Task<string> ExportRecordsAsync(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
         Task<string> ImportRecords(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
         Task<string> DeleteRecords(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
         Task<string> ExportRedcapVersion(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
