@@ -30,7 +30,7 @@ namespace Redcap.Interfaces
         /// <param name="returnFormat"></param>
         /// <param name="arms"></param>
         /// <returns>Arms for the project in the format specified</returns>
-        Task<string> ExportArmsAsync<T>(RedcapFormat redcapFormat, ReturnFormat returnFormat, List<T> arms);
+        Task<string> ExportArmsAsync<T>(InputFormat redcapFormat, ReturnFormat returnFormat, List<T> arms);
 
         /// <summary>
         /// This method allows you to import Arms into a project or to rename existing Arms in a project. 
@@ -47,7 +47,7 @@ namespace Redcap.Interfaces
         /// <param name="redcapFormat"></param>
         /// <param name="returnFormat"></param>
         /// <returns>Number of Arms imported</returns>
-        Task<string> DeleteArmsAsync<T>(List<T> data, Override overRide, RedcapFormat redcapFormat, ReturnFormat returnFormat);
+        Task<string> DeleteArmsAsync<T>(List<T> data, Override overRide, InputFormat redcapFormat, ReturnFormat returnFormat);
         /// <summary>
         /// This method allows you to delete Arms from a project. Notice: Because of this method's destructive nature, it is only available for use for projects in Development status. Additionally, please be aware that deleting an arm also automatically deletes all events that belong to that arm, and will also automatically delete any records/data that have been collected under that arm (this is non-reversible data loss).
         /// NOTE: This only works for longitudinal projects. 
@@ -59,31 +59,32 @@ namespace Redcap.Interfaces
         /// <param name="returnFormat"></param>
         /// <returns></returns>
         Task<string> DeleteArmsAsync<T>(T data);
-        Task<string> ExportEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ImportEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> DeleteEvents(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ExportFields(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ExportFile(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ImportFile(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> DeleteFile(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ExportInstruments(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ExportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ImportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> CreateProject(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ImportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ExportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ExportProjectXml(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> GenerateNextRecordName(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ExportRecords(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ImportRecords(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> DeleteRecords(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ExportRedcapVersion(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ExportSurveyLink(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ExportSurveyParticipants(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ExportSurveyQueueLink(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ExportSurveyReturnCode(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
-        Task<string> ExportUsersAsync(RedcapFormat RedcapFormat, ReturnFormat returnFormat = ReturnFormat.json);
-        Task<string> ImportUsers(int[] arms, OverwriteBehavior overwriteBehavior, RedcapFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportEventsAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json, int[] arms = null);
+        Task<string> ImportEvents(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> DeleteEvents(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportFields(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportFile(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ImportFile(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> DeleteFile(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportInstruments(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ImportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> CreateProject(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ImportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportProjectXml(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> GenerateNextRecordName(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportRecordAsync(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
+        Task<string> ExportRecordsAsync(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
+        Task<string> ImportRecords(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> DeleteRecords(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportRedcapVersion(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportSurveyLink(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportSurveyParticipants(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportSurveyQueueLink(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportSurveyReturnCode(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
+        Task<string> ExportUsersAsync(InputFormat RedcapFormat, ReturnFormat returnFormat = ReturnFormat.json);
+        Task<string> ImportUsers(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat RedcapFormat, ReturnFormat returnFormat);
 
         /// <summary>
         /// This method returns the current REDCap version number as plain text (e.g., 4.13.18, 5.12.2, 6.0.0).
@@ -91,7 +92,7 @@ namespace Redcap.Interfaces
         /// <param name="format">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <param name="type">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <returns>The current REDCap version number (three numbers delimited with two periods) as plain text - e.g., 4.13.18, 5.12.2, 6.0.0</returns>
-        Task<string> GetRedcapVersionAsync(RedcapFormat RedcapFormat, RedcapDataType redcapDataType);
+        Task<string> GetRedcapVersionAsync(InputFormat RedcapFormat, RedcapDataType redcapDataType);
         /// <summary>
         /// This method allows you to export a set of records for a project.
         /// Please be aware that Data Export user rights will be applied to this API request. 
@@ -105,7 +106,7 @@ namespace Redcap.Interfaces
         /// <param name="redcapFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        Task<string> GetRecordsAsync(RedcapFormat redcapFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters);
+        Task<string> GetRecordsAsync(InputFormat redcapFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters);
         /// <summary>
         /// This method allows you to export a set of records for a project.
         /// example: "1,2,3,4"<br/>
@@ -122,7 +123,7 @@ namespace Redcap.Interfaces
         /// <param name="redcapFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        Task<string> GetRecordAsync(string record, RedcapFormat redcapFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters);
+        Task<string> GetRecordAsync(string record, InputFormat redcapFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters);
 
         /// <summary>
         /// This method allows you to export a set of records for a project.
@@ -145,14 +146,14 @@ namespace Redcap.Interfaces
         /// <param name="redcapDataType"></param>
         /// <param name="delimiters"></param>
         /// <returns></returns>
-        Task<string> GetRecordAsync(string record, RedcapFormat redcapFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
+        Task<string> GetRecordAsync(string record, InputFormat redcapFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
 
         /// <summary>
         /// This method allows you to export the metadata for a project. 
         /// </summary>
         /// <param name="format">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
-        Task<string> ExportMetaData(RedcapFormat? RedcapFormat, ReturnFormat? returnFormat);
+        Task<string> ExportMetaDataAsync(InputFormat? RedcapFormat, ReturnFormat? returnFormat);
         /// <summary>
         /// This method allows you to export the metadata for a project. Overload method. 
         /// </summary>
@@ -161,14 +162,14 @@ namespace Redcap.Interfaces
         /// <param name="fields">example: "firstName, lastName, age"</param>
         /// <param name="forms">example: "demographics, labs, administration"</param>
         /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
-        Task<string> GetMetaDataAsync(RedcapFormat? RedcapFormat, ReturnFormat? returnFormat, char[] delimiters, string fields = "", string forms = "");
+        Task<string> GetMetaDataAsync(InputFormat? RedcapFormat, ReturnFormat? returnFormat, char[] delimiters, string fields = "", string forms = "");
         /// <summary>
         /// This method allows you to export the metadata for a project. Overload method. 
         /// </summary>
         /// <param name="format">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <param name="returnFormat"></param>
         /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
-        Task<string> GetMetaDataAsync(RedcapFormat? RedcapFormat, ReturnFormat? returnFormat);
+        Task<string> GetMetaDataAsync(InputFormat? RedcapFormat, ReturnFormat? returnFormat);
 
         /// <summary>
         /// This method allows you to import a set of records for a project
@@ -179,7 +180,7 @@ namespace Redcap.Interfaces
         /// <param name="returnFormat"></param>
         /// <param name="dateFormat"></param>
         /// <returns>Http Status Code</returns>
-        Task<string> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat);
+        Task<string> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat);
         /// <summary>
         /// This method allows you to import a set of records for a project.
         /// </summary>
@@ -191,7 +192,7 @@ namespace Redcap.Interfaces
         /// <param name="overwriteBehavior"></param>
         /// <param name="DateFormat"></param>
         /// <returns></returns>
-        Task<string> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string DateFormat = "MDY");
+        Task<string> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string DateFormat = "MDY");
         /// <summary>
         /// Bulk Import
         /// </summary>
@@ -203,6 +204,6 @@ namespace Redcap.Interfaces
         /// <param name="overwriteBehavior"></param>
         /// <param name="DateFormat"></param>
         /// <returns></returns>
-        Task<string> SaveRecordsAsync(List<string> data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, RedcapFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string DateFormat = "MDY");
+        Task<string> SaveRecordsAsync(List<string> data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? redcapFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string DateFormat = "MDY");
     }
 }

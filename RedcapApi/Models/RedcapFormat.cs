@@ -6,7 +6,7 @@
     /// RedcapFormat, 1 = CSV
     /// RedcapFormat, 2 = XML
     /// </summary>
-    public enum RedcapFormat
+    public enum InputFormat
     {
         json = 0,
         csv = 1,
