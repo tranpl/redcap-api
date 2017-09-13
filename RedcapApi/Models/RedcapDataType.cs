@@ -1,7 +1,7 @@
 ﻿namespace Redcap.Models
 {
     /// <summary>
-    /// The format which is provided when requesting a import through Redcap API
+    /// The data format which the Redcap API endpoint should receive.
     /// RedcapDataType, 0 = flat
     /// RedcapDataType, 1 = eav
     /// RedcapDataType, 2 = nonlogitudinal
