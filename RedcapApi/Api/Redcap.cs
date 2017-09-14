@@ -1287,6 +1287,61 @@ namespace Redcap
                 return String.Empty;
             }
         }
+        public async Task<string> ExportRecordsAsync(InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
+        {
+            try
+            {
+                string _response;
+                var _records = String.Empty;
+                if (delimiters == null)
+                {
+                    // Provide some default delimiters, mostly comma and spaces for redcap
+                    delimiters = new char[] { ',', ' ' };
+                }
+                var fieldItems = await ExtractFieldsAsync(fields: fields, delimiters: delimiters);
+                var formItems = await ExtractFormsAsync(forms: forms, delimiters: delimiters);
+                var eventItems = await ExtractEventsAsync(events: events, delimiters: delimiters);
+
+                var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat, redcapDataType);
+
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", _apiToken },
+                    { "content", "record" },
+                    { "format", _inputFormat },
+                    { "returnFormat", _returnFormat },
+                    { "type", _redcapDataType }
+                };
+                // Optional
+                if (fieldItems.Count > 0)
+                {
+                    var _fields = fieldItems.ToArray();
+                    payload.Add("fields", await ConvertStringArraytoString(_fields));
+                }
+
+                // Optional
+                if (formItems.Count > 0)
+                {
+                    var _forms = formItems.ToArray();
+                    payload.Add("forms", await ConvertStringArraytoString(_forms));
+                }
+
+                // Optional
+                if (eventItems.Count > 0)
+                {
+                    var _events = eventItems.ToArray();
+                    payload.Add("events", await ConvertStringArraytoString(_events));
+                }
+
+                _response = await SendRequest(payload);
+                return _response;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return String.Empty;
+            }
+        }
 
         public Task<string> ImportRecords(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
