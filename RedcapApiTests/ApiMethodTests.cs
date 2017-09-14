@@ -99,5 +99,21 @@ namespace RedcapApiTests
 
         }
 
+        [TestCase]
+        public void CanExportRecordsAsync_AllRecords_ShouldReturn_Ids()
+        {
+            // Arrange
+            var apiKey = _apiKey;
+            var apiEndpoint = _apiEndpoint;
+
+            // Act
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.ExportRecordsAsync(InputFormat.json, RedcapDataType.flat).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert
+            StringAssert.Contains("record_id", data);
+        }
+
     }
 }

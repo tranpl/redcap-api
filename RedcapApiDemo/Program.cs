@@ -45,6 +45,13 @@ namespace RedcapApiDemo
             var SaveRecordsAsyncData = JsonConvert.DeserializeObject(SaveRecordsAsync);
             Console.WriteLine($"SaveRecordsAsync Result: {SaveRecordsAsyncData}");
 
+
+            Console.WriteLine("Calling ExportRecordsAsync() . . .");
+            var ExportRecordsAsync = redcap_api.ExportRecordsAsync(InputFormat.json, RedcapDataType.flat).Result;
+            var ExportRecordsAsyncData = JsonConvert.DeserializeObject(ExportRecordsAsync);
+            Console.WriteLine($"ExportRecordsAsync Result: {ExportRecordsAsyncData}");
+
+
             Console.ReadLine();
 
         }
