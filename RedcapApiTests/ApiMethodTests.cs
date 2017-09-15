@@ -15,7 +15,7 @@ namespace RedcapApiTests
         public ApiMethodTests()
         {
             
-            if (true) _apiKey = "BCC9D1F214B8BE2AA4F24C56ED7674E4";
+            if (false) _apiKey = "BCC9D1F214B8BE2AA4F24C56ED7674E4";
         }
         [TestCase]
         public void CanExportAsync_SingleRecord_ShouldContain_string_1()
@@ -223,14 +223,40 @@ namespace RedcapApiTests
             // Arrange
             var apiKey = _apiKey;
             var apiEndpoint = _apiEndpoint;
-            var listOfArms = new List<string> { };
             // Act
             var redcap_api = new RedcapApi(apiKey, apiEndpoint);
-            var result = redcap_api.ExportArmsAsync(InputFormat.json, ReturnFormat.json, listOfArms).Result;
+            var result = redcap_api.ExportArmsAsync(InputFormat.json, ReturnFormat.json).Result;
             var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert
             StringAssert.Contains("event_1_arm_1", data);
+        }
+
+        [TestCase]
+        public void CanImportEventsAsync_Events_ShouldReturn_Number()
+        {
+            // Arrange
+            var apiKey = _apiKey;
+            var apiEndpoint = _apiEndpoint;
+            var listOfEvents = new List<RedcapEvent>() {
+                new RedcapEvent{
+                    arm_num = "1",
+                    custom_event_label = null,
+                    event_name = "Event 1",
+                    day_offset = "1",
+                    offset_min = "0",
+                    offset_max = "0",
+                    unique_event_name = "event_1_arm_1"
+                }
+            };
+
+            // Act
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.ImportEventsAsync(listOfEvents,Override.False, InputFormat.json, ReturnFormat.json).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert
+            StringAssert.Contains("1", data);
         }
 
     }
