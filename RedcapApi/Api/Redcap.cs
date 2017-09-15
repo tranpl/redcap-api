@@ -1597,8 +1597,14 @@ namespace Redcap
         /// Method exports redcap users for a specific project.
         /// </summary>
         /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <returns></returns>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <returns>The method will return all the attributes below with regard to user privileges in the format specified. Please note that the 'forms' attribute is the only attribute that contains sub-elements (one for each data collection instrument), in which each form will have its own Form Rights value (see the key below to learn what each numerical value represents). Most user privilege attributes are boolean (0=No Access, 1=Access). Attributes returned:</returns>
+        /// <example>
+        /// username, email, firstname, lastname, expiration, data_access_group, design, user_rights, data_access_groups, data_export, reports, stats_and_charts, manage_survey_participants, calendar, data_import_tool, data_comparison_tool, logging, file_repository, data_quality_create, data_quality_execute, api_export, api_import, mobile_app, mobile_app_download_data, record_create, record_rename, record_delete, lock_records_customization, lock_records, lock_records_all_forms, forms
+        /// KEY:Data Export: 0=No Access, 2=De-Identified, 1=Full Data Set
+        /// Form Rights: 0=No Access, 2=Read Only, 1=View records/responses and edit records(survey responses are read-only), 3=Edit survey responses
+        /// Other attribute values: 0=No Access, 1=Access.
+        /// </example>
         public async Task<string> ExportUsersAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json)
         {
             try
@@ -1697,9 +1703,17 @@ namespace Redcap
         {
             try
             {
-                var _response = String.Empty;
+                var _response = string.Empty;
+                var _serializedData = string.Empty;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
-                var _serializedData = JsonConvert.SerializeObject(arms);
+                if(arms == null) {
+                    _serializedData = string.Empty;
+                }
+                else
+                {
+                    _serializedData = JsonConvert.SerializeObject(arms);
+
+                }
                 var payload = new Dictionary<string, string>
                     {
                         { "token", _apiToken },
