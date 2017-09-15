@@ -1697,31 +1697,21 @@ namespace Redcap
         /// </summary>
         /// <param name="inputFormat">csv, json, xml [default]</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
-        /// <param name="arms">an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
         /// <returns>Arms for the project in the format specified</returns>
-        public async Task<string> ExportArmsAsync<T>(InputFormat inputFormat, ReturnFormat returnFormat, List<T> arms = null)
+        public async Task<string> ExportArmsAsync(InputFormat inputFormat, ReturnFormat returnFormat)
         {
             try
             {
                 var _response = string.Empty;
-                var _serializedData = string.Empty;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
-                if(arms == null) {
-                    _serializedData = string.Empty;
-                }
-                else
-                {
-                    _serializedData = JsonConvert.SerializeObject(arms);
 
-                }
                 var payload = new Dictionary<string, string>
                     {
                         { "token", _apiToken },
                         { "content", "arm" },
                         { "format", _inputFormat },
-                        { "type", _redcapDataType },
                         { "returnFormat", _returnFormat },
-                        { "arms", _serializedData }
+                        { "arms", null}
                     };
                 // Execute send request
                 _response = await SendRequest(payload);
@@ -1733,6 +1723,31 @@ namespace Redcap
                 return await Task.FromResult(String.Empty);
             }
         }
+
+        private async Task<List<string>> ExtractArmsAsync<T>(string arms, char[] delimiters)
+        {
+            if (!String.IsNullOrEmpty(arms))
+            {
+                try
+                {
+                    var _arms = arms.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+                    List<string> armsResult = new List<string>();
+                    foreach (var arm in _arms)
+                    {
+                        armsResult.Add(arm);
+                    }
+                    return await Task.FromResult(armsResult);
+                }
+                catch (Exception Ex)
+                {
+                    Log.Error($"{Ex.Message}");
+                    return await Task.FromResult(new List<string> { });
+                }
+            }
+            return await Task.FromResult(new List<string> { });
+
+        }
+
         /// <summary>
         /// This method allows you to import Arms into a project or to rename existing Arms in a project. 
         /// You may use the parameter override=1 as a 'delete all + import' action in order to erase all existing Arms in the project while importing new Arms. 
@@ -1806,13 +1821,45 @@ namespace Redcap
             }
 
         }
+
         /// <summary>
-        /// Not implemented
+        /// This method allows you to import multile events into the specific project.
         /// </summary>
-        /// <returns></returns>
-        public Task<string> ImportEvents()
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data">Contains the required attributes 'event_name' (referring to the name/label of the event) and 'arm_num' (referring to the arm number to which the event belongs - assumes '1' if project only contains one arm). In order to modify an existing event, you must provide the attribute 'unique_event_name' (referring to the auto-generated unique event name of the given event). If the project utilizes the Scheduling module, the you may optionally provide the following attributes, which must be numerical: day_offset, offset_min, offset_max. If the day_offset is not provided, then the events will be auto-numbered in the order in which they are provided in the API request. </param>
+        /// <param name="overRide">0 - false [default], 1 - true — You may use override=1 as a 'delete all + import' action in order to erase all existing Events in the project while importing new Events. If override=0, then you can only add new Events or modify existing ones. </param>
+        /// <param name="inputFormat">csv, json, xml [default]</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <returns>Number of Events imported</returns>
+        public async Task<string> ImportEventsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var _response = String.Empty;
+                var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
+                var _override = overRide.ToString();
+                var _serializedData = JsonConvert.SerializeObject(data);
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", _apiToken },
+                    { "content", "event" },
+                    { "action", "import" },
+                    { "format", _inputFormat },
+                    { "type", _redcapDataType },
+                    { "override", _override },
+                    { "returnFormat", _returnFormat },
+                    { "data", _serializedData }
+                };
+                // Execute request
+                _response = await SendRequest(payload);
+                return await Task.FromResult(_response);
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return await Task.FromResult(String.Empty);
+            }
+
         }
         /// <summary>
         /// Not implemented

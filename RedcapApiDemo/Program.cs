@@ -12,8 +12,8 @@ namespace RedcapApiDemo
         {
             
             Console.WriteLine("Redcap Api Demo Started!");
-            var _apiToken = "3D57A7FA57C8A43F6C8803A84BB3957B";
-            if (true) _apiToken = "BCC9D1F214B8BE2AA4F24C56ED7674E4";
+            var _apiToken = "ED2D0A2E34D9693DCA7E9E6BD5F0941C";
+            if (false) _apiToken = "BCC9D1F214B8BE2AA4F24C56ED7674E4";
             var redcap_api = new RedcapApi(_apiToken, "http://localhost/redcap/api/");
 
             Console.WriteLine("Calling GetRecordAsync() . . .");
@@ -55,9 +55,22 @@ namespace RedcapApiDemo
             Console.WriteLine($"ExportRecordsAsync Result: {ExportRecordsAsyncData}");
 
             Console.WriteLine("Calling ExportArmsAsync() . . .");
-            var ExportArmsAsync = redcap_api.ExportArmsAsync(InputFormat.json, ReturnFormat.json, new List<string> { }).Result;
+            var ExportArmsAsync = redcap_api.ExportArmsAsync(InputFormat.json, ReturnFormat.json).Result;
             var ExportArmsAsyncData = JsonConvert.DeserializeObject(ExportArmsAsync);
             Console.WriteLine($"ExportArmsAsync Result: {ExportArmsAsyncData}");
+
+            Console.WriteLine("Calling ExportRecordsAsync() . . .");
+            var ExportRecordsAsync2 = redcap_api.ExportRecordsAsync(InputFormat.json, RedcapDataType.flat, ReturnFormat.json, null, "research_opportunities", "event1_arm1", "cda_check,info_check,protocol_check,synopsis_check,feasquestion_check").Result;
+            var ExportRecordsAsyncdata = JsonConvert.DeserializeObject(ExportRecordsAsync2);
+            Console.WriteLine($"ExportRecordsAsync Result: {ExportRecordsAsyncdata}");
+
+            var listOfEvents = new List<RedcapEvent>() {
+                new RedcapEvent{arm_num = "1", custom_event_label = null, event_name = "Event 1", day_offset = "1", offset_min = "0", offset_max = "0", unique_event_name = "event_1_arm_1" }
+            };
+            Console.WriteLine("Calling ImportEventsAsync() . . .");
+            var ImportEventsAsync = redcap_api.ImportEventsAsync(listOfEvents, Override.False, InputFormat.json, ReturnFormat.json).Result;
+            var ImportEventsAsyncData = JsonConvert.DeserializeObject(ImportEventsAsync);
+            Console.WriteLine($"ImportEventsAsync Result: {ImportEventsAsyncData}");
 
 
             Console.ReadLine();

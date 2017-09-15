@@ -21,6 +21,7 @@
   <ItemGroup>
     <Reference Include="Redcap">
       <HintPath>..\RedcapApi\bin\Debug\netcoreapp1.1\Redcap.dll</HintPath>
+      <Private>true</Private>
     </Reference>
   </ItemGroup>
 

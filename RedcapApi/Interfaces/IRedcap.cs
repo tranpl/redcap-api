@@ -27,9 +27,8 @@ namespace Redcap.Interfaces
         /// </summary>
         /// <param name="inputFormat">csv, json, xml [default]</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
-        /// <param name="arms">an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
         /// <returns>Arms for the project in the format specified</returns>
-        Task<string> ExportArmsAsync<T>(InputFormat inputFormat, ReturnFormat returnFormat, List<T> arms);
+        Task<string> ExportArmsAsync(InputFormat inputFormat, ReturnFormat returnFormat);
 
         /// <summary>
         /// This method allows you to import Arms into a project or to rename existing Arms in a project. 
@@ -64,11 +63,17 @@ namespace Redcap.Interfaces
         /// <param name="arms"></param>
         /// <returns></returns>
         Task<string> ExportEventsAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json, int[] arms = null);
+
         /// <summary>
-        /// Not implemented
+        /// 
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data"></param>
+        /// <param name="overRide"></param>
+        /// <param name="inputFormat"></param>
+        /// <param name="returnFormat"></param>
         /// <returns></returns>
-        Task<string> ImportEvents();
+        Task<string> ImportEventsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json);
         /// <summary>
         /// Not implemented
         /// </summary>
