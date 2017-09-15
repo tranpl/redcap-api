@@ -21,8 +21,10 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <Optimize>True</Optimize>
+    <Optimize>false</Optimize>
     <DocumentationFile>bin\Debug\netcoreapp1.1\Redcap.xml</DocumentationFile>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
