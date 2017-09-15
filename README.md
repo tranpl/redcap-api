@@ -1,14 +1,14 @@
 # REDCap API Library for C#
 The REDCap API (Application Programming Interface) for REDCap, lets you:
-    export/import/delete data in REDCap
-    export/import/delete project information (e.g., field names and types) in REDCap
+1.  export/import/delete data in REDCap
+2.  export/import/delete project information (e.g., field names and types) in REDCap
 
 __Usage__:
 
 1. dotnet restore
-2. Add reference to the library in your project
+2. Add reference to the library in your project, or download from nuget into project
 3. Add "using Redcap" namespace
-4. instantiate a new instance of the redcapapi object
+4. Add "using Redcap.Models" for convenience
 
 __Example__
 ```C# 
@@ -41,8 +41,9 @@ namespace RedcapApiDemo
 
 __Install directly in Package Manager Console or Command Line Interface__
 
-``` Install-Package RedcapAPI -Version 0.2.6-alpha-release ```
-```dotnet add package RedcapAPI --version 0.2.6-alpha-release ```
+```Install-Package RedcapAPI -Version 0.3.0-alpha  ```
+```dotnet add package RedcapAPI --version 0.3.0-alpha  ```
+```paket add RedcapAPI --version 0.3.0-alpha  ```
 
 __DEMO__
 
