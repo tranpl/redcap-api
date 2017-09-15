@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Redcap;
 using Redcap.Models;
@@ -9,9 +10,11 @@ namespace RedcapApiDemo
     {
         static void Main(string[] args)
         {
+            
             Console.WriteLine("Redcap Api Demo Started!");
-
-            var redcap_api = new RedcapApi("3D57A7FA57C8A43F6C8803A84BB3957B", "http://localhost/redcap/api/");
+            var _apiToken = "3D57A7FA57C8A43F6C8803A84BB3957B";
+            if (true) _apiToken = "BCC9D1F214B8BE2AA4F24C56ED7674E4";
+            var redcap_api = new RedcapApi(_apiToken, "http://localhost/redcap/api/");
 
             Console.WriteLine("Calling GetRecordAsync() . . .");
             var GetRecordAsync = redcap_api.GetRecordAsync("1", InputFormat.json, RedcapDataType.flat, ReturnFormat.json, null, null, null, null).Result;
@@ -50,6 +53,11 @@ namespace RedcapApiDemo
             var ExportRecordsAsync = redcap_api.ExportRecordsAsync(InputFormat.json, RedcapDataType.flat).Result;
             var ExportRecordsAsyncData = JsonConvert.DeserializeObject(ExportRecordsAsync);
             Console.WriteLine($"ExportRecordsAsync Result: {ExportRecordsAsyncData}");
+
+            Console.WriteLine("Calling ExportArmsAsync() . . .");
+            var ExportArmsAsync = redcap_api.ExportArmsAsync(InputFormat.json, ReturnFormat.json, new List<string> { }).Result;
+            var ExportArmsAsyncData = JsonConvert.DeserializeObject(ExportArmsAsync);
+            Console.WriteLine($"ExportArmsAsync Result: {ExportArmsAsyncData}");
 
 
             Console.ReadLine();

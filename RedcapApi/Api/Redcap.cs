@@ -20,7 +20,15 @@ namespace Redcap
     {
         private static string _apiToken;
         private static Uri _redcapApiUri;
+        /// <summary>
+        /// The version of redcap that the api is currently interacting with.
+        /// </summary>
         public static string Version;
+        /// <summary>
+        /// Constructor requires an api token and a valid uri.
+        /// </summary>
+        /// <param name="apiToken"></param>
+        /// <param name="redcapApiUrl"></param>
         public RedcapApi(string apiToken, string  redcapApiUrl)
         {
             _apiToken = apiToken?.ToString();
@@ -114,14 +122,39 @@ namespace Redcap
                 return await Task.FromResult(new Dictionary<string, string> { });
             }
         }
+        
         /// <summary>
-        /// Get redcap version.
+        /// This method returns the current REDCap version number as plain text (e.g., 4.13.18, 5.12.2, 6.0.0).
         /// </summary>
-        /// <param name="format"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public delegate Task<string> GetRedcapVersion(InputFormat format, RedcapDataType type);
+        /// <param name="inputFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
+        /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
+        /// <returns>The current REDCap version number (three numbers delimited with two periods) as plain text - e.g., 4.13.18, 5.12.2, 6.0.0</returns>
+        public delegate Task<string> GetRedcapVersion(InputFormat inputFormat, RedcapDataType redcapDataType);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="record"></param>
+        /// <param name="inputFormat"></param>
+        /// <param name="redcapDataType"></param>
+        /// <param name="returnFormat"></param>
+        /// <param name="delimiters">char[] e.g [';',',']</param>
+        /// <param name="forms"></param>
+        /// <param name="events"></param>
+        /// <param name="fields"></param>
+        /// <returns>string</returns>
         public delegate Task<string> ExportRecord(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="record"></param>
+        /// <param name="inputFormat"></param>
+        /// <param name="redcapDataType"></param>
+        /// <param name="returnFormat"></param>
+        /// <param name="delimiters">char[] e.g [';',',']</param>
+        /// <param name="forms"></param>
+        /// <param name="events"></param>
+        /// <param name="fields"></param>
+        /// <returns>string</returns>
         public delegate Task<string> ExportRecords(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
 
         /// <summary>
@@ -135,20 +168,20 @@ namespace Redcap
         {
             try {
                 StringBuilder builder = new StringBuilder();
-                ///builder.Append('[');
+                //builder.Append('[');
                 foreach (string v in inputArray)
                 {
 
                     builder.Append(v);
-                    /// We do not need to append the , if less than or equal to 1 record
+                    // We do not need to append the , if less than or equal to 1 record
                     if (inputArray.Length <= 1)
                     {
                         return await Task.FromResult(builder.ToString());
                     }
                     builder.Append(",");
                 }
-                /// We trim the comma from the string for clarity
-                ///builder.Append(']');
+                // We trim the comma from the string for clarity
+                //builder.Append(']');
                 return await Task.FromResult(builder.ToString().TrimEnd(','));
 
             }
@@ -158,25 +191,32 @@ namespace Redcap
                 return await Task.FromResult(String.Empty);
             }
         }
+        /// <summary>
+        /// This method converts int[] into a string. For example, given int[] of "[1,2,3]"
+        /// gets converted to "["1","2","3"]" 
+        /// This is used as optional arguments for the Redcap Api
+        /// </summary>
+        /// <param name="inputArray"></param>
+        /// <returns>string</returns>
         private async Task<string> ConvertIntArraytoString(int[] inputArray)
         {
             try
             {
                 StringBuilder builder = new StringBuilder();
-                ///builder.Append('[');
+                //builder.Append('[');
                 foreach (var v in inputArray)
                 {
 
                     builder.Append(v);
-                    /// We do not need to append the , if less than or equal to 1 record
+                    // We do not need to append the , if less than or equal to 1 record
                     if (inputArray.Length <= 1)
                     {
                         return await Task.FromResult(builder.ToString());
                     }
                     builder.Append(",");
                 }
-                /// We trim the comma from the string for clarity
-                ///builder.Append(']');
+                // We trim the comma from the string for clarity
+                //builder.Append(']');
                 return await Task.FromResult(builder.ToString().TrimEnd(','));
 
             }
@@ -190,8 +230,8 @@ namespace Redcap
         /// <summary>
         /// This method allows you to export the metadata for a project. 
         /// </summary>
-        /// <param name="inputFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
-        /// <param name="returnFormat"></param>
+        /// <param name="inputFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
         public async Task<string> GetMetaDataAsync(InputFormat? inputFormat, ReturnFormat? returnFormat)
         {
@@ -216,12 +256,13 @@ namespace Redcap
                 return String.Empty;
             }
         }
-        
+
         /// <summary>
         /// This method allows you to export the metadata for a project. 
         /// </summary>
-        /// <param name="inputFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
-        /// <param name="returnFormat"></param>
+        /// <param name="inputFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="delimiters">char[] e.g [';',',']</param>
         /// <param name="fields">example: "firstName, lastName, age"</param>
         /// <param name="forms">example: "demographics, labs, administration"</param>
         /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
@@ -246,15 +287,15 @@ namespace Redcap
 
                 if (!String.IsNullOrEmpty(fields))
                 {
-                    /// Convert Array List into string array
+                    // Convert Array List into string array
                     string[] fieldsArray = fieldsResult.ToArray();
-                    /// Convert string array into String
+                    // Convert string array into String
                     _fields = await ConvertStringArraytoString(fieldsArray);
                 }
                 if (!String.IsNullOrEmpty(forms))
                 {
                     string[] formsArray = formsResult.ToArray();
-                    /// Convert string array into String
+                    // Convert string array into String
                     _forms = await ConvertStringArraytoString(formsArray);
                 }
                 var payload = new Dictionary<string, string>
@@ -279,7 +320,7 @@ namespace Redcap
         /// The method allows the calling method to choose a return type.
         /// </summary>
         /// <param name="returnContent"></param>
-        /// <returns></returns>
+        /// <returns>string</returns>
         private async Task<string> HandleReturnContent(ReturnContent returnContent = ReturnContent.count)
         {
             try
@@ -305,13 +346,14 @@ namespace Redcap
                 return await Task.FromResult(String.Empty);
             }
         }
-        
+
         /// <summary>
         /// Tuple that returns both inputFormat and redcap returnFormat
         /// </summary>
-        /// <param name="inputFormat"></param>
+        /// <param name="inputFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
         /// <param name="returnFormat"></param>
-        /// <returns></returns>
+        /// <param name="redcapDataType"></param>
+        /// <returns>tuple, string, string, string</returns>
         private async Task<(string inputFormat, string returnFormat, string redcapDataType)> HandleFormat(InputFormat? inputFormat = InputFormat.json, ReturnFormat? returnFormat = ReturnFormat.json, RedcapDataType? redcapDataType = RedcapDataType.flat)
         {
             // default
@@ -381,13 +423,13 @@ namespace Redcap
                 return await Task.FromResult((_inputFormat, _returnFormat, _redcapDataType));
             }
         }
-        
+
         /// <summary>
         /// Method extracts events into list from string
         /// </summary>
         /// <param name="events"></param>
-        /// <param name="delimiters"></param>
-        /// <returns></returns>
+        /// <param name="delimiters">char[] e.g [';',',']</param>
+        /// <returns>List of string</returns>
         private async Task<List<string>> ExtractEventsAsync(string events, char[] delimiters)
         {
             if (!String.IsNullOrEmpty(events))
@@ -415,8 +457,8 @@ namespace Redcap
         /// Method gets / extracts forms into list from string
         /// </summary>
         /// <param name="forms"></param>
-        /// <param name="delimiters"></param>
-        /// <returns>List<string></returns>
+        /// <param name="delimiters">char[] e.g [';',',']</param>
+        /// <returns>A list of string</returns>
         private async Task<List<string>> ExtractFormsAsync(string forms, char[] delimiters)
         {
             if (!String.IsNullOrEmpty(forms))
@@ -439,13 +481,13 @@ namespace Redcap
             }
             return await Task.FromResult(new List<string> { });
         }
-        
+
         /// <summary>
         /// Method gets / extracts fields into list from string
         /// </summary>
         /// <param name="fields"></param>
-        /// <param name="delimiters"></param>
-        /// <returns>List<string></returns>
+        /// <param name="delimiters">char[] e.g [';',',']</param>
+        /// <returns>List of string</returns>
         private async Task<List<string>> ExtractFieldsAsync(string fields, char[] delimiters)
         {
             if (!String.IsNullOrEmpty(fields))
@@ -468,13 +510,13 @@ namespace Redcap
             }
             return await Task.FromResult(new List<string> { });
         }
-        
+
         /// <summary>
         /// Method gets / extract records into list from string
         /// </summary>
         /// <param name="records"></param>
-        /// <param name="delimiters"></param>
-        /// <returns></returns>
+        /// <param name="delimiters">char[] e.g [';',',']</param>
+        /// <returns>List of string</returns>
         private async Task<List<string>> ExtractRecordsAsync(string records, char[] delimiters)
         {
             if (!String.IsNullOrEmpty(records))
@@ -502,7 +544,7 @@ namespace Redcap
         /// Method gets the overwrite behavior type and converts into string
         /// </summary>
         /// <param name="overwriteBehavior"></param>
-        /// <returns></returns>
+        /// <returns>string</returns>
         private async Task<string> ExtractBehaviorAsync(OverwriteBehavior overwriteBehavior)
         {
             try
@@ -542,8 +584,10 @@ namespace Redcap
         /// you should have "Full Data Set" export rights in the project.
         /// </summary>
         /// <param name="record">string records e.g "1,2,3,4"</param>
-        /// <param name="format">0 = JSON (default), 1 = CSV, 2 = XML</param>
-        /// <param name="type">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
+        /// <param name="inputFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
+        /// <param name="delimiters">char[] e.g [';',',']</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
         public async Task<string> GetRecordAsync(string record, InputFormat inputFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
         {
@@ -573,9 +617,9 @@ namespace Redcap
                 }
                 else
                 {
-                    /// Convert Array List into string array
+                    // Convert Array List into string array
                     var inputRecords = recordResults.ToArray();
-                    /// Convert string array into String
+                    // Convert string array into String
                     _records = await ConvertStringArraytoString(inputRecords);
                     payload.Add("records", _records);
                 }
@@ -588,9 +632,9 @@ namespace Redcap
                 return String.Empty;
             }
         }
-        
+
         /// <summary>
-        /// This method allows you to export a set of records for a project.
+        /// This method allows you to export a single or set of records for a project.
         /// example: "1,2,3,4"<br/>
         /// This method allows you to export a set of records for a project.
         /// Please be aware that Data Export user rights will be applied to this API request. 
@@ -601,15 +645,15 @@ namespace Redcap
         /// To make sure that no data is unnecessarily filtered out of your API request, 
         /// you should have "Full Data Set" export rights in the project.
         /// </summary>
-        /// <param name="record"></param>
+        /// <param name="record">string records e.g "1,2,3,4"</param>
         /// <param name="forms"></param>
         /// <param name="events"></param>
         /// <param name="fields"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="delimiters"></param>
-        /// <returns></returns>
+        /// <param name="inputFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
+        /// <param name="delimiters">char[] e.g [';',',']</param>
+        /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
         public async Task<string> GetRecordAsync(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
         {
             try
@@ -644,7 +688,7 @@ namespace Redcap
                 }
                 else
                 {
-                    /// Convert Array List into string array
+                    // Convert Array List into string array
                     var _inputRecords = recordItems.ToArray();
                     payload.Add("records", await ConvertStringArraytoString(_inputRecords));
                 }
@@ -678,9 +722,9 @@ namespace Redcap
                 return String.Empty;
             }
         }
-        
+
         /// <summary>
-        /// This method allows you to export multiple records for a project.
+        /// This method allows you to export multiple(all) records for a project.
         /// Please be aware that Data Export user rights will be applied to this API request. 
         /// For example, if you have "No Access" data export rights in the project, then the 
         /// API data export will fail and return an error. And if you have "De-Identified" 
@@ -689,10 +733,11 @@ namespace Redcap
         /// To make sure that no data is unnecessarily filtered out of your API request, 
         /// you should have "Full Data Set" export rights in the project.
         /// 
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <returns></returns>
+        /// </summary>
+        /// <param name="inputFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
+        /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
         public async Task<string> GetRecordsAsync(InputFormat inputFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType)
         {
             try
@@ -716,12 +761,12 @@ namespace Redcap
                 return String.Empty;
             }
         }
-        
+
         /// <summary>
         /// This method returns the current REDCap version number as plain text (e.g., 4.13.18, 5.12.2, 6.0.0).
         /// </summary>
-        /// <param name="format">0 = JSON (default), 1 = CSV, 2 = XML</param>
-        /// <param name="type">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
+        /// <param name="inputFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
+        /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <returns>The current REDCap version number (three numbers delimited with two periods) as plain text - e.g., 4.13.18, 5.12.2, 6.0.0</returns>
         public async Task<string> GetRedcapVersionAsync(InputFormat inputFormat, RedcapDataType redcapDataType)
         {
@@ -752,12 +797,12 @@ namespace Redcap
         /// This method allows you to import a set of records for a project
         /// </summary>
         /// <param name="data">Object that contains the records to be saved.</param>
-        /// <param name="returnContent"></param>
-        /// <param name="overwriteBehavior"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="returnFormat"></param>
-        /// <returns></returns>
+        /// <param name="returnContent">ids - a list of all record IDs that were imported, count [default] - the number of records imported</param>
+        /// <param name="overwriteBehavior">0 = normal, 1 = overwrite</param>
+        /// <param name="inputFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <returns>the content specified by returnContent</returns>
         public async Task<string> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? inputFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat)
         {
             try
@@ -803,13 +848,13 @@ namespace Redcap
         /// This method allows you to import a set of records for a project.
         /// </summary>
         /// <param name="data">Object that contains the records to be saved.</param>
-        /// <param name="redcapApiKey"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="overwriteBehavior"></param>
-        /// <param name="DateFormat"></param>
-        /// <returns>returnFormat</returns>
+        /// <param name="returnContent">ids - a list of all record IDs that were imported, count [default] - the number of records imported</param>
+        /// <param name="overwriteBehavior">0 = normal, 1 = overwrite</param>
+        /// <param name="inputFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="dateFormat">MDY, DMY, YMD [default] - the format of values being imported for dates or datetime fields (understood with M representing 'month', D as 'day', and Y as 'year') - NOTE: The default format is Y-M-D (with dashes), while MDY and DMY values should always be formatted as M/D/Y or D/M/Y (with slashes), respectively.</param>
+        /// <returns>the content specified by returnContent</returns>
         public async Task<string> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? inputFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string dateFormat = "MDY")
         {
             try
@@ -856,20 +901,19 @@ namespace Redcap
                 Log.Error($"{Ex.Message}");
                 return await Task.FromResult(String.Empty);
             }
-
         }
 
         /// <summary>
         /// Method allows for bulk import of records into redcap project.
         /// </summary>
-        /// <param name="data">List<string> that contains the records to be saved.</param>
-        /// <param name="returnContent"></param>
+        /// <param name="data">List of strings that contains the records to be saved.</param>
+        /// <param name="returnContent">ids - a list of all record IDs that were imported, count [default] - the number of records imported</param>
         /// <param name="overwriteBehavior"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="returnFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
-        /// <param name="dateFormat">"MDY"</param>
-        /// <returns></returns>
+        /// <param name="inputFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="dateFormat">MDY, DMY, YMD [default] - the format of values being imported for dates or datetime fields (understood with M representing 'month', D as 'day', and Y as 'year') - NOTE: The default format is Y-M-D (with dashes), while MDY and DMY values should always be formatted as M/D/Y or D/M/Y (with slashes), respectively.</param>
+        /// <returns>the content specified by returnContent</returns>
         public async Task<string> SaveRecordsAsync(List<string> data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? inputFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string dateFormat = "MDY")
         {
             try
@@ -914,7 +958,65 @@ namespace Redcap
             }
 
         }
-        
+        /// <summary>
+        /// This method allows you to import a set of records for a project.
+        /// </summary>
+        /// <param name="data">Object that contains the records to be saved.</param>
+        /// <param name="returnContent">ids - a list of all record IDs that were imported, count [default] - the number of records imported</param>
+        /// <param name="overwriteBehavior">0 = normal, 1 = overwrite</param>
+        /// <param name="inputFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="dateFormat">MDY, DMY, YMD [default] - the format of values being imported for dates or datetime fields (understood with M representing 'month', D as 'day', and Y as 'year') - NOTE: The default format is Y-M-D (with dashes), while MDY and DMY values should always be formatted as M/D/Y or D/M/Y (with slashes), respectively.</param>
+        /// <returns>Returns the content with format specified.</returns>
+        public async Task<string> ImportRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? inputFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string dateFormat = "MDY")
+        {
+            try
+            {
+                string _dateFormat = dateFormat;
+                // Handle optional parameters
+                if (String.IsNullOrEmpty(_dateFormat))
+                {
+                    _dateFormat = "MDY";
+                }
+                var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat, redcapDataType);
+                var _returnContent = await HandleReturnContent(returnContent);
+                var _overWriteBehavior = await ExtractBehaviorAsync(overwriteBehavior);
+
+                // Extract properties from object provided
+                if (data != null)
+                {
+                    List<object> list = new List<object>
+                    {
+                        data
+                    };
+                    var formattedData = JsonConvert.SerializeObject(list);
+                    var payload = new Dictionary<string, string>
+                    {
+                        { "token", _apiToken },
+                        { "content", "record" },
+                        { "format", _inputFormat },
+                        { "type", _redcapDataType },
+                        { "overwriteBehavior", _overWriteBehavior },
+                        { "dateFormat", _dateFormat },
+                        { "returnFormat", _inputFormat },
+                        { "returnContent", _returnContent },
+                        { "data", formattedData }
+                    };
+
+                    // Execute send request
+                    var results = await SendRequest(payload);
+                    return results;
+                }
+                return String.Empty;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return await Task.FromResult(String.Empty);
+            }
+        }
+
         /// <summary>
         /// This method allows you to export the metadata for a project. 
         /// </summary>
@@ -945,12 +1047,13 @@ namespace Redcap
             }
 
         }
-        
+
         /// <summary>
         /// This method allows you to export the metadata for a project. 
         /// </summary>
         /// <param name="inputFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <param name="returnFormat"></param>
+        /// <param name="delimiters"></param>
         /// <param name="fields">example: "firstName, lastName, age"</param>
         /// <param name="forms">example: "demographics, labs, administration"</param>
         /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
@@ -975,15 +1078,15 @@ namespace Redcap
 
                 if (!String.IsNullOrEmpty(fields))
                 {
-                    /// Convert Array List into string array
+                    // Convert Array List into string array
                     string[] fieldsArray = fieldsResult.ToArray();
-                    /// Convert string array into String
+                    // Convert string array into String
                     _fields = await ConvertStringArraytoString(fieldsArray);
                 }
                 if (!String.IsNullOrEmpty(forms))
                 {
                     string[] formsArray = formsResult.ToArray();
-                    /// Convert string array into String
+                    // Convert string array into String
                     _forms = await ConvertStringArraytoString(formsArray);
                 }
                 var payload = new Dictionary<string, string>
@@ -1002,6 +1105,7 @@ namespace Redcap
                 return String.Empty;
             }
         }
+        
         /// <summary>
         /// Method allows you to export events from redcap project.
         /// </summary>
@@ -1019,7 +1123,7 @@ namespace Redcap
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
                 if (arms.Length > 0)
                 {
-                    /// Convert string array into String
+                    // Convert string array into String
                     _arms = await ConvertIntArraytoString(arms);
                 }
                 var payload = new Dictionary<string, string>
@@ -1039,6 +1143,7 @@ namespace Redcap
                 return String.Empty;
             }
         }
+        
         /// <summary>
         /// Method allows you to export all events from redcap project.
         /// </summary>
@@ -1069,87 +1174,129 @@ namespace Redcap
                 return String.Empty;
             }
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> ImportEvents(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> DeleteEvents(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> ExportFields(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> ExportFile(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> ImportFile(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> DeleteFile(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> ExportInstruments(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> ExportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> ImportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> CreateProject(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> ImportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> ExportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> ExportProjectXml(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> GenerateNextRecordName(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
         /// <summary>
-        /// Method exports a single record from a redcap project.
+        /// This method allows you to export a set of records for a project
         /// </summary>
-        /// <param name="record">e.g "1"</param>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="delimiters"></param>
-        /// <param name="forms"></param>
-        /// <param name="events"></param>
-        /// <param name="fields"></param>
+        /// <param name="record">an array of record names specifying specific records you wish to pull (by default, all records are pulled)</param>
+        /// <param name="inputFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="redcapDataType">flat - output as one record per row [default], eav - output as one data point per row. Non-longitudinal: Will have the fields - record*, field_name, value. Longitudinal: Will have the fields - record*, field_name, value, redcap_event_name</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="delimiters">char[] e.g [';',',']</param>
+        /// <param name="forms">an array of form names you wish to pull records for. If the form name has a space in it, replace the space with an underscore (by default, all records are pulled)</param>
+        /// <param name="events">an array of unique event names that you wish to pull records for - only for longitudinal projects</param>
+        /// <param name="fields">an array of field names specifying specific fields you wish to pull (by default, all fields are pulled)</param>
         /// <returns></returns>
         public async Task<string> ExportRecordAsync(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
         {
@@ -1185,7 +1332,7 @@ namespace Redcap
                 }
                 else
                 {
-                    /// Convert Array List into string array
+                    // Convert Array List into string array
                     var _inputRecords = recordItems.ToArray();
                     payload.Add("records", await ConvertStringArraytoString(_inputRecords));
                 }
@@ -1219,7 +1366,20 @@ namespace Redcap
                 return String.Empty;
             }
         }
-        public async Task<string> ExportRecordsAsync(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
+        
+        /// <summary>
+        /// This method allows you to export a set of records for a project
+        /// </summary>
+        /// <param name="records">an array of record names specifying specific records you wish to pull (by default, all records are pulled)</param>
+        /// <param name="inputFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="redcapDataType">flat - output as one record per row [default], eav - output as one data point per row. Non-longitudinal: Will have the fields - record*, field_name, value. Longitudinal: Will have the fields - record*, field_name, value, redcap_event_name</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="delimiters">char[] e.g [';',',']</param>
+        /// <param name="forms">an array of form names you wish to pull records for. If the form name has a space in it, replace the space with an underscore (by default, all records are pulled)</param>
+        /// <param name="events">an array of unique event names that you wish to pull records for - only for longitudinal projects</param>
+        /// <param name="fields">an array of field names specifying specific fields you wish to pull (by default, all fields are pulled)</param>
+        /// <returns></returns>
+        public async Task<string> ExportRecordsAsync(string records, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
         {
             try
             {
@@ -1230,7 +1390,7 @@ namespace Redcap
                     // Provide some default delimiters, mostly comma and spaces for redcap
                     delimiters = new char[] { ',', ' ' };
                 }
-                var recordItems = await ExtractRecordsAsync(records: record, delimiters: delimiters);
+                var recordItems = await ExtractRecordsAsync(records: records, delimiters: delimiters);
                 var fieldItems = await ExtractFieldsAsync(fields: fields, delimiters: delimiters);
                 var formItems = await ExtractFormsAsync(forms: forms, delimiters: delimiters);
                 var eventItems = await ExtractEventsAsync(events: events, delimiters: delimiters);
@@ -1253,7 +1413,7 @@ namespace Redcap
                 }
                 else
                 {
-                    /// Convert Array List into string array
+                    // Convert Array List into string array
                     var _inputRecords = recordItems.ToArray();
                     payload.Add("records", await ConvertStringArraytoString(_inputRecords));
                 }
@@ -1287,6 +1447,17 @@ namespace Redcap
                 return String.Empty;
             }
         }
+        /// <summary>
+        /// Method allows you to export multiple(all) records out of the redcap project.
+        /// </summary>
+        /// <param name="inputFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="redcapDataType">flat - output as one record per row [default], eav - output as one data point per row. Non-longitudinal: Will have the fields - record*, field_name, value. Longitudinal: Will have the fields - record*, field_name, value, redcap_event_name</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="delimiters">char[] e.g [';',',']</param>
+        /// <param name="forms">an array of form names you wish to pull records for. If the form name has a space in it, replace the space with an underscore (by default, all records are pulled)</param>
+        /// <param name="events">an array of unique event names that you wish to pull records for - only for longitudinal projects</param>
+        /// <param name="fields">an array of field names specifying specific fields you wish to pull (by default, all fields are pulled)</param>
+        /// <returns></returns>
         public async Task<string> ExportRecordsAsync(InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
         {
             try
@@ -1342,47 +1513,98 @@ namespace Redcap
                 return String.Empty;
             }
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> ImportRecords(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> DeleteRecords(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
 
-        public Task<string> ExportRedcapVersion(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        /// <summary>
+        /// This method returns the current REDCap version number as plain text (e.g., 4.13.18, 5.12.2, 6.0.0).
+        /// </summary>
+        /// <param name="inputFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
+        /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
+        /// <returns>The current REDCap version number (three numbers delimited with two periods) as plain text - e.g., 4.13.18, 5.12.2, 6.0.0</returns>
+        public async Task<string> ExportRedcapVersionAsync(InputFormat inputFormat, RedcapDataType redcapDataType)
         {
-            throw new NotImplementedException();
-        }
+            try
+            {
+                var _response = String.Empty;
+                var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, ReturnFormat.json, redcapDataType);
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", _apiToken },
+                    { "content", "version" },
+                    { "format", _inputFormat },
+                    { "type", _redcapDataType }
+                };
+                // Execute send request
+                _response = await SendRequest(payload);
 
+                return await Task.FromResult(_response);
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return String.Empty;
+            }
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> ExportSurveyLink(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> ExportSurveyParticipants(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> ExportSurveyQueueLink(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
         public Task<string> ExportSurveyReturnCode(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
+
         /// <summary>
         /// Method exports redcap users for a specific project.
         /// </summary>
         /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <returns></returns>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <returns>The method will return all the attributes below with regard to user privileges in the format specified. Please note that the 'forms' attribute is the only attribute that contains sub-elements (one for each data collection instrument), in which each form will have its own Form Rights value (see the key below to learn what each numerical value represents). Most user privilege attributes are boolean (0=No Access, 1=Access). Attributes returned:</returns>
+        /// <example>
+        /// username, email, firstname, lastname, expiration, data_access_group, design, user_rights, data_access_groups, data_export, reports, stats_and_charts, manage_survey_participants, calendar, data_import_tool, data_comparison_tool, logging, file_repository, data_quality_create, data_quality_execute, api_export, api_import, mobile_app, mobile_app_download_data, record_create, record_rename, record_delete, lock_records_customization, lock_records, lock_records_all_forms, forms
+        /// KEY:Data Export: 0=No Access, 2=De-Identified, 1=Full Data Set
+        /// Form Rights: 0=No Access, 2=Read Only, 1=View records/responses and edit records(survey responses are read-only), 3=Edit survey responses
+        /// Other attribute values: 0=No Access, 1=Access.
+        /// </example>
         public async Task<string> ExportUsersAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json)
         {
             try
@@ -1409,26 +1631,89 @@ namespace Redcap
             }
 
         }
-
+        
+        /// <summary>
+        /// Not Implimented
+        /// </summary>
+        /// <param name="arms"></param>
+        /// <param name="overwriteBehavior"></param>
+        /// <param name="inputFormat"></param>
+        /// <param name="returnFormat"></param>
+        /// <returns></returns>
         public Task<string> ImportUsers(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
-        public Task<string> GetRecordsAsync(InputFormat inputFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
+        /// <summary>
+        /// This method allows you to export multiple(all) records for a project.
+        /// Please be aware that Data Export user rights will be applied to this API request. 
+        /// For example, if you have "No Access" data export rights in the project, then the 
+        /// API data export will fail and return an error. And if you have "De-Identified" 
+        /// or "Remove all tagged Identifier fields" data export rights, then some data 
+        /// fields *might* be removed and filtered out of the data set returned from the API. 
+        /// To make sure that no data is unnecessarily filtered out of your API request, 
+        /// you should have "Full Data Set" export rights in the project.
+        /// 
+        /// </summary>
+        /// <param name="inputFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
+        /// <param name="delimiters">char[] e.g [';',',']</param>
+        /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
+        public async Task<string> GetRecordsAsync(InputFormat inputFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
         {
-            throw new NotImplementedException();
+            try
+            {
+                string _response;
+                var _records = String.Empty;
+                if (delimiters == null)
+                {
+                    // Provide some default delimiters, mostly comma and spaces for redcap
+                    delimiters = new char[] { ',', ' ' };
+                }
+
+                var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
+
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", _apiToken },
+                    { "content", "record" },
+                    { "format", _inputFormat },
+                    { "returnFormat", _returnFormat },
+                    { "type", _redcapDataType }
+                };
+                _response = await SendRequest(payload);
+                return _response;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return String.Empty;
+            }
         }
         /// <summary>
         /// This method allows you to export the Arms for a project.
         /// NOTE: This only works for longitudinal projects. E.g. Arms are only available in longitudinal projects.
         /// </summary>
+        /// <param name="inputFormat">csv, json, xml [default]</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="arms">an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
+        /// <returns>Arms for the project in the format specified</returns>
         public async Task<string> ExportArmsAsync<T>(InputFormat inputFormat, ReturnFormat returnFormat, List<T> arms = null)
         {
             try
             {
-                var _response = String.Empty;
+                var _response = string.Empty;
+                var _serializedData = string.Empty;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
-                var _serializedData = JsonConvert.SerializeObject(arms);
+                if(arms == null) {
+                    _serializedData = string.Empty;
+                }
+                else
+                {
+                    _serializedData = JsonConvert.SerializeObject(arms);
+
+                }
                 var payload = new Dictionary<string, string>
                     {
                         { "token", _apiToken },
@@ -1453,16 +1738,14 @@ namespace Redcap
         /// You may use the parameter override=1 as a 'delete all + import' action in order to erase all existing Arms in the project while importing new Arms. 
         /// Notice: Because of the 'override' parameter's destructive nature, this method may only use override=1 for projects in Development status.
         /// NOTE: This only works for longitudinal projects. 
-        /// 
         /// To use this method, you must have API Import/Update privileges *and* Project Design/Setup privileges in the project.
-        /// 
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="data"></param>
         /// <param name="overRide"></param>
         /// <param name="inputFormat"></param>
         /// <param name="returnFormat"></param>
-        /// <returns>Number of Arms imported</returns>
+        /// <returns></returns>
         public async Task<string> ImportArmsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             try
@@ -1498,9 +1781,6 @@ namespace Redcap
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="data"></param>
-        /// <param name="overRide"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
         /// <returns></returns>
         public async Task<string> DeleteArmsAsync<T>(T data)
         {
@@ -1526,11 +1806,173 @@ namespace Redcap
             }
 
         }
-
-        public Task<string> DeleteArmsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat)
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> ImportEvents()
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> DeleteEvents()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> ExportFields()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> ExportFile()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> ImportFile()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> DeleteFile()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> ExportInstruments()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> ExportPdfInstrument()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> ImportPdfInstrument()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> CreateProject()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> ImportProjectInfo()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> ExportProjectInfo()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> ExportProjectXml()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> GenerateNextRecordName()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> ImportRecords()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> DeleteRecords()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> ExportRedcapVersion()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> ExportSurveyLink()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> ExportSurveyParticipants()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> ExportSurveyQueueLink()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> ExportSurveyReturnCode()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

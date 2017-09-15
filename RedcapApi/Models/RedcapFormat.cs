@@ -8,8 +8,17 @@
     /// </summary>
     public enum InputFormat
     {
+        /// <summary>
+        /// Default Javascript Notation
+        /// </summary>
         json = 0,
+        /// <summary>
+        /// Comma Seperated Values
+        /// </summary>
         csv = 1,
+        /// <summary>
+        /// Extensible Markup Language
+        /// </summary>
         xml = 2
     }
 }
