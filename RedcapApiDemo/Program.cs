@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Redcap;
 using Redcap.Models;
@@ -52,6 +53,11 @@ namespace RedcapApiDemo
             var ExportRecordsAsync = redcap_api.ExportRecordsAsync(InputFormat.json, RedcapDataType.flat).Result;
             var ExportRecordsAsyncData = JsonConvert.DeserializeObject(ExportRecordsAsync);
             Console.WriteLine($"ExportRecordsAsync Result: {ExportRecordsAsyncData}");
+
+            Console.WriteLine("Calling ExportArmsAsync() . . .");
+            var ExportArmsAsync = redcap_api.ExportArmsAsync(InputFormat.json, ReturnFormat.json, new List<string> { }).Result;
+            var ExportArmsAsyncData = JsonConvert.DeserializeObject(ExportArmsAsync);
+            Console.WriteLine($"ExportArmsAsync Result: {ExportArmsAsyncData}");
 
 
             Console.ReadLine();
