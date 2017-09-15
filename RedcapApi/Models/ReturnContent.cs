@@ -7,7 +7,13 @@
     /// </summary>
     public enum ReturnContent
     {
+        /// <summary>
+        /// ids - a list of all record IDs that were imported
+        /// </summary>
         ids = 0,
+        /// <summary>
+        ///  count [default] - the number of records imported
+        /// </summary>
         count = 1
     }
 }
