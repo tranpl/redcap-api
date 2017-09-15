@@ -10,8 +10,8 @@
     <Description>This library allows external applications to connect to REDCap remotely and is used to programmatically retrieve or modify data or settings within REDCap, e.g Import/Export records into Redcap</Description>
     <Product>Redcap Api Library</Product>
     <PackageId>RedcapAPI</PackageId>
-    <Version>0.2.9-alpha</Version>
-    <AssemblyVersion>0.2.9.0</AssemblyVersion>
+    <Version>0.3.0-alpha</Version>
+    <AssemblyVersion>0.3.0.0</AssemblyVersion>
     <PackageTags>redcap</PackageTags>
     <PackageReleaseNotes>alpha release</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -22,6 +22,11 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>True</Optimize>
+    <DocumentationFile>bin\Debug\netcoreapp1.1\Redcap.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netcoreapp1.1\Redcap.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

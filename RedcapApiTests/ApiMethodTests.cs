@@ -8,10 +8,16 @@ namespace RedcapApiTests
     [TestFixture]
     public class ApiMethodTests
     {
+        
         private string _apiKey = "3D57A7FA57C8A43F6C8803A84BB3957B";
         private string _apiEndpoint = "http://localhost/redcap/api/";
+        public ApiMethodTests()
+        {
+            
+            if (true) _apiKey = "BCC9D1F214B8BE2AA4F24C56ED7674E4";
+        }
         [TestCase]
-        public void CanExportAsync_SingleRecord_ShouldContain_1()
+        public void CanExportAsync_SingleRecord_ShouldContain_string_1()
         {
             // Arrange
             var apiKey = _apiKey;
@@ -42,7 +48,7 @@ namespace RedcapApiTests
 
         }
         [TestCase]
-        public void CanGetRecordsAsync_AllRecords_ShouldContain_record_id()
+        public void CanGetRecordsAsync_AllRecords_ShouldContain_string_record_id()
         {
             // Arrange
             var apiKey = _apiKey;
@@ -61,8 +67,8 @@ namespace RedcapApiTests
         public void CanGetRedcapVersion_VersionNumber_Shouldontain_Number()
         {
             // Arrange
-            // Assume current redcap version is 7.4.9
-            var currentRedcapVersion = "7.4.9";
+            // Assume current redcap version is 7.4.10
+            var currentRedcapVersion = "7.4.10";
             var apiKey = _apiKey;
             var apiEndpoint = _apiEndpoint;
 
@@ -100,7 +106,7 @@ namespace RedcapApiTests
         }
 
         [TestCase]
-        public void CanExportRecordsAsync_AllRecords_ShouldReturn_Ids()
+        public void CanExportRecordsAsync_AllRecords_ShouldReturn_string_record_id()
         {
             // Arrange
             var apiKey = _apiKey;
@@ -109,6 +115,21 @@ namespace RedcapApiTests
             // Act
             var redcap_api = new RedcapApi(apiKey, apiEndpoint);
             var result = redcap_api.ExportRecordsAsync(InputFormat.json, RedcapDataType.flat).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert
+            StringAssert.Contains("record_id", data);
+        }
+        [TestCase]
+        public void CanExportMetaDataAsync_Metadata_ShouldReturn_string_record_id()
+        {
+            // Arrange
+            var apiKey = _apiKey;
+            var apiEndpoint = _apiEndpoint;
+
+            // Act
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.ExportMetaDataAsync(InputFormat.json, ReturnFormat.json).Result;
             var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert
