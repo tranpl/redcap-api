@@ -72,6 +72,13 @@ namespace RedcapApiDemo
             var ImportEventsAsyncData = JsonConvert.DeserializeObject(ImportEventsAsync);
             Console.WriteLine($"ImportEventsAsync Result: {ImportEventsAsyncData}");
 
+            Console.WriteLine("Calling ExportFile() . . .");
+            //var ExportFile1 = redcap_api.ExportFileAsync("1", "cda_upload", "1_arm_1","",ReturnFormat.json).Result;
+            //var ExportFile2 = redcap_api.ExportFileAsync("1", "info_upload", "1_arm_1", "", ReturnFormat.json).Result;
+            var ExportFile3 = redcap_api.ExportFileAsync("1","protocol_upload", "1_arm_1", "", ReturnFormat.json).Result;
+
+            //var ExportFileData = JsonConvert.DeserializeObject(ImportEventsAsync);
+            Console.WriteLine($"ExportFile Result: {ExportFile3}");
 
             Console.ReadLine();
 

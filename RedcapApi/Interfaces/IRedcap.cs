@@ -85,10 +85,18 @@ namespace Redcap.Interfaces
         /// <returns></returns>
         Task<string> ExportFields();
         /// <summary>
-        /// Not implemented
+        /// Method export a single file from a record within a project
         /// </summary>
-        /// <returns></returns>
-        Task<string> ExportFile();
+        /// <param name="record"></param>
+        /// <param name="field"></param>
+        /// <param name="eventName"></param>
+        /// <param name="repeatInstance"></param>
+        /// <param name="returnFormat"></param>
+        /// <example>
+        /// The MIME type of the file, along with the name of the file and its extension, can be found in the header of the returned response. Thus in order to determine these attributes of the file being exported, you will need to parse the response header. Example: content-type = application/vnd.openxmlformats-officedocument.wordprocessingml.document; name='FILE_NAME.docx'
+        /// </example>
+        /// <returns>the contents of the file</returns>
+        Task<string> ExportFileAsync(string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json);
         /// <summary>
         /// Not implemented
         /// </summary>

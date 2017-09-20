@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
 using Redcap.Models;
+using System.IO;
 
 namespace Redcap
 {
@@ -34,7 +35,37 @@ namespace Redcap
             _apiToken = apiToken?.ToString();
             _redcapApiUri = new Uri(redcapApiUrl.ToString());
         }
-        
+        private async Task<T> SendRequest<T>(Dictionary<string, string> payload, string filename)
+        {
+            Stream responseString;
+            using (var client = new HttpClient())
+            {
+                
+
+                client.BaseAddress = _redcapApiUri;
+                // Encode the values for payload
+                var content = new FormUrlEncodedContent(payload);
+                var response = await client.PostAsync(client.BaseAddress, content);
+                var fileHeaders = response.Content.Headers;
+
+                using (FileStream output = File.OpenWrite("file.dat"))
+                {
+                    using (Stream input = await response.Content.ReadAsStreamAsync())
+                    {
+                        await input.CopyToAsync(output);
+                    }
+                    await output.FlushAsync();
+                    output.Dispose();
+                }
+               responseString = await response.Content.ReadAsStreamAsync();
+
+                    // read bytes
+                    var contentType = fileHeaders.ContentType.GetType();
+                    var fileBytes = await response.Content.ReadAsByteArrayAsync();
+                  
+            }
+            return (T) Convert.ChangeType(responseString, typeof(T));
+        }
         /// <summary>
         /// Method sends the request using http.
         /// </summary>
@@ -49,12 +80,11 @@ namespace Redcap
                 // Encode the values for payload
                 var content = new FormUrlEncodedContent(payload);
                 var response = await client.PostAsync(client.BaseAddress, content);
+                var fileHeaders = response.Content.Headers;
                 responseString = await response.Content.ReadAsStringAsync();
-
             }
             return await Task.FromResult(responseString);
         }
-        
         /// <summary>
         /// This method extracts and converts an object's properties and associated values to redcap type and values.
         /// </summary>
@@ -1202,14 +1232,6 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<string> ExportFile(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        /// <summary>
-        /// Not implemented
-        /// </summary>
-        /// <returns></returns>
         public Task<string> ImportFile(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
@@ -1878,12 +1900,49 @@ namespace Redcap
             throw new NotImplementedException();
         }
         /// <summary>
-        /// Not implemented
+        /// Method export a single file from a record within a project
         /// </summary>
-        /// <returns></returns>
-        public Task<string> ExportFile()
+        /// <param name="record"></param>
+        /// <param name="field"></param>
+        /// <param name="eventName"></param>
+        /// <param name="repeatInstance"></param>
+        /// <param name="returnFormat"></param>
+        /// <example>
+        /// The MIME type of the file, along with the name of the file and its extension, can be found in the header of the returned response. Thus in order to determine these attributes of the file being exported, you will need to parse the response header. Example: content-type = application/vnd.openxmlformats-officedocument.wordprocessingml.document; name='FILE_NAME.docx'
+        /// </example>
+        /// <returns>the contents of the file</returns>
+        public async Task<string> ExportFileAsync(string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var _returnFormat = returnFormat.ToString();
+                var _eventName = eventName;
+                var _repeatInstance = repeatInstance;
+                var _record = record;
+                var _field = field;
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", _apiToken },
+                    { "content", "file" },
+                    { "action", "export" },
+                    { "record", _record },
+                    { "field", _field },
+                    { "event", _eventName },
+                    { "returnFormat", _returnFormat },
+                };
+                if (!string.IsNullOrEmpty(_repeatInstance))
+                {
+                    payload.Add("repeat_instance", _repeatInstance);
+                }
+                // Execute request
+                var _response = await SendRequest(payload);
+                return await Task.FromResult(_response);
+            }
+            catch(Exception Ex)
+            {
+                Log.Error(Ex.Message);
+                return null;
+            }
         }
         /// <summary>
         /// Not implemented
