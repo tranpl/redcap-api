@@ -43,4 +43,10 @@
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="System.Diagnostics.StackTrace">
+      <HintPath>..\..\..\..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.netcore.app\2.0.0\ref\netcoreapp2.0\System.Diagnostics.StackTrace.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

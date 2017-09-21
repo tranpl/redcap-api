@@ -73,10 +73,16 @@ namespace RedcapApiDemo
             var ImportEventsAsyncData = JsonConvert.DeserializeObject(ImportEventsAsync);
             Console.WriteLine($"ImportEventsAsync Result: {ImportEventsAsyncData}");
 
-            var path = "C:\\redcap_download_files";
+            var pathExport = "C:\\redcap_download_files";
             Console.WriteLine("Calling ExportFile() . . .");
-            var ExportFile = redcap_api.ExportFileAsync("1","protocol_upload", "1_arm_1", "", path, ReturnFormat.json).Result;
-            Console.WriteLine($"ExportFile Result: {ExportFile} to : {path}");
+            var ExportFile = redcap_api.ExportFileAsync("1","protocol_upload", "1_arm_1", "", pathExport, ReturnFormat.json).Result;
+            Console.WriteLine($"ExportFile Result: {ExportFile} to : {pathExport}");
+
+            var pathImport = "C:\\redcap_download_files";
+            string importFileName = "REDCapTraining2";
+            Console.WriteLine("Calling ImportportFile() . . .");
+            var ImportFile = redcap_api.ImportFileAsync("1", "protocol_upload", "1_arm_1", "", importFileName, pathImport, ReturnFormat.json).Result;
+            Console.WriteLine($"ImportportFile Result: {ImportFile} to : {pathImport}");
 
             Console.ReadLine();
 
