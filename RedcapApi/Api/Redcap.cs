@@ -9,6 +9,9 @@ using System.Text;
 using Newtonsoft.Json;
 using Redcap.Models;
 using System.IO;
+using System.Linq;
+using Redcap.Utilities;
+using System.Net.Http.Headers;
 
 namespace Redcap
 {
@@ -35,36 +38,89 @@ namespace Redcap
             _apiToken = apiToken?.ToString();
             _redcapApiUri = new Uri(redcapApiUrl.ToString());
         }
-        private async Task<T> SendRequest<T>(Dictionary<string, string> payload, string filename)
+        private async Task<string> GetContentType(HttpResponseMessage httpResponse)
         {
-            Stream responseString;
+            var fileHeaders = httpResponse.Content.Headers;
+            var mediaType = fileHeaders.ContentType.MediaType;
+            var fileName = fileHeaders.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
+            if (mediaType == "application/json")
+            {
+                var response = await httpResponse.Content.ReadAsStringAsync();
+                return response;
+                
+            }
+            return null;
+            
+        }
+        private async Task<string> SendRequestAsync(Dictionary<string, string> payload)
+        {          
             using (var client = new HttpClient())
             {
-                
-
                 client.BaseAddress = _redcapApiUri;
+                // extract the filepath
+                var pathValue = payload.Where(x => x.Key == "filePath").FirstOrDefault().Value;
+                var pathkey = payload.Where(x => x.Key == "filePath").FirstOrDefault().Key;
+                if (!string.IsNullOrEmpty(pathkey))
+                {
+                    // the actual payload does not contain a 'filePath' key
+                    payload.Remove(pathkey);
+
+                }
                 // Encode the values for payload
                 var content = new FormUrlEncodedContent(payload);
-                var response = await client.PostAsync(client.BaseAddress, content);
-                var fileHeaders = response.Content.Headers;
 
-                using (FileStream output = File.OpenWrite("file.dat"))
+                using (var response = await client.PostAsync(client.BaseAddress, content))
                 {
-                    using (Stream input = await response.Content.ReadAsStreamAsync())
+                    if (response.IsSuccessStatusCode)
                     {
-                        await input.CopyToAsync(output);
-                    }
-                    await output.FlushAsync();
-                    output.Dispose();
-                }
-               responseString = await response.Content.ReadAsStreamAsync();
+                        //await response.Content.LoadIntoBufferAsync();
+                        var fileHeaders = response.Content.Headers;
+                        var mediaType = fileHeaders.ContentType.MediaType;
+                        var fileName = fileHeaders.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
+                        var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                        {
+                            FileName = fileName
+                        };
 
-                    // read bytes
-                    var contentType = fileHeaders.ContentType.GetType();
-                    var fileBytes = await response.Content.ReadAsByteArrayAsync();
-                  
+                        if (!string.IsNullOrEmpty(pathValue))
+                        {
+                            // save the file to a specified location
+                            await response.Content.ReadAsFileAsync(fileName, pathValue, true);
+                        }
+                        //response.Content.Headers.ContentDisposition = contentDisposition;
+
+                        if (mediaType == "application/json")
+                        {
+                            return await response.Content.ReadAsStringAsync();
+
+                        }
+                        return fileName;
+                    }
+                }
+                //var response = await client.PostAsync(client.BaseAddress, content);
+                //if (response.IsSuccessStatusCode)
+                //{
+                //    await response.Content.LoadIntoBufferAsync();
+                //    var fileHeaders = response.Content.Headers;
+                //    var mediaType = fileHeaders.ContentType.MediaType;
+                //    var fileName = fileHeaders.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
+                //    var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                //    {
+                //        FileName = fileName
+                //    };
+
+                //    if (!string.IsNullOrEmpty(pathValue))
+                //    {
+                //        // save the file to a specified location
+                //        await response.Content.ReadAsFileAsync(fileName, pathValue, true);
+                //    }
+                //    response.Content.Headers.ContentDisposition = contentDisposition;
+                //    result = response;
+                //}
+
+
             }
-            return (T) Convert.ChangeType(responseString, typeof(T));
+            return "";
         }
         /// <summary>
         /// Method sends the request using http.
@@ -80,7 +136,9 @@ namespace Redcap
                 // Encode the values for payload
                 var content = new FormUrlEncodedContent(payload);
                 var response = await client.PostAsync(client.BaseAddress, content);
-                var fileHeaders = response.Content.Headers;
+
+                // check the response and make sure its successful
+                response.EnsureSuccessStatusCode();
                 responseString = await response.Content.ReadAsStringAsync();
             }
             return await Task.FromResult(responseString);
@@ -688,7 +746,6 @@ namespace Redcap
         {
             try
             {
-                string _response;
                 var _records = String.Empty;
                 if (delimiters == null)
                 {
@@ -743,13 +800,12 @@ namespace Redcap
                     payload.Add("events", await ConvertStringArraytoString(_events));
                 }
 
-                _response = await SendRequest(payload);
-                return _response;
+                return await SendRequestAsync(payload);
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return string.Empty;
             }
         }
 
@@ -1225,14 +1281,6 @@ namespace Redcap
         /// </summary>
         /// <returns></returns>
         public Task<string> ExportFields(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        /// <summary>
-        /// Not implemented
-        /// </summary>
-        /// <returns></returns>
-        public Task<string> ImportFile(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1900,21 +1948,32 @@ namespace Redcap
             throw new NotImplementedException();
         }
         /// <summary>
-        /// Method export a single file from a record within a project
+        /// This method allows you to download a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
         /// </summary>
-        /// <param name="record"></param>
-        /// <param name="field"></param>
-        /// <param name="eventName"></param>
-        /// <param name="repeatInstance"></param>
-        /// <param name="returnFormat"></param>
+        /// <param name="record">the record ID</param>
+        /// <param name="field">the name of the field that contains the file</param>
+        /// <param name="eventName">the unique event name - only for longitudinal projects</param>
+        /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param> 
+        /// <param name="filePath">The directory where you want the download files to be saved.</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <example>
         /// The MIME type of the file, along with the name of the file and its extension, can be found in the header of the returned response. Thus in order to determine these attributes of the file being exported, you will need to parse the response header. Example: content-type = application/vnd.openxmlformats-officedocument.wordprocessingml.document; name='FILE_NAME.docx'
         /// </example>
         /// <returns>the contents of the file</returns>
-        public async Task<string> ExportFileAsync(string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
+        public async Task<string> ExportFileAsync(string record, string field, string eventName, string repeatInstance, string filePath = null, ReturnFormat returnFormat = ReturnFormat.json)
         {
             try
             {
+                var _filePath = filePath;
+                if (!string.IsNullOrEmpty(filePath))
+                {
+                    if (!Directory.Exists(_filePath))
+                    {
+                        Log.Information($"The directory does not exist!");
+                        Directory.CreateDirectory(_filePath);
+                    }
+                }
+
                 var _returnFormat = returnFormat.ToString();
                 var _eventName = eventName;
                 var _repeatInstance = repeatInstance;
@@ -1929,14 +1988,15 @@ namespace Redcap
                     { "field", _field },
                     { "event", _eventName },
                     { "returnFormat", _returnFormat },
+                    { "filePath", $@"{_filePath}" }
                 };
                 if (!string.IsNullOrEmpty(_repeatInstance))
                 {
                     payload.Add("repeat_instance", _repeatInstance);
                 }
                 // Execute request
-                var _response = await SendRequest(payload);
-                return await Task.FromResult(_response);
+                var _response = await SendRequestAsync(payload);
+                return _response;
             }
             catch(Exception Ex)
             {
@@ -1945,12 +2005,37 @@ namespace Redcap
             }
         }
         /// <summary>
-        /// Not implemented
+        ///  This method allows you to upload a document that will be attached to an individual record for a File Upload field. Please note that this method may NOT be used for Signature fields (i.e. File Upload fields with 'signature' validation type) because a signature can only be captured and stored using the web interface. 
         /// </summary>
+        /// <param name="record">the record ID</param>
+        /// <param name="field">the name of the field that contains the file</param>
+        /// <param name="eventName">the unique event name - only for longitudinal projects</param>
+        /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param> 
+        /// <param name="file">The File you be imported, contents of the file</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns></returns>
-        public Task<string> ImportFile()
+        public async Task<string> ImportFileAsync(string record, string field, string eventName, string repeatInstance, string file, ReturnFormat returnFormat = ReturnFormat.json)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return "";
+            }
+            catch (Exception Ex)
+            {
+                Log.Error(Ex.Message);
+                return Task.FromResult("");
+            }
+            // Check if upload files are zip files
+            // Reject if not
+            //foreach (var f in files)
+            //{
+            //    var fileExtension = Path.GetExtension(f.FileName);
+            //    if (fileExtension != ".zip")
+            //    {
+            //        string message = fileExtension + " are not allowed.";
+            //        TempData["message"] = message;
+            //    }
+            //}
         }
         /// <summary>
         /// Not implemented
