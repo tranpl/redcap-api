@@ -2011,20 +2011,60 @@ namespace Redcap
         /// <param name="field">the name of the field that contains the file</param>
         /// <param name="eventName">the unique event name - only for longitudinal projects</param>
         /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param> 
-        /// <param name="file">The File you be imported, contents of the file</param>
+        /// <param name="fileName">The File you be imported, contents of the file</param>
+        /// <param name="filePath">the path where the file is located</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
-        /// <returns></returns>
-        public async Task<string> ImportFileAsync(string record, string field, string eventName, string repeatInstance, string file, ReturnFormat returnFormat = ReturnFormat.json)
+        /// <returns>csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</returns>
+        public async Task<string> ImportFileAsync(string record, string field, string eventName, string repeatInstance, string fileName, string filePath, ReturnFormat returnFormat = ReturnFormat.json)
         {
             try
             {
-                return "";
+                var _fileName = fileName;
+                var _filePath = filePath;
+                var _binaryFile = Path.Combine(_filePath, _fileName);
+                if (string.IsNullOrEmpty(_fileName) || string.IsNullOrEmpty(_filePath))
+                {
+
+                    throw new InvalidOperationException($"file can not be empty or null");
+                }
+                else
+                {
+                    var fileContent = new ByteArrayContent(File.ReadAllBytes(_binaryFile));
+                    fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                    {
+                        FileName = _fileName
+                    };
+                }
+                var _returnFormat = returnFormat.ToString();
+                var _eventName = eventName;
+                var _repeatInstance = repeatInstance;
+                var _record = record;
+                var _field = field;
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", _apiToken },
+                    { "content", "file" },
+                    { "action", "import" },
+                    { "record", _record },
+                    { "field", _field },
+                    { "event", _eventName },
+                    { "returnFormat", _returnFormat },
+                    { "file", _binaryFile }
+                };
+                if (!string.IsNullOrEmpty(_repeatInstance))
+                {
+                    payload.Add("repeat_instance", _repeatInstance);
+                }
+                // Execute request
+                var _response = await SendRequestAsync(payload);
+                return _response;
             }
             catch (Exception Ex)
             {
                 Log.Error(Ex.Message);
-                return Task.FromResult("");
+                return null;
             }
+
             // Check if upload files are zip files
             // Reject if not
             //foreach (var f in files)
