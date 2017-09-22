@@ -4,19 +4,19 @@ The REDCap API (Application Programming Interface) for REDCap, lets you:
 2.  export/import/delete project information (e.g., field names and types) in REDCap
 
 __API METHODS SUPPORTED__
-    -ExportArmsAsync
-    -ImportArmsAsync
-    -DeleteArmsAsync
-    -ExportEventAsync
-    -ImportEventAsync  
-    -ExportFileAsync
-    -ImportFileAsync
-    -DeleteFileAsync
-    -ExportMetaDataAsync
-    -ExportRecordsAsync
-    -ImportRecordsAsync
-    -ExportRedcapVersionAsync
-    -ExportUsersAsync
+*ExportArmsAsync
+*ImportArmsAsync
+*DeleteArmsAsync
+*ExportEventAsync
+*ImportEventAsync  
+*ExportFileAsync
+*ImportFileAsync
+*DeleteFileAsync
+*ExportMetaDataAsync
+*ExportRecordsAsync
+*ImportRecordsAsync
+*ExportRedcapVersionAsync
+*ExportUsersAsync
 
 __Usage__:
 
