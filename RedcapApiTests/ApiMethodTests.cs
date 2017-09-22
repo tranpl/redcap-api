@@ -10,7 +10,7 @@ namespace RedcapApiTests
     public class ApiMethodTests
     {
         
-        private string _apiKey = "3D57A7FA57C8A43F6C8803A84BB3957B";
+        private string _apiKey = "ED2D0A2E34D9693DCA7E9E6BD5F0941C";
         private string _apiEndpoint = "http://localhost/redcap/api/";
         public ApiMethodTests()
         {
@@ -25,9 +25,9 @@ namespace RedcapApiTests
             var apiEndpoint = _apiEndpoint;
             
             // Act
-            var redcapApi = new RedcapApi(apiKey, apiEndpoint);
-            var result = redcapApi.GetRecordAsync("1", InputFormat.json, RedcapDataType.flat, ReturnFormat.json, null, null, null, null).Result;
-            var data = JsonConvert.DeserializeObject(result.Content.ReadAsStringAsync().Result).ToString();
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.GetRecordAsync("1", InputFormat.json, RedcapDataType.flat, ReturnFormat.json, null, null, null, null).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert
             StringAssert.Contains("1", data);
@@ -40,9 +40,9 @@ namespace RedcapApiTests
             var apiEndpoint = _apiEndpoint;
 
             // Act
-            var redcapApi = new RedcapApi(apiKey, apiEndpoint);
-            var result = redcapApi.ExportEventsAsync(InputFormat.json, ReturnFormat.json).Result;
-            var data = JsonConvert.DeserializeObject(result.Content.ReadAsStringAsync().Result).ToString();
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.ExportEventsAsync(InputFormat.json, ReturnFormat.json).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert
             StringAssert.Contains("event_name", data);
@@ -56,9 +56,9 @@ namespace RedcapApiTests
             var apiEndpoint = _apiEndpoint;
 
             // Act
-            var redcapApi = new RedcapApi(apiKey, apiEndpoint);
-            var result = redcapApi.GetRecordsAsync(InputFormat.json, ReturnFormat.json, RedcapDataType.flat).Result;
-            var data = JsonConvert.DeserializeObject(result.Content.ReadAsStringAsync().Result).ToString();
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.GetRecordsAsync(InputFormat.json, ReturnFormat.json, RedcapDataType.flat).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert
             StringAssert.Contains("record_id", data);
@@ -74,9 +74,9 @@ namespace RedcapApiTests
             char[] delimiters = new char[] { ';', ',' };
 
             // Act
-            var redcapApi = new RedcapApi(apiKey, apiEndpoint);
-            var result = redcapApi.GetRecordsAsync(InputFormat.json, ReturnFormat.json, RedcapDataType.flat, delimiters).Result;
-            var data = JsonConvert.DeserializeObject(result.Content.ReadAsStringAsync().Result).ToString();
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.GetRecordsAsync(InputFormat.json, ReturnFormat.json, RedcapDataType.flat, delimiters).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert
             StringAssert.Contains("record_id", data);
@@ -93,8 +93,8 @@ namespace RedcapApiTests
             var apiEndpoint = _apiEndpoint;
 
             // Act
-            var redcapApi = new RedcapApi(apiKey, apiEndpoint);
-            var result = redcapApi.GetRedcapVersionAsync(InputFormat.json, RedcapDataType.flat).Result;
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.GetRedcapVersionAsync(InputFormat.json, RedcapDataType.flat).Result;
             var data = result;
 
             // Assert
@@ -112,8 +112,8 @@ namespace RedcapApiTests
             var apiEndpoint = _apiEndpoint;
 
             // Act
-            var redcapApi = new RedcapApi(apiKey, apiEndpoint);
-            var result = redcapApi.ExportRedcapVersionAsync(InputFormat.json, RedcapDataType.flat).Result;
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.ExportRedcapVersionAsync(InputFormat.json, RedcapDataType.flat).Result;
             var data = result;
 
             // Assert
@@ -127,11 +127,11 @@ namespace RedcapApiTests
             // Arrange
             var apiKey = _apiKey;
             var apiEndpoint = _apiEndpoint;
-            var username = "site_admin";
+            var username = "tranpl";
             // Act
-            var redcapApi = new RedcapApi(apiKey, apiEndpoint);
-            var result = redcapApi.ExportUsersAsync(InputFormat.json, ReturnFormat.json).Result;
-            var data = JsonConvert.DeserializeObject(result.Content.ReadAsStringAsync().Result).ToString();
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.ExportUsersAsync(InputFormat.json, ReturnFormat.json).Result;
+            var data = result;
 
             // Assert
             StringAssert.Contains(username, data);
@@ -148,14 +148,14 @@ namespace RedcapApiTests
             var record = new
             {
                 record_id = "1",
-                redcap_event_name = "event_1_arm_1",
+                redcap_event_name = "1_arm_1",
                 first_name = "John",
                 last_name = "Doe"
             };
             // Act
-            var redcapApi = new RedcapApi(apiKey, apiEndpoint);
-            var result = redcapApi.SaveRecordsAsync(record, ReturnContent.ids, OverwriteBehavior.overwrite, InputFormat.json, RedcapDataType.flat, ReturnFormat.json).Result;
-            var data = JsonConvert.DeserializeObject(result.Content.ReadAsStringAsync().Result).ToString();
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.SaveRecordsAsync(record, ReturnContent.ids, OverwriteBehavior.overwrite, InputFormat.json, RedcapDataType.flat, ReturnFormat.json).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert
             StringAssert.Contains("1", data);
@@ -172,15 +172,15 @@ namespace RedcapApiTests
             var record = new
             {
                 record_id = "1",
-                redcap_event_name = "event_1_arm_1",
+                redcap_event_name = "1_arm_1",
                 first_name = "John",
                 last_name = "Doe"
             };
 
             // Act
-            var redcapApi = new RedcapApi(apiKey, apiEndpoint);
-            var result = redcapApi.SaveRecordsAsync(record, ReturnContent.ids, OverwriteBehavior.overwrite, InputFormat.json, RedcapDataType.flat, ReturnFormat.json, dateFormat).Result;
-            var data = JsonConvert.DeserializeObject(result.Content.ReadAsStringAsync().Result).ToString();
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.SaveRecordsAsync(record, ReturnContent.ids, OverwriteBehavior.overwrite, InputFormat.json, RedcapDataType.flat, ReturnFormat.json, dateFormat).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert
             StringAssert.Contains("1", data);
@@ -195,9 +195,9 @@ namespace RedcapApiTests
             var apiEndpoint = _apiEndpoint;
 
             // Act
-            var redcapApi = new RedcapApi(apiKey, apiEndpoint);
-            var result = redcapApi.ExportRecordsAsync(InputFormat.json, RedcapDataType.flat).Result;
-            var data = JsonConvert.DeserializeObject(result.Content.ReadAsStringAsync().Result).ToString();
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.ExportRecordsAsync(InputFormat.json, RedcapDataType.flat).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert
             StringAssert.Contains("record_id", data);
@@ -210,9 +210,9 @@ namespace RedcapApiTests
             var apiEndpoint = _apiEndpoint;
 
             // Act
-            var redcapApi = new RedcapApi(apiKey, apiEndpoint);
-            var result = redcapApi.ExportMetaDataAsync(InputFormat.json, ReturnFormat.json).Result;
-            var data = JsonConvert.DeserializeObject(result.Content.ReadAsStringAsync().Result).ToString();
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.ExportMetaDataAsync(InputFormat.json, ReturnFormat.json).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert
             StringAssert.Contains("record_id", data);
@@ -224,12 +224,12 @@ namespace RedcapApiTests
             var apiKey = _apiKey;
             var apiEndpoint = _apiEndpoint;
             // Act
-            var redcapApi = new RedcapApi(apiKey, apiEndpoint);
-            var result = redcapApi.ExportArmsAsync(InputFormat.json, ReturnFormat.json).Result;
-            var data = JsonConvert.DeserializeObject(result.Content.ReadAsStringAsync().Result).ToString();
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.ExportArmsAsync(InputFormat.json, ReturnFormat.json).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert
-            StringAssert.Contains("event_1_arm_1", data);
+            StringAssert.Contains("arm_num", data);
         }
 
         [TestCase]
@@ -251,12 +251,60 @@ namespace RedcapApiTests
             };
 
             // Act
-            var redcapApi = new RedcapApi(apiKey, apiEndpoint);
-            var result = redcapApi.ImportEventsAsync(listOfEvents,Override.False, InputFormat.json, ReturnFormat.json).Result;
-            var data = JsonConvert.DeserializeObject(result.Content.ReadAsStringAsync().Result).ToString();
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.ImportEventsAsync(listOfEvents,Override.False, InputFormat.json, ReturnFormat.json).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert
             StringAssert.Contains("1", data);
+        }
+        [TestCase]
+        public void CanImportFileAsync_File_ShouldReturn_Empty_string()
+        {
+            // Arrange
+            var apiKey = _apiKey;
+            var apiEndpoint = _apiEndpoint;
+            var pathImport = "C:\\redcap_download_files";
+            string importFileName = "test2.java";
+
+            // Act
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.ImportFileAsync("1", "protocol_upload", "1_arm_1", "", importFileName, pathImport, ReturnFormat.json).Result;
+
+            // Assert
+            StringAssert.Contains(string.Empty, result);
+        }
+
+        [TestCase]
+        public void CanExportFileAsync_File_ShouldReturn_string()
+        {
+            // Arrange
+            var apiKey = _apiKey;
+            var apiEndpoint = _apiEndpoint;
+            var pathExport = "C:\\redcap_download_files";
+
+            // Act
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.ExportFileAsync("1", "protocol_upload", "1_arm_1", "", pathExport, ReturnFormat.json).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert
+            var expectedString = "test2.java";
+            StringAssert.Contains(expectedString, data);
+        }
+        [TestCase]
+        public void CanDeleteFileAsync_File_ShouldReturn_Empty_string()
+        {
+            // Arrange
+            var apiKey = _apiKey;
+            var apiEndpoint = _apiEndpoint;
+
+            // Act
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.DeleteFileAsync("1", "protocol_upload", "1_arm_1", "", ReturnFormat.json).Result;
+
+            // Assert
+            StringAssert.Contains(string.Empty, result);
         }
 
     }
