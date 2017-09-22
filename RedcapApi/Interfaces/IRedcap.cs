@@ -111,10 +111,15 @@ namespace Redcap.Interfaces
         /// <returns>csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</returns>
         Task<string> ImportFileAsync(string record, string field, string eventName, string repeatInstance, string fileName, string filePath, ReturnFormat returnFormat = ReturnFormat.json);
         /// <summary>
-        /// Not implemented
+        /// This method allows you to remove a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
         /// </summary>
-        /// <returns></returns>
-        Task<string> DeleteFile();
+        /// <param name="record">the record ID</param>
+        /// <param name="field">the name of the field that contains the file</param>
+        /// <param name="eventName">the unique event name - only for longitudinal projects</param>
+        /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <returns>String</returns>
+        Task<string> DeleteFileAsync(string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json);
         /// <summary>
         /// Not implemented
         /// </summary>
