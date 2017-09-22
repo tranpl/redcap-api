@@ -1957,7 +1957,6 @@ namespace Redcap
                         Directory.CreateDirectory(_filePath);
                     }
                 }
-
                 var _returnFormat = returnFormat.ToString();
                 var _eventName = eventName;
                 var _repeatInstance = repeatInstance;
