@@ -8,6 +8,10 @@ using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
 using Redcap.Models;
+using System.IO;
+using System.Linq;
+using Redcap.Utilities;
+using System.Net.Http.Headers;
 
 namespace Redcap
 {
@@ -34,9 +38,101 @@ namespace Redcap
             _apiToken = apiToken?.ToString();
             _redcapApiUri = new Uri(redcapApiUrl.ToString());
         }
-        
         /// <summary>
-        /// Method sends the request using http.
+        /// Method sends payload using multipart form-data
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns>String</returns>
+        private async Task<string> SendRequestAsync(MultipartFormDataContent payload)
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    client.BaseAddress = _redcapApiUri;
+                    using (var response = await client.PostAsync(client.BaseAddress, payload))
+                    {
+                        if (response.IsSuccessStatusCode)
+                        {
+                            return await response.Content.ReadAsStringAsync();
+                        }
+                    }
+                }
+                return string.Empty;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error(Ex.Message);
+                return string.Empty;
+            }
+
+        }
+        /// <summary>
+        /// Method sends payload using HttpClient
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        private async Task<string> SendRequestAsync(Dictionary<string, string> payload)
+        {
+            try
+            {
+                string _responseMessage;
+                using (var client = new HttpClient())
+                {
+                    client.BaseAddress = _redcapApiUri;
+                    // extract the filepath
+                    var pathValue = payload.Where(x => x.Key == "filePath").FirstOrDefault().Value;
+                    var pathkey = payload.Where(x => x.Key == "filePath").FirstOrDefault().Key;
+                    if (!string.IsNullOrEmpty(pathkey))
+                    {
+                        // the actual payload does not contain a 'filePath' key
+                        payload.Remove(pathkey);
+                    }
+                    // Encode the values for payload
+                    using (var content = new FormUrlEncodedContent(payload))
+                    {
+                        using (var response = await client.PostAsync(client.BaseAddress, content))
+                        {
+                            if (response.IsSuccessStatusCode)
+                            {
+                                // Get the filename so we can save with the name
+                                var fileHeaders = response.Content.Headers;
+                                var fileName = fileHeaders.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
+                                var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                                {
+                                    FileName = fileName
+                                };
+
+                                if (!string.IsNullOrEmpty(pathValue))
+                                {
+                                    // save the file to a specified location using an extension method
+                                    await response.Content.ReadAsFileAsync(fileName, pathValue, true);
+                                    _responseMessage = fileName;
+                                }
+                                else
+                                {
+                                    _responseMessage = await response.Content.ReadAsStringAsync();
+                                }
+                                
+                            }
+                            else
+                            {
+                                _responseMessage = await response.Content.ReadAsStringAsync();
+                            }
+                        }
+                    }
+                }
+                return _responseMessage;
+
+            }
+            catch (Exception Ex)
+            {
+                Log.Error(Ex.Message);
+                return string.Empty;
+            }
+        }
+        /// <summary>
+        /// Method sends the payload using HttpClient.
         /// </summary>
         /// <param name="payload"></param>
         /// <returns>responseString</returns>
@@ -47,14 +143,18 @@ namespace Redcap
             {
                 client.BaseAddress = _redcapApiUri;
                 // Encode the values for payload
-                var content = new FormUrlEncodedContent(payload);
-                var response = await client.PostAsync(client.BaseAddress, content);
-                responseString = await response.Content.ReadAsStringAsync();
-
+                using (var content = new FormUrlEncodedContent(payload))
+                {
+                    using (var response = await client.PostAsync(client.BaseAddress, content))
+                    {
+                        // check the response and make sure its successful
+                        response.EnsureSuccessStatusCode();
+                        responseString = await response.Content.ReadAsStringAsync();
+                    }
+                }
             }
-            return await Task.FromResult(responseString);
+            return responseString;
         }
-        
         /// <summary>
         /// This method extracts and converts an object's properties and associated values to redcap type and values.
         /// </summary>
@@ -237,7 +337,7 @@ namespace Redcap
         {
             try
             {
-                var response = String.Empty;
+                string _responseMessage;
                 // Handle optional parameters
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
                 var payload = new Dictionary<string, string>
@@ -247,13 +347,13 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                response = await SendRequest(payload);
-                return await Task.FromResult(response);
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return string.Empty;
             }
         }
 
@@ -270,6 +370,7 @@ namespace Redcap
         {
             try
             {
+                string _responseMessage;
                 var _fields = "";
                 var _forms = "";
                 var _response = String.Empty;
@@ -305,13 +406,13 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                _response = await SendRequest(payload);
-                return _response;
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return string.Empty;
             }
         }
         
@@ -593,7 +694,7 @@ namespace Redcap
         {
             try
             {
-                string _response;
+                string _responseMessage;
                 var _records = String.Empty;
                 if (delimiters.Length == 0)
                 {
@@ -613,7 +714,7 @@ namespace Redcap
                 if (recordResults.Count == 0)
                 {
                     Log.Error($"Missing required informaion.");
-                    return _records;
+                    throw new InvalidOperationException($"Missing required informaion.");
                 }
                 else
                 {
@@ -623,13 +724,13 @@ namespace Redcap
                     _records = await ConvertStringArraytoString(inputRecords);
                     payload.Add("records", _records);
                 }
-                _response = await SendRequest(payload);
-                return _response;
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return string.Empty;
             }
         }
 
@@ -656,9 +757,9 @@ namespace Redcap
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
         public async Task<string> GetRecordAsync(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
         {
+            string _responseMessage;
             try
             {
-                string _response;
                 var _records = String.Empty;
                 if (delimiters == null)
                 {
@@ -684,7 +785,7 @@ namespace Redcap
                 if (recordItems.Count == 0)
                 {
                     Log.Error($"Missing required informaion.");
-                    return _records;
+                    throw new InvalidOperationException($"Missing required informaion.");
                 }
                 else
                 {
@@ -713,13 +814,12 @@ namespace Redcap
                     payload.Add("events", await ConvertStringArraytoString(_events));
                 }
 
-                _response = await SendRequest(payload);
-                return _response;
+                return await SendRequestAsync(payload);
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return string.Empty;
             }
         }
 
@@ -740,6 +840,7 @@ namespace Redcap
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
         public async Task<string> GetRecordsAsync(InputFormat inputFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType)
         {
+            string _responseMessage;
             try
             {
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat, redcapDataType);
@@ -752,13 +853,13 @@ namespace Redcap
                     { "returnFormat", _returnFormat },
                     { "type", _redcapDataType }
                 };
-                response = await SendRequest(payload);
-                return response;
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return string.Empty;
             }
         }
 
@@ -772,7 +873,7 @@ namespace Redcap
         {
             try
             {
-                var _response = String.Empty;
+                string _responseMessage;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, ReturnFormat.json, redcapDataType);
                 var payload = new Dictionary<string, string>
                 {
@@ -782,14 +883,13 @@ namespace Redcap
                     { "type", _redcapDataType }
                 };
                 // Execute send request
-                _response = await SendRequest(payload);
-
-                return await Task.FromResult(_response);
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return string.Empty;
             }
         }
 
@@ -807,6 +907,7 @@ namespace Redcap
         {
             try
             {
+                string _responseMessage;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat, redcapDataType);
                 if (data != null)
                 {
@@ -830,8 +931,8 @@ namespace Redcap
                     };
 
                     // Execute send request
-                    var results = await SendRequest(payload);
-                    return results;
+                    _responseMessage = await SendRequestAsync(payload);
+                    return _responseMessage;
                 }
                 return null;
             }
@@ -839,7 +940,7 @@ namespace Redcap
             {
                 Log.Error($"Could not save records into redcap.");
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return string.Empty;
             }
 
         }
@@ -859,6 +960,7 @@ namespace Redcap
         {
             try
             {
+                string _responseMessage;
                 string _dateFormat = dateFormat;
                 // Handle optional parameters
                 if (String.IsNullOrEmpty(_dateFormat))
@@ -891,15 +993,16 @@ namespace Redcap
                     };
 
                     // Execute send request
-                    var results = await SendRequest(payload);
-                    return results;
+                    _responseMessage = await SendRequestAsync(payload);
+                    return _responseMessage; 
                 }
-                return String.Empty;
+                return string.Empty;
+                
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return await Task.FromResult(String.Empty);
+                return await Task.FromResult(string.Empty);
             }
         }
 
@@ -918,6 +1021,7 @@ namespace Redcap
         {
             try
             {
+                string _responseMessage;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat, redcapDataType);
                 var _returnContent = await HandleReturnContent(returnContent);
                 var _overWriteBehavior = await ExtractBehaviorAsync(overwriteBehavior);
@@ -947,14 +1051,15 @@ namespace Redcap
                     };
 
                     // Execute send request
-                    _response = await SendRequest(payload);
+                    _responseMessage = await SendRequestAsync(payload);
+                    return _responseMessage;
                 }
-                return _response;
+                return string.Empty;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return await Task.FromResult(String.Empty);
+                return await Task.FromResult(string.Empty);
             }
 
         }
@@ -973,6 +1078,7 @@ namespace Redcap
         {
             try
             {
+                string _responseMessage;
                 string _dateFormat = dateFormat;
                 // Handle optional parameters
                 if (String.IsNullOrEmpty(_dateFormat))
@@ -1005,15 +1111,15 @@ namespace Redcap
                     };
 
                     // Execute send request
-                    var results = await SendRequest(payload);
-                    return results;
+                    _responseMessage = await SendRequestAsync(payload);
+                    return _responseMessage;
                 }
-                return String.Empty;
+                return string.Empty;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return await Task.FromResult(String.Empty);
+                return await Task.FromResult(string.Empty);
             }
         }
 
@@ -1027,7 +1133,7 @@ namespace Redcap
         {
             try
             {
-                var response = String.Empty;
+                string _responseMessage;
                 // Handle optional parameters
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
                 var payload = new Dictionary<string, string>
@@ -1037,13 +1143,13 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                response = await SendRequest(payload);
-                return await Task.FromResult(response);
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return string.Empty;
             }
 
         }
@@ -1061,9 +1167,9 @@ namespace Redcap
         {
             try
             {
+                string _responseMessage;
                 var _fields = "";
                 var _forms = "";
-                var _response = String.Empty;
                 if (delimiters.Length == 0)
                 {
                     // Provide some default delimiters, mostly comma and spaces for redcap
@@ -1096,13 +1202,13 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                _response = await SendRequest(payload);
-                return _response;
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return string.Empty;
             }
         }
         
@@ -1117,8 +1223,8 @@ namespace Redcap
         {
             try
             {
+                string _responseMessage;
                 var _arms = "";
-                var _response = String.Empty;
                 // Handle optional parameters
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
                 if (arms.Length > 0)
@@ -1134,13 +1240,13 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                _response = await SendRequest(payload);
-                return _response;
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return string.Empty;
             }
         }
         
@@ -1154,10 +1260,9 @@ namespace Redcap
         {
             try
             {
-                var _response = String.Empty;
+                string _responseMessage;
                 // Handle optional parameters
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
-
                 var payload = new Dictionary<string, string>
                 {
                     { "token", _apiToken },
@@ -1165,20 +1270,20 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                _response = await SendRequest(payload);
-                return _response;
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return string.Empty;
             }
         }
         /// <summary>
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<string> ImportEvents(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<HttpResponseMessage> ImportEvents(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1195,22 +1300,6 @@ namespace Redcap
         /// </summary>
         /// <returns></returns>
         public Task<string> ExportFields(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        /// <summary>
-        /// Not implemented
-        /// </summary>
-        /// <returns></returns>
-        public Task<string> ExportFile(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        /// <summary>
-        /// Not implemented
-        /// </summary>
-        /// <returns></returns>
-        public Task<string> ImportFile(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1302,8 +1391,8 @@ namespace Redcap
         {
             try
             {
+                string _responseMessage;
                 string _response;
-                var _records = String.Empty;
                 if (delimiters == null)
                 {
                     // Provide some default delimiters, mostly comma and spaces for redcap
@@ -1328,7 +1417,7 @@ namespace Redcap
                 if (recordItems.Count == 0)
                 {
                     Log.Error($"Missing required informaion.");
-                    return _records;
+                    throw new InvalidOperationException($"Missing required informaion.");
                 }
                 else
                 {
@@ -1357,13 +1446,13 @@ namespace Redcap
                     payload.Add("events", await ConvertStringArraytoString(_events));
                 }
 
-                _response = await SendRequest(payload);
-                return _response;
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return string.Empty;
             }
         }
         
@@ -1383,7 +1472,7 @@ namespace Redcap
         {
             try
             {
-                string _response;
+                string _responseMessage;
                 var _records = String.Empty;
                 if (delimiters == null)
                 {
@@ -1409,7 +1498,7 @@ namespace Redcap
                 if (recordItems.Count == 0)
                 {
                     Log.Error($"Missing required informaion.");
-                    return _records;
+                    throw new InvalidOperationException($"Missing required informaion.");
                 }
                 else
                 {
@@ -1438,13 +1527,13 @@ namespace Redcap
                     payload.Add("events", await ConvertStringArraytoString(_events));
                 }
 
-                _response = await SendRequest(payload);
-                return _response;
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return string.Empty;
             }
         }
         /// <summary>
@@ -1462,7 +1551,7 @@ namespace Redcap
         {
             try
             {
-                string _response;
+                string _responseMessage;
                 var _records = String.Empty;
                 if (delimiters == null)
                 {
@@ -1504,13 +1593,13 @@ namespace Redcap
                     payload.Add("events", await ConvertStringArraytoString(_events));
                 }
 
-                _response = await SendRequest(payload);
-                return _response;
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return string.Empty;
             }
         }
         /// <summary>
@@ -1540,7 +1629,7 @@ namespace Redcap
         {
             try
             {
-                var _response = String.Empty;
+                string _responseMessage;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, ReturnFormat.json, redcapDataType);
                 var payload = new Dictionary<string, string>
                 {
@@ -1550,14 +1639,14 @@ namespace Redcap
                     { "type", _redcapDataType }
                 };
                 // Execute send request
-                _response = await SendRequest(payload);
+                _responseMessage = await SendRequestAsync(payload);
 
-                return await Task.FromResult(_response);
+                return await Task.FromResult(_responseMessage);
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return string.Empty;
             }
         }
         /// <summary>
@@ -1609,7 +1698,7 @@ namespace Redcap
         {
             try
             {
-                var _response = String.Empty;
+                string _responseMessage;
                 var _inputFormat = inputFormat.ToString();
                 var _returnFormat = returnFormat.ToString();
                 var payload = new Dictionary<string, string>
@@ -1621,13 +1710,13 @@ namespace Redcap
                 };
 
                 // Execute send request
-                _response = await SendRequest(payload);
-                return _response;
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return await Task.FromResult(String.Empty);
+                return string.Empty;
             }
 
         }
@@ -1664,16 +1753,14 @@ namespace Redcap
         {
             try
             {
-                string _response;
+                string _responseMessage;
                 var _records = String.Empty;
                 if (delimiters == null)
                 {
                     // Provide some default delimiters, mostly comma and spaces for redcap
                     delimiters = new char[] { ',', ' ' };
                 }
-
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
-
                 var payload = new Dictionary<string, string>
                 {
                     { "token", _apiToken },
@@ -1682,13 +1769,13 @@ namespace Redcap
                     { "returnFormat", _returnFormat },
                     { "type", _redcapDataType }
                 };
-                _response = await SendRequest(payload);
-                return _response;
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return String.Empty;
+                return string.Empty;
             }
         }
         /// <summary>
@@ -1702,7 +1789,7 @@ namespace Redcap
         {
             try
             {
-                var _response = string.Empty;
+                string _responseMessage;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
 
                 var payload = new Dictionary<string, string>
@@ -1714,13 +1801,13 @@ namespace Redcap
                         { "arms", null}
                     };
                 // Execute send request
-                _response = await SendRequest(payload);
-                return await Task.FromResult(_response);
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return await Task.FromResult(String.Empty);
+                return string.Empty;
             }
         }
 
@@ -1765,7 +1852,7 @@ namespace Redcap
         {
             try
             {
-                var _response = String.Empty;
+                string _responseMessage;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
                 var _override = overRide.ToString();
                 var _serializedData = JsonConvert.SerializeObject(data);
@@ -1781,13 +1868,13 @@ namespace Redcap
                         { "data", _serializedData }
                     };
                 // Execute request
-                _response = await SendRequest(payload);
-                return await Task.FromResult(_response);
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return await Task.FromResult(String.Empty);
+                return string.Empty;
             }
         }
         /// <summary>
@@ -1801,7 +1888,7 @@ namespace Redcap
         {
             try
             {
-                var _response = String.Empty;
+                string _responseMessage;
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                 {
@@ -1811,13 +1898,13 @@ namespace Redcap
                     { "arms", _serializedData }
                 };
                 // Execute request
-                _response = await SendRequest(payload);
-                return await Task.FromResult(_response);
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return await Task.FromResult(String.Empty);
+                return string.Empty;
             }
 
         }
@@ -1835,7 +1922,7 @@ namespace Redcap
         {
             try
             {
-                var _response = String.Empty;
+                string _responseMessage;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
                 var _override = overRide.ToString();
                 var _serializedData = JsonConvert.SerializeObject(data);
@@ -1851,13 +1938,13 @@ namespace Redcap
                     { "data", _serializedData }
                 };
                 // Execute request
-                _response = await SendRequest(payload);
-                return await Task.FromResult(_response);
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return await Task.FromResult(String.Empty);
+                return string.Empty;
             }
 
         }
@@ -1878,28 +1965,166 @@ namespace Redcap
             throw new NotImplementedException();
         }
         /// <summary>
-        /// Not implemented
+        /// This method allows you to download a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
         /// </summary>
-        /// <returns></returns>
-        public Task<string> ExportFile()
+        /// <param name="record">the record ID</param>
+        /// <param name="field">the name of the field that contains the file</param>
+        /// <param name="eventName">the unique event name - only for longitudinal projects</param>
+        /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param> 
+        /// <param name="filePath">The directory where you want the download files to be saved.</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <example>
+        /// The MIME type of the file, along with the name of the file and its extension, can be found in the header of the returned response. Thus in order to determine these attributes of the file being exported, you will need to parse the response header. Example: content-type = application/vnd.openxmlformats-officedocument.wordprocessingml.document; name='FILE_NAME.docx'
+        /// </example>
+        /// <returns>the contents of the file</returns>
+        public async Task<string> ExportFileAsync(string record, string field, string eventName, string repeatInstance, string filePath = null, ReturnFormat returnFormat = ReturnFormat.json)
         {
-            throw new NotImplementedException();
+            try
+            {
+                string _responseMessage;
+                var _filePath = filePath;
+                if (!string.IsNullOrEmpty(filePath))
+                {
+                    if (!Directory.Exists(_filePath))
+                    {
+                        Log.Information($"The directory does not exist!");
+                        Directory.CreateDirectory(_filePath);
+                    }
+                }
+                var _returnFormat = returnFormat.ToString();
+                var _eventName = eventName;
+                var _repeatInstance = repeatInstance;
+                var _record = record;
+                var _field = field;
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", _apiToken },
+                    { "content", "file" },
+                    { "action", "export" },
+                    { "record", _record },
+                    { "field", _field },
+                    { "event", _eventName },
+                    { "returnFormat", _returnFormat },
+                    { "filePath", $@"{_filePath}" }
+                };
+                if (!string.IsNullOrEmpty(_repeatInstance))
+                {
+                    payload.Add("repeat_instance", _repeatInstance);
+                }
+                // Execute request
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
+            }
+            catch(Exception Ex)
+            {
+                Log.Error(Ex.Message);
+                return string.Empty;
+            }
         }
         /// <summary>
-        /// Not implemented
+        ///  This method allows you to upload a document that will be attached to an individual record for a File Upload field. Please note that this method may NOT be used for Signature fields (i.e. File Upload fields with 'signature' validation type) because a signature can only be captured and stored using the web interface. 
         /// </summary>
-        /// <returns></returns>
-        public Task<string> ImportFile()
+        /// <param name="record">the record ID</param>
+        /// <param name="field">the name of the field that contains the file</param>
+        /// <param name="eventName">the unique event name - only for longitudinal projects</param>
+        /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param> 
+        /// <param name="fileName">The File you be imported, contents of the file</param>
+        /// <param name="filePath">the path where the file is located</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <returns>csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</returns>
+        public async Task<string> ImportFileAsync(string record, string field, string eventName, string repeatInstance, string fileName, string filePath, ReturnFormat returnFormat = ReturnFormat.json)
         {
-            throw new NotImplementedException();
+            
+            try
+            {
+                string _responseMessage;
+                var _fileName = fileName;
+                var _filePath = filePath;
+                var _binaryFile = Path.Combine(_filePath, _fileName);
+                ByteArrayContent _fileContent;
+                var _returnFormat = returnFormat.ToString();
+                var _eventName = eventName;
+                var _repeatInstance = repeatInstance;
+                var _record = record;
+                var _field = field;
+                var payload = new MultipartFormDataContent()
+                {
+                        {new StringContent(_apiToken), "token" },
+                        {new StringContent("file") ,"content" },
+                        {new StringContent("import"), "action" },
+                        {new StringContent(_record), "record" },
+                        {new StringContent(_field), "field" },
+                        {new StringContent(_eventName),  "event" },
+                        {new StringContent(_returnFormat), "returnFormat" }
+                };
+                if (!string.IsNullOrEmpty(_repeatInstance))
+                {
+                    // add repeat instrument params if available
+                    payload.Add(new StringContent(_repeatInstance), "repeat_instance");
+                }
+                if (string.IsNullOrEmpty(_fileName) || string.IsNullOrEmpty(_filePath))
+                {
+
+                    throw new InvalidOperationException($"file can not be empty or null");
+                }
+                else
+                {
+                    // add the binary file in specific content type
+                    _fileContent = new ByteArrayContent(File.ReadAllBytes(_binaryFile));
+                    _fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                    payload.Add(_fileContent, "file", _fileName);
+                }
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error(Ex.Message);
+                return string.Empty;
+            }
         }
         /// <summary>
-        /// Not implemented
+        /// This method allows you to remove a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
         /// </summary>
-        /// <returns></returns>
-        public Task<string> DeleteFile()
+        /// <param name="record">the record ID</param>
+        /// <param name="field">the name of the field that contains the file</param>
+        /// <param name="eventName">the unique event name - only for longitudinal projects</param>
+        /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <returns>String</returns>
+        public async Task<string> DeleteFileAsync(string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
         {
-            throw new NotImplementedException();
+            try
+            {
+                string _responseMessage;
+                var _returnFormat = returnFormat.ToString();
+                var _eventName = eventName;
+                var _repeatInstance = repeatInstance;
+                var _record = record;
+                var _field = field;
+                var payload = new MultipartFormDataContent()
+                {
+                        {new StringContent(_apiToken), "token" },
+                        {new StringContent("file") ,"content" },
+                        {new StringContent("delete"), "action" },
+                        {new StringContent(_record), "record" },
+                        {new StringContent(_field), "field" },
+                        {new StringContent(_eventName),  "event" },
+                        {new StringContent(_returnFormat), "returnFormat" }
+                };
+                if (!string.IsNullOrEmpty(_repeatInstance))
+                {
+                    // add repeat instrument params if available
+                    payload.Add(new StringContent(_repeatInstance), "repeat_instance");
+                }
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error(Ex.Message);
+                return string.Empty;
+            }
         }
         /// <summary>
         /// Not implemented

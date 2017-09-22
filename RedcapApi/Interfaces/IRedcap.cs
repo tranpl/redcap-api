@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Redcap.Models;
 
@@ -63,7 +64,6 @@ namespace Redcap.Interfaces
         /// <param name="arms"></param>
         /// <returns></returns>
         Task<string> ExportEventsAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json, int[] arms = null);
-
         /// <summary>
         /// 
         /// </summary>
@@ -85,20 +85,41 @@ namespace Redcap.Interfaces
         /// <returns></returns>
         Task<string> ExportFields();
         /// <summary>
-        /// Not implemented
+        /// Method export a single file from a record within a project
         /// </summary>
-        /// <returns></returns>
-        Task<string> ExportFile();
+        /// <param name="record"></param>
+        /// <param name="field"></param>
+        /// <param name="eventName"></param>
+        /// <param name="repeatInstance"></param>
+        /// <param name="filePath"></param>
+        /// <param name="returnFormat"></param>
+        /// <example>
+        /// The MIME type of the file, along with the name of the file and its extension, can be found in the header of the returned response. Thus in order to determine these attributes of the file being exported, you will need to parse the response header. Example: content-type = application/vnd.openxmlformats-officedocument.wordprocessingml.document; name='FILE_NAME.docx'
+        /// </example>
+        /// <returns>the contents of the file</returns>
+        Task<string> ExportFileAsync(string record, string field, string eventName, string repeatInstance, string filePath, ReturnFormat returnFormat = ReturnFormat.json);
         /// <summary>
-        /// Not implemented
+        ///  This method allows you to upload a document that will be attached to an individual record for a File Upload field. Please note that this method may NOT be used for Signature fields (i.e. File Upload fields with 'signature' validation type) because a signature can only be captured and stored using the web interface. 
         /// </summary>
-        /// <returns></returns>
-        Task<string> ImportFile();
+        /// <param name="record">the record ID</param>
+        /// <param name="field">the name of the field that contains the file</param>
+        /// <param name="eventName">the unique event name - only for longitudinal projects</param>
+        /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param> 
+        /// <param name="fileName">The File you be imported, contents of the file</param>
+        /// <param name="filePath">the path where the file is located</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <returns>csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</returns>
+        Task<string> ImportFileAsync(string record, string field, string eventName, string repeatInstance, string fileName, string filePath, ReturnFormat returnFormat = ReturnFormat.json);
         /// <summary>
-        /// Not implemented
+        /// This method allows you to remove a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
         /// </summary>
-        /// <returns></returns>
-        Task<string> DeleteFile();
+        /// <param name="record">the record ID</param>
+        /// <param name="field">the name of the field that contains the file</param>
+        /// <param name="eventName">the unique event name - only for longitudinal projects</param>
+        /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <returns>String</returns>
+        Task<string> DeleteFileAsync(string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json);
         /// <summary>
         /// Not implemented
         /// </summary>
@@ -298,7 +319,6 @@ namespace Redcap.Interfaces
         /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <param name="delimiters">char[] e.g [';',',']</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-
         Task<string> GetRecordAsync(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
 
         /// <summary>

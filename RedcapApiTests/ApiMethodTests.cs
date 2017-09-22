@@ -10,7 +10,7 @@ namespace RedcapApiTests
     public class ApiMethodTests
     {
         
-        private string _apiKey = "3D57A7FA57C8A43F6C8803A84BB3957B";
+        private string _apiKey = "ED2D0A2E34D9693DCA7E9E6BD5F0941C";
         private string _apiEndpoint = "http://localhost/redcap/api/";
         public ApiMethodTests()
         {
@@ -127,7 +127,7 @@ namespace RedcapApiTests
             // Arrange
             var apiKey = _apiKey;
             var apiEndpoint = _apiEndpoint;
-            var username = "site_admin";
+            var username = "tranpl";
             // Act
             var redcap_api = new RedcapApi(apiKey, apiEndpoint);
             var result = redcap_api.ExportUsersAsync(InputFormat.json, ReturnFormat.json).Result;
@@ -148,7 +148,7 @@ namespace RedcapApiTests
             var record = new
             {
                 record_id = "1",
-                redcap_event_name = "event_1_arm_1",
+                redcap_event_name = "1_arm_1",
                 first_name = "John",
                 last_name = "Doe"
             };
@@ -172,7 +172,7 @@ namespace RedcapApiTests
             var record = new
             {
                 record_id = "1",
-                redcap_event_name = "event_1_arm_1",
+                redcap_event_name = "1_arm_1",
                 first_name = "John",
                 last_name = "Doe"
             };
@@ -229,7 +229,7 @@ namespace RedcapApiTests
             var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert
-            StringAssert.Contains("event_1_arm_1", data);
+            StringAssert.Contains("arm_num", data);
         }
 
         [TestCase]
@@ -257,6 +257,54 @@ namespace RedcapApiTests
 
             // Assert
             StringAssert.Contains("1", data);
+        }
+        [TestCase]
+        public void CanImportFileAsync_File_ShouldReturn_Empty_string()
+        {
+            // Arrange
+            var apiKey = _apiKey;
+            var apiEndpoint = _apiEndpoint;
+            var pathImport = "C:\\redcap_download_files";
+            string importFileName = "test2.java";
+
+            // Act
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.ImportFileAsync("1", "protocol_upload", "1_arm_1", "", importFileName, pathImport, ReturnFormat.json).Result;
+
+            // Assert
+            StringAssert.Contains(string.Empty, result);
+        }
+
+        [TestCase]
+        public void CanExportFileAsync_File_ShouldReturn_string()
+        {
+            // Arrange
+            var apiKey = _apiKey;
+            var apiEndpoint = _apiEndpoint;
+            var pathExport = "C:\\redcap_download_files";
+
+            // Act
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.ExportFileAsync("1", "protocol_upload", "1_arm_1", "", pathExport, ReturnFormat.json).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert
+            var expectedString = "test2.java";
+            StringAssert.Contains(expectedString, data);
+        }
+        [TestCase]
+        public void CanDeleteFileAsync_File_ShouldReturn_Empty_string()
+        {
+            // Arrange
+            var apiKey = _apiKey;
+            var apiEndpoint = _apiEndpoint;
+
+            // Act
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.DeleteFileAsync("1", "protocol_upload", "1_arm_1", "", ReturnFormat.json).Result;
+
+            // Assert
+            StringAssert.Contains(string.Empty, result);
         }
 
     }
