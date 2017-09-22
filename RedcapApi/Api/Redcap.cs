@@ -43,30 +43,40 @@ namespace Redcap
         /// </summary>
         /// <param name="payload"></param>
         /// <returns>String</returns>
-        private async Task<HttpResponseMessage> SendRequestAsync(MultipartFormDataContent payload)
+        private async Task<string> SendRequestAsync(MultipartFormDataContent payload)
         {
-            using (var client = new HttpClient())
+            try
             {
-                client.BaseAddress = _redcapApiUri;
-                using (var response = await client.PostAsync(client.BaseAddress, payload))
+                using (var client = new HttpClient())
                 {
-                    if (response.IsSuccessStatusCode)
+                    client.BaseAddress = _redcapApiUri;
+                    using (var response = await client.PostAsync(client.BaseAddress, payload))
                     {
-                        return response;
+                        if (response.IsSuccessStatusCode)
+                        {
+                            return await response.Content.ReadAsStringAsync();
+                        }
                     }
-                    return response;
                 }
+                return string.Empty;
             }
+            catch (Exception Ex)
+            {
+                Log.Error(Ex.Message);
+                return string.Empty;
+            }
+
         }
         /// <summary>
         /// Method sends payload using HttpClient
         /// </summary>
         /// <param name="payload"></param>
         /// <returns></returns>
-        private async Task<HttpResponseMessage> SendRequestAsync(Dictionary<string, string> payload)
+        private async Task<string> SendRequestAsync(Dictionary<string, string> payload)
         {
             try
             {
+                string _responseMessage;
                 using (var client = new HttpClient())
                 {
                     client.BaseAddress = _redcapApiUri;
@@ -97,18 +107,28 @@ namespace Redcap
                                 {
                                     // save the file to a specified location using an extension method
                                     await response.Content.ReadAsFileAsync(fileName, pathValue, true);
+                                    _responseMessage = fileName;
                                 }
+                                else
+                                {
+                                    _responseMessage = await response.Content.ReadAsStringAsync();
+                                }
+                                
                             }
-                            return response;
+                            else
+                            {
+                                _responseMessage = await response.Content.ReadAsStringAsync();
+                            }
                         }
                     }
                 }
+                return _responseMessage;
 
             }
             catch (Exception Ex)
             {
                 Log.Error(Ex.Message);
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
         /// <summary>
@@ -209,7 +229,7 @@ namespace Redcap
         /// <param name="inputFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <returns>The current REDCap version number (three numbers delimited with two periods) as plain text - e.g., 4.13.18, 5.12.2, 6.0.0</returns>
-        public delegate Task<HttpResponseMessage> GetRedcapVersion(InputFormat inputFormat, RedcapDataType redcapDataType);
+        public delegate Task<string> GetRedcapVersion(InputFormat inputFormat, RedcapDataType redcapDataType);
         /// <summary>
         /// 
         /// </summary>
@@ -222,7 +242,7 @@ namespace Redcap
         /// <param name="events"></param>
         /// <param name="fields"></param>
         /// <returns>string</returns>
-        public delegate Task<HttpResponseMessage> ExportRecord(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
+        public delegate Task<string> ExportRecord(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
         /// <summary>
         /// 
         /// </summary>
@@ -235,7 +255,7 @@ namespace Redcap
         /// <param name="events"></param>
         /// <param name="fields"></param>
         /// <returns>string</returns>
-        public delegate Task<HttpResponseMessage> ExportRecords(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
+        public delegate Task<string> ExportRecords(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
 
         /// <summary>
         /// This method converts string[] into string. For example, given string of "firstName, lastName, age"
@@ -313,11 +333,11 @@ namespace Redcap
         /// <param name="inputFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
-        public async Task<HttpResponseMessage> GetMetaDataAsync(InputFormat? inputFormat, ReturnFormat? returnFormat)
+        public async Task<string> GetMetaDataAsync(InputFormat? inputFormat, ReturnFormat? returnFormat)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 // Handle optional parameters
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
                 var payload = new Dictionary<string, string>
@@ -333,7 +353,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
 
@@ -346,11 +366,11 @@ namespace Redcap
         /// <param name="fields">example: "firstName, lastName, age"</param>
         /// <param name="forms">example: "demographics, labs, administration"</param>
         /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
-        public async Task<HttpResponseMessage> GetMetaDataAsync(InputFormat? inputFormat, ReturnFormat? returnFormat, char[] delimiters, string fields = "", string forms = "")
+        public async Task<string> GetMetaDataAsync(InputFormat? inputFormat, ReturnFormat? returnFormat, char[] delimiters, string fields = "", string forms = "")
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var _fields = "";
                 var _forms = "";
                 var _response = String.Empty;
@@ -392,7 +412,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
         
@@ -670,11 +690,11 @@ namespace Redcap
         /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <param name="delimiters">char[] e.g [';',',']</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<HttpResponseMessage> GetRecordAsync(string record, InputFormat inputFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
+        public async Task<string> GetRecordAsync(string record, InputFormat inputFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var _records = String.Empty;
                 if (delimiters.Length == 0)
                 {
@@ -710,7 +730,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
 
@@ -735,9 +755,9 @@ namespace Redcap
         /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <param name="delimiters">char[] e.g [';',',']</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<HttpResponseMessage> GetRecordAsync(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
+        public async Task<string> GetRecordAsync(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
         {
-            HttpResponseMessage _responseMessage;
+            string _responseMessage;
             try
             {
                 var _records = String.Empty;
@@ -799,7 +819,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
 
@@ -818,9 +838,9 @@ namespace Redcap
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<HttpResponseMessage> GetRecordsAsync(InputFormat inputFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType)
+        public async Task<string> GetRecordsAsync(InputFormat inputFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType)
         {
-            HttpResponseMessage _responseMessage;
+            string _responseMessage;
             try
             {
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat, redcapDataType);
@@ -839,7 +859,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
 
@@ -849,11 +869,11 @@ namespace Redcap
         /// <param name="inputFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <returns>The current REDCap version number (three numbers delimited with two periods) as plain text - e.g., 4.13.18, 5.12.2, 6.0.0</returns>
-        public async Task<HttpResponseMessage> GetRedcapVersionAsync(InputFormat inputFormat, RedcapDataType redcapDataType)
+        public async Task<string> GetRedcapVersionAsync(InputFormat inputFormat, RedcapDataType redcapDataType)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, ReturnFormat.json, redcapDataType);
                 var payload = new Dictionary<string, string>
                 {
@@ -869,7 +889,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
 
@@ -883,11 +903,11 @@ namespace Redcap
         /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns>the content specified by returnContent</returns>
-        public async Task<HttpResponseMessage> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? inputFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat)
+        public async Task<string> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? inputFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat, redcapDataType);
                 if (data != null)
                 {
@@ -920,7 +940,7 @@ namespace Redcap
             {
                 Log.Error($"Could not save records into redcap.");
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
 
         }
@@ -936,11 +956,11 @@ namespace Redcap
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <param name="dateFormat">MDY, DMY, YMD [default] - the format of values being imported for dates or datetime fields (understood with M representing 'month', D as 'day', and Y as 'year') - NOTE: The default format is Y-M-D (with dashes), while MDY and DMY values should always be formatted as M/D/Y or D/M/Y (with slashes), respectively.</param>
         /// <returns>the content specified by returnContent</returns>
-        public async Task<HttpResponseMessage> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? inputFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string dateFormat = "MDY")
+        public async Task<string> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? inputFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string dateFormat = "MDY")
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 string _dateFormat = dateFormat;
                 // Handle optional parameters
                 if (String.IsNullOrEmpty(_dateFormat))
@@ -976,13 +996,13 @@ namespace Redcap
                     _responseMessage = await SendRequestAsync(payload);
                     return _responseMessage; 
                 }
-                return new HttpResponseMessage { };
+                return string.Empty;
                 
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return await Task.FromResult(new HttpResponseMessage { });
+                return await Task.FromResult(string.Empty);
             }
         }
 
@@ -997,11 +1017,11 @@ namespace Redcap
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <param name="dateFormat">MDY, DMY, YMD [default] - the format of values being imported for dates or datetime fields (understood with M representing 'month', D as 'day', and Y as 'year') - NOTE: The default format is Y-M-D (with dashes), while MDY and DMY values should always be formatted as M/D/Y or D/M/Y (with slashes), respectively.</param>
         /// <returns>the content specified by returnContent</returns>
-        public async Task<HttpResponseMessage> SaveRecordsAsync(List<string> data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? inputFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string dateFormat = "MDY")
+        public async Task<string> SaveRecordsAsync(List<string> data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? inputFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string dateFormat = "MDY")
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat, redcapDataType);
                 var _returnContent = await HandleReturnContent(returnContent);
                 var _overWriteBehavior = await ExtractBehaviorAsync(overwriteBehavior);
@@ -1034,12 +1054,12 @@ namespace Redcap
                     _responseMessage = await SendRequestAsync(payload);
                     return _responseMessage;
                 }
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return await Task.FromResult(new HttpResponseMessage { });
+                return await Task.FromResult(string.Empty);
             }
 
         }
@@ -1054,11 +1074,11 @@ namespace Redcap
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <param name="dateFormat">MDY, DMY, YMD [default] - the format of values being imported for dates or datetime fields (understood with M representing 'month', D as 'day', and Y as 'year') - NOTE: The default format is Y-M-D (with dashes), while MDY and DMY values should always be formatted as M/D/Y or D/M/Y (with slashes), respectively.</param>
         /// <returns>Returns the content with format specified.</returns>
-        public async Task<HttpResponseMessage> ImportRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? inputFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string dateFormat = "MDY")
+        public async Task<string> ImportRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? inputFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string dateFormat = "MDY")
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 string _dateFormat = dateFormat;
                 // Handle optional parameters
                 if (String.IsNullOrEmpty(_dateFormat))
@@ -1094,12 +1114,12 @@ namespace Redcap
                     _responseMessage = await SendRequestAsync(payload);
                     return _responseMessage;
                 }
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return await Task.FromResult(new HttpResponseMessage { });
+                return await Task.FromResult(string.Empty);
             }
         }
 
@@ -1109,11 +1129,11 @@ namespace Redcap
         /// <param name="inputFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <param name="returnFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
-        public async Task<HttpResponseMessage> ExportMetaDataAsync(InputFormat? inputFormat, ReturnFormat? returnFormat)
+        public async Task<string> ExportMetaDataAsync(InputFormat? inputFormat, ReturnFormat? returnFormat)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 // Handle optional parameters
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
                 var payload = new Dictionary<string, string>
@@ -1129,7 +1149,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
 
         }
@@ -1143,11 +1163,11 @@ namespace Redcap
         /// <param name="fields">example: "firstName, lastName, age"</param>
         /// <param name="forms">example: "demographics, labs, administration"</param>
         /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
-        public async Task<HttpResponseMessage> ExportMetaDataAsync(InputFormat? inputFormat, ReturnFormat? returnFormat, char[] delimiters, string fields = "", string forms = "")
+        public async Task<string> ExportMetaDataAsync(InputFormat? inputFormat, ReturnFormat? returnFormat, char[] delimiters, string fields = "", string forms = "")
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var _fields = "";
                 var _forms = "";
                 if (delimiters.Length == 0)
@@ -1188,7 +1208,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
         
@@ -1199,11 +1219,11 @@ namespace Redcap
         /// <param name="returnFormat"></param>
         /// <param name="arms">an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
         /// <returns></returns>
-        public async Task<HttpResponseMessage> ExportEventsAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json, int[] arms = null)
+        public async Task<string> ExportEventsAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json, int[] arms = null)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var _arms = "";
                 // Handle optional parameters
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
@@ -1226,7 +1246,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
         
@@ -1236,11 +1256,11 @@ namespace Redcap
         /// <param name="inputFormat">csv, json [default], xml </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns>Events for the project in the format specified</returns>
-        public async Task<HttpResponseMessage> ExportEventsAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json)
+        public async Task<string> ExportEventsAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 // Handle optional parameters
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
                 var payload = new Dictionary<string, string>
@@ -1256,7 +1276,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
         /// <summary>
@@ -1271,7 +1291,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> DeleteEvents(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> DeleteEvents(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1279,7 +1299,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportFields(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> ExportFields(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1287,7 +1307,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> DeleteFile(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> DeleteFile(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1295,7 +1315,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportInstruments(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> ExportInstruments(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1303,7 +1323,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> ExportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1311,7 +1331,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ImportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> ImportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1319,7 +1339,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> CreateProject(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> CreateProject(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1327,7 +1347,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ImportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> ImportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1335,7 +1355,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> ExportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1343,7 +1363,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportProjectXml(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> ExportProjectXml(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1351,7 +1371,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> GenerateNextRecordName(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> GenerateNextRecordName(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1367,11 +1387,11 @@ namespace Redcap
         /// <param name="events">an array of unique event names that you wish to pull records for - only for longitudinal projects</param>
         /// <param name="fields">an array of field names specifying specific fields you wish to pull (by default, all fields are pulled)</param>
         /// <returns></returns>
-        public async Task<HttpResponseMessage> ExportRecordAsync(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
+        public async Task<string> ExportRecordAsync(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 string _response;
                 if (delimiters == null)
                 {
@@ -1432,7 +1452,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
         
@@ -1448,11 +1468,11 @@ namespace Redcap
         /// <param name="events">an array of unique event names that you wish to pull records for - only for longitudinal projects</param>
         /// <param name="fields">an array of field names specifying specific fields you wish to pull (by default, all fields are pulled)</param>
         /// <returns></returns>
-        public async Task<HttpResponseMessage> ExportRecordsAsync(string records, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
+        public async Task<string> ExportRecordsAsync(string records, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var _records = String.Empty;
                 if (delimiters == null)
                 {
@@ -1513,7 +1533,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
         /// <summary>
@@ -1527,11 +1547,11 @@ namespace Redcap
         /// <param name="events">an array of unique event names that you wish to pull records for - only for longitudinal projects</param>
         /// <param name="fields">an array of field names specifying specific fields you wish to pull (by default, all fields are pulled)</param>
         /// <returns></returns>
-        public async Task<HttpResponseMessage> ExportRecordsAsync(InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
+        public async Task<string> ExportRecordsAsync(InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var _records = String.Empty;
                 if (delimiters == null)
                 {
@@ -1579,14 +1599,14 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
         /// <summary>
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ImportRecords(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> ImportRecords(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1594,7 +1614,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> DeleteRecords(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> DeleteRecords(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1605,11 +1625,11 @@ namespace Redcap
         /// <param name="inputFormat">0 = JSON (default), 1 = CSV, 2 = XML</param>
         /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <returns>The current REDCap version number (three numbers delimited with two periods) as plain text - e.g., 4.13.18, 5.12.2, 6.0.0</returns>
-        public async Task<HttpResponseMessage> ExportRedcapVersionAsync(InputFormat inputFormat, RedcapDataType redcapDataType)
+        public async Task<string> ExportRedcapVersionAsync(InputFormat inputFormat, RedcapDataType redcapDataType)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, ReturnFormat.json, redcapDataType);
                 var payload = new Dictionary<string, string>
                 {
@@ -1626,14 +1646,14 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
         /// <summary>
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportSurveyLink(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> ExportSurveyLink(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1641,7 +1661,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportSurveyParticipants(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> ExportSurveyParticipants(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1649,7 +1669,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportSurveyQueueLink(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> ExportSurveyQueueLink(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1657,7 +1677,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportSurveyReturnCode(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> ExportSurveyReturnCode(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1674,11 +1694,11 @@ namespace Redcap
         /// Form Rights: 0=No Access, 2=Read Only, 1=View records/responses and edit records(survey responses are read-only), 3=Edit survey responses
         /// Other attribute values: 0=No Access, 1=Access.
         /// </example>
-        public async Task<HttpResponseMessage> ExportUsersAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json)
+        public async Task<string> ExportUsersAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var _inputFormat = inputFormat.ToString();
                 var _returnFormat = returnFormat.ToString();
                 var payload = new Dictionary<string, string>
@@ -1696,7 +1716,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
 
         }
@@ -1709,7 +1729,7 @@ namespace Redcap
         /// <param name="inputFormat"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ImportUsers(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
+        public Task<string> ImportUsers(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             throw new NotImplementedException();
         }
@@ -1729,11 +1749,11 @@ namespace Redcap
         /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
         /// <param name="delimiters">char[] e.g [';',',']</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<HttpResponseMessage> GetRecordsAsync(InputFormat inputFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
+        public async Task<string> GetRecordsAsync(InputFormat inputFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var _records = String.Empty;
                 if (delimiters == null)
                 {
@@ -1755,7 +1775,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
         /// <summary>
@@ -1765,11 +1785,11 @@ namespace Redcap
         /// <param name="inputFormat">csv, json, xml [default]</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns>Arms for the project in the format specified</returns>
-        public async Task<HttpResponseMessage> ExportArmsAsync(InputFormat inputFormat, ReturnFormat returnFormat)
+        public async Task<string> ExportArmsAsync(InputFormat inputFormat, ReturnFormat returnFormat)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
 
                 var payload = new Dictionary<string, string>
@@ -1787,7 +1807,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
 
@@ -1828,11 +1848,11 @@ namespace Redcap
         /// <param name="inputFormat"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
-        public async Task<HttpResponseMessage> ImportArmsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat)
+        public async Task<string> ImportArmsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
                 var _override = overRide.ToString();
                 var _serializedData = JsonConvert.SerializeObject(data);
@@ -1854,7 +1874,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
         /// <summary>
@@ -1864,11 +1884,11 @@ namespace Redcap
         /// <typeparam name="T"></typeparam>
         /// <param name="data"></param>
         /// <returns></returns>
-        public async Task<HttpResponseMessage> DeleteArmsAsync<T>(T data)
+        public async Task<string> DeleteArmsAsync<T>(T data)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                 {
@@ -1884,7 +1904,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
 
         }
@@ -1898,11 +1918,11 @@ namespace Redcap
         /// <param name="inputFormat">csv, json, xml [default]</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns>Number of Events imported</returns>
-        public async Task<HttpResponseMessage> ImportEventsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json)
+        public async Task<string> ImportEventsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
                 var _override = overRide.ToString();
                 var _serializedData = JsonConvert.SerializeObject(data);
@@ -1924,7 +1944,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
 
         }
@@ -1932,7 +1952,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> DeleteEvents()
+        public Task<string> DeleteEvents()
         {
             throw new NotImplementedException();
         }
@@ -1940,7 +1960,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportFields()
+        public Task<string> ExportFields()
         {
             throw new NotImplementedException();
         }
@@ -1957,11 +1977,11 @@ namespace Redcap
         /// The MIME type of the file, along with the name of the file and its extension, can be found in the header of the returned response. Thus in order to determine these attributes of the file being exported, you will need to parse the response header. Example: content-type = application/vnd.openxmlformats-officedocument.wordprocessingml.document; name='FILE_NAME.docx'
         /// </example>
         /// <returns>the contents of the file</returns>
-        public async Task<HttpResponseMessage> ExportFileAsync(string record, string field, string eventName, string repeatInstance, string filePath = null, ReturnFormat returnFormat = ReturnFormat.json)
+        public async Task<string> ExportFileAsync(string record, string field, string eventName, string repeatInstance, string filePath = null, ReturnFormat returnFormat = ReturnFormat.json)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var _filePath = filePath;
                 if (!string.IsNullOrEmpty(filePath))
                 {
@@ -1998,7 +2018,7 @@ namespace Redcap
             catch(Exception Ex)
             {
                 Log.Error(Ex.Message);
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
         /// <summary>
@@ -2012,12 +2032,12 @@ namespace Redcap
         /// <param name="filePath">the path where the file is located</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns>csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</returns>
-        public async Task<HttpResponseMessage> ImportFileAsync(string record, string field, string eventName, string repeatInstance, string fileName, string filePath, ReturnFormat returnFormat = ReturnFormat.json)
+        public async Task<string> ImportFileAsync(string record, string field, string eventName, string repeatInstance, string fileName, string filePath, ReturnFormat returnFormat = ReturnFormat.json)
         {
             
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var _fileName = fileName;
                 var _filePath = filePath;
                 var _binaryFile = Path.Combine(_filePath, _fileName);
@@ -2060,7 +2080,7 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error(Ex.Message);
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
         /// <summary>
@@ -2072,11 +2092,11 @@ namespace Redcap
         /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns>String</returns>
-        public async Task<HttpResponseMessage> DeleteFileAsync(string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
+        public async Task<string> DeleteFileAsync(string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
         {
             try
             {
-                HttpResponseMessage _responseMessage;
+                string _responseMessage;
                 var _returnFormat = returnFormat.ToString();
                 var _eventName = eventName;
                 var _repeatInstance = repeatInstance;
@@ -2103,14 +2123,14 @@ namespace Redcap
             catch (Exception Ex)
             {
                 Log.Error(Ex.Message);
-                return new HttpResponseMessage { };
+                return string.Empty;
             }
         }
         /// <summary>
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportInstruments()
+        public Task<string> ExportInstruments()
         {
             throw new NotImplementedException();
         }
@@ -2118,7 +2138,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportPdfInstrument()
+        public Task<string> ExportPdfInstrument()
         {
             throw new NotImplementedException();
         }
@@ -2126,7 +2146,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ImportPdfInstrument()
+        public Task<string> ImportPdfInstrument()
         {
             throw new NotImplementedException();
         }
@@ -2134,7 +2154,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> CreateProject()
+        public Task<string> CreateProject()
         {
             throw new NotImplementedException();
         }
@@ -2142,7 +2162,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ImportProjectInfo()
+        public Task<string> ImportProjectInfo()
         {
             throw new NotImplementedException();
         }
@@ -2150,7 +2170,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportProjectInfo()
+        public Task<string> ExportProjectInfo()
         {
             throw new NotImplementedException();
         }
@@ -2158,7 +2178,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportProjectXml()
+        public Task<string> ExportProjectXml()
         {
             throw new NotImplementedException();
         }
@@ -2166,7 +2186,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> GenerateNextRecordName()
+        public Task<string> GenerateNextRecordName()
         {
             throw new NotImplementedException();
         }
@@ -2174,7 +2194,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ImportRecords()
+        public Task<string> ImportRecords()
         {
             throw new NotImplementedException();
         }
@@ -2182,7 +2202,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> DeleteRecords()
+        public Task<string> DeleteRecords()
         {
             throw new NotImplementedException();
         }
@@ -2190,7 +2210,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportRedcapVersion()
+        public Task<string> ExportRedcapVersion()
         {
             throw new NotImplementedException();
         }
@@ -2198,7 +2218,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportSurveyLink()
+        public Task<string> ExportSurveyLink()
         {
             throw new NotImplementedException();
         }
@@ -2206,7 +2226,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportSurveyParticipants()
+        public Task<string> ExportSurveyParticipants()
         {
             throw new NotImplementedException();
         }
@@ -2214,7 +2234,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportSurveyQueueLink()
+        public Task<string> ExportSurveyQueueLink()
         {
             throw new NotImplementedException();
         }
@@ -2222,7 +2242,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<HttpResponseMessage> ExportSurveyReturnCode()
+        public Task<string> ExportSurveyReturnCode()
         {
             throw new NotImplementedException();
         }
