@@ -63,7 +63,6 @@ namespace Redcap.Interfaces
         /// <param name="arms"></param>
         /// <returns></returns>
         Task<string> ExportEventsAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json, int[] arms = null);
-
         /// <summary>
         /// 
         /// </summary>
