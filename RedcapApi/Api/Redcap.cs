@@ -22,7 +22,13 @@ namespace Redcap
     /// </summary>
     public class RedcapApi: IRedcap
     {
+        /// <summary>
+        /// Redcap Api Token required
+        /// </summary>
         private static string _apiToken;
+        /// <summary>
+        /// Redcap Api Url
+        /// </summary>
         private static Uri _redcapApiUri;
         /// <summary>
         /// The version of redcap that the api is currently interacting with.
@@ -156,6 +162,40 @@ namespace Redcap
             return responseString;
         }
         /// <summary>
+        /// Method sends payload using HttpClient
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        public async Task<Stream> GetStreamContentAsync(Dictionary<string, string> payload)
+        {
+            try
+            {
+                Stream stream = null;
+                using (var client = new HttpClient())
+                {
+                    client.BaseAddress = _redcapApiUri;
+                    // Encode the values for payload
+                    var content = new FormUrlEncodedContent(payload);
+                    using (var response = await client.PostAsync(client.BaseAddress, content))
+                    {
+                        if (response.IsSuccessStatusCode)
+                        {
+                            stream = await response.Content.ReadAsStreamAsync();
+                            return stream;
+                        }
+                    }
+
+                }
+                return null;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error(Ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
         /// This method extracts and converts an object's properties and associated values to redcap type and values.
         /// </summary>
         /// <param name="input">Object</param>
@@ -231,7 +271,7 @@ namespace Redcap
         /// <returns>The current REDCap version number (three numbers delimited with two periods) as plain text - e.g., 4.13.18, 5.12.2, 6.0.0</returns>
         public delegate Task<string> GetRedcapVersion(InputFormat inputFormat, RedcapDataType redcapDataType);
         /// <summary>
-        /// 
+        /// This method allows you to export a set of records for a project.
         /// </summary>
         /// <param name="record"></param>
         /// <param name="inputFormat"></param>
@@ -244,7 +284,7 @@ namespace Redcap
         /// <returns>string</returns>
         public delegate Task<string> ExportRecord(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
         /// <summary>
-        /// 
+        /// This method allows you to export a set of records for a project.
         /// </summary>
         /// <param name="record"></param>
         /// <param name="inputFormat"></param>
@@ -1964,6 +2004,53 @@ namespace Redcap
         {
             throw new NotImplementedException();
         }
+        /// <summary>
+        /// This method allows you to download a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
+        /// </summary>
+        /// <param name="record">the record ID</param>
+        /// <param name="field">the name of the field that contains the file</param>
+        /// <param name="eventName">the unique event name - only for longitudinal projects</param>
+        /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param> 
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <example>
+        /// The MIME type of the file, along with the name of the file and its extension, can be found in the header of the returned response. Thus in order to determine these attributes of the file being exported, you will need to parse the response header. Example: content-type = application/vnd.openxmlformats-officedocument.wordprocessingml.document; name='FILE_NAME.docx'
+        /// </example>
+        /// <returns>the contents of the file</returns>
+        public async Task<string> ExportFileAsync(string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            try
+            {
+                string _responseMessage;
+                var _returnFormat = returnFormat.ToString();
+                var _eventName = eventName;
+                var _repeatInstance = repeatInstance;
+                var _record = record;
+                var _field = field;
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", _apiToken },
+                    { "content", "file" },
+                    { "action", "export" },
+                    { "record", _record },
+                    { "field", _field },
+                    { "event", _eventName },
+                    { "returnFormat", _returnFormat }
+                };
+                if (!string.IsNullOrEmpty(_repeatInstance))
+                {
+                    payload.Add("repeat_instance", _repeatInstance);
+                }
+                // Execute request
+                _responseMessage = await SendRequestAsync(payload);
+                return _responseMessage;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error(Ex.Message);
+                return string.Empty;
+            }
+        }
+
         /// <summary>
         /// This method allows you to download a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
         /// </summary>

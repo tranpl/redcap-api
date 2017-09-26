@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Redcap.Models;
 
 namespace Redcap.Interfaces
 {
     /// <summary>
-    /// REDCAP API VERSION 7.4.9
+    /// REDCAP VERSION 7.4.11
     /// This interface defines available methods for REDCap API.
     /// The REDCap API is an interface that allows external applications 
     /// to connect to REDCap remotely, and is used for programmatically 
