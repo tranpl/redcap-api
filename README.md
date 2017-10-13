@@ -3,12 +3,28 @@ The REDCap API (Application Programming Interface) for REDCap, lets you:
 1.  export/import/delete data in REDCap
 2.  export/import/delete project information (e.g., field names and types) in REDCap
 
+__API METHODS SUPPORTED__
+* ExportArmsAsync
+* ImportArmsAsync
+* DeleteArmsAsync
+* ExportEventAsync
+* ImportEventAsync  
+* ExportFileAsync
+* ImportFileAsync
+* DeleteFileAsync
+* ExportMetaDataAsync
+* ExportRecordsAsync
+* ImportRecordsAsync
+* ExportRedcapVersionAsync
+* ExportUsersAsync
+
 __Usage__:
 
 1. dotnet restore
 2. Add reference to the library in your project, or download from nuget into project
 3. Add "using Redcap" namespace
 4. Add "using Redcap.Models" for convenience
+5. Replace the demo api token with your test project
 
 __Example__
 ```C# 
@@ -40,11 +56,22 @@ namespace RedcapApiDemo
 ```
 
 __Install directly in Package Manager Console or Command Line Interface__
+```C#
+Install-Package RedcapAPI -Version 0.3.0-alpha  
+```
 
-```Install-Package RedcapAPI -Version 0.3.0-alpha  ```
-```dotnet add package RedcapAPI --version 0.3.0-alpha  ```
-```paket add RedcapAPI --version 0.3.0-alpha  ```
+```C#
+dotnet add package RedcapAPI --version 0.3.0-alpha 
+ ```
 
-__DEMO__
+```C#
+paket add RedcapAPI --version 0.3.0-alpha  
+```
+
+__Example Project__
 
 A console project has been included with the source code to get started.
+
+__Test Project__
+
+A project with associated test cases is included. Make sure to change the api token
