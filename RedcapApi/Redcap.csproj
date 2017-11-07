@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>Michael Tran</Authors>
     <Company>Virginia Commonwealth University</Company>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -10,8 +10,8 @@
     <Description>This library allows external applications to connect to REDCap remotely and is used to programmatically retrieve or modify data or settings within REDCap, e.g Import/Export records into Redcap</Description>
     <Product>Redcap Api Library</Product>
     <PackageId>RedcapAPI</PackageId>
-    <Version>0.4.0-alpha</Version>
-    <AssemblyVersion>0.4.0.0</AssemblyVersion>
+    <Version>0.4.1-alpha</Version>
+    <AssemblyVersion>0.4.1.0</AssemblyVersion>
     <PackageTags>redcap</PackageTags>
     <PackageReleaseNotes>alpha release</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
