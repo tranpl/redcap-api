@@ -1162,6 +1162,67 @@ namespace Redcap
                 return await Task.FromResult(string.Empty);
             }
         }
+        /// <summary>
+        /// This method allows you to import a set of records for a project.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="returnContent"></param>
+        /// <param name="overwriteBehavior"></param>
+        /// <param name="inputFormat"></param>
+        /// <param name="redcapDataType"></param>
+        /// <param name="returnFormat"></param>
+        /// <param name="apiToken"></param>
+        /// <param name="dateFormat"></param>
+        /// <returns></returns>
+        public async Task<string> ImportRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? inputFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string apiToken, string dateFormat = "MDY")
+        {
+            try
+            {
+                string _apiToken = apiToken;
+                string _responseMessage;
+                string _dateFormat = dateFormat;
+                // Handle optional parameters
+                if (String.IsNullOrEmpty(_dateFormat))
+                {
+                    _dateFormat = "MDY";
+                }
+                var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat, redcapDataType);
+                var _returnContent = await HandleReturnContent(returnContent);
+                var _overWriteBehavior = await ExtractBehaviorAsync(overwriteBehavior);
+
+                // Extract properties from object provided
+                if (data != null)
+                {
+                    //List<object> list = new List<object>
+                    //{
+                    //    data
+                    //};
+                    var formattedData = JsonConvert.SerializeObject(data);
+                    var payload = new Dictionary<string, string>
+                    {
+                        { "token", _apiToken },
+                        { "content", "record" },
+                        { "format", _inputFormat },
+                        { "type", _redcapDataType },
+                        { "overwriteBehavior", _overWriteBehavior },
+                        { "dateFormat", _dateFormat },
+                        { "returnFormat", _inputFormat },
+                        { "returnContent", _returnContent },
+                        { "data", formattedData }
+                    };
+
+                    // Execute send request
+                    _responseMessage = await SendRequestAsync(payload);
+                    return _responseMessage;
+                }
+                return string.Empty;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return await Task.FromResult(string.Empty);
+            }
+        }
 
         /// <summary>
         /// This method allows you to export the metadata for a project. 
