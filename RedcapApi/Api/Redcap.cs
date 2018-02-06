@@ -77,12 +77,13 @@ namespace Redcap
         /// Method sends payload using HttpClient
         /// </summary>
         /// <param name="payload"></param>
+        /// <param name="isLargeDataset">Set to True if your payload contains more than 30,000 characters in size. Method will send using StringContent to bypass char size limits.</param>
         /// <returns></returns>
-        private async Task<string> SendRequestAsync(Dictionary<string, string> payload)
+        private async Task<string> SendRequestAsync(Dictionary<string, string> payload, bool isLargeDataset = false)
         {
             try
             {
-                string _responseMessage;
+                string _responseMessage = String.Empty;
                 using (var client = new HttpClient())
                 {
                     client.BaseAddress = _redcapApiUri;
@@ -94,42 +95,92 @@ namespace Redcap
                         // the actual payload does not contain a 'filePath' key
                         payload.Remove(pathkey);
                     }
-                    // Encode the values for payload
-                    using (var content = new FormUrlEncodedContent(payload))
-                    {
-                        using (var response = await client.PostAsync(client.BaseAddress, content))
-                        {
-                            if (response.IsSuccessStatusCode)
-                            {
-                                // Get the filename so we can save with the name
-                                var fileHeaders = response.Content.Headers;
-                                var fileName = fileHeaders.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
-                                var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-                                {
-                                    FileName = fileName
-                                };
 
-                                if (!string.IsNullOrEmpty(pathValue))
+                    /*
+                     * Encode the values for payload
+                     * Add in ability to process large data set, using StringContent
+                     * Thanks to Ibrahim for pointing this out.
+                     * https://stackoverflow.com/questions/23703735/how-to-set-large-string-inside-httpcontent-when-using-httpclient/23740338
+                     */
+                    if (isLargeDataset)
+                    {
+                        var serializedPayload = JsonConvert.SerializeObject(payload);
+                        using (var content = new StringContent(serializedPayload, Encoding.UTF8, "application/json"))
+                        {
+                            using (var response = await client.PostAsync(client.BaseAddress, content))
+                            {
+                                if (response.IsSuccessStatusCode)
                                 {
-                                    // save the file to a specified location using an extension method
-                                    await response.Content.ReadAsFileAsync(fileName, pathValue, true);
-                                    _responseMessage = fileName;
+                                    // Get the filename so we can save with the name
+                                    var fileHeaders = response.Content.Headers;
+                                    var fileName = fileHeaders.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
+                                    var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                                    {
+                                        FileName = fileName
+                                    };
+
+                                    if (!string.IsNullOrEmpty(pathValue))
+                                    {
+                                        // save the file to a specified location using an extension method
+                                        await response.Content.ReadAsFileAsync(fileName, pathValue, true);
+                                        _responseMessage = fileName;
+                                    }
+                                    else
+                                    {
+                                        _responseMessage = await response.Content.ReadAsStringAsync();
+                                    }
+
                                 }
                                 else
                                 {
                                     _responseMessage = await response.Content.ReadAsStringAsync();
                                 }
-                                
                             }
-                            else
+
+                        }
+                        return _responseMessage;
+                    }
+                    else
+                    {
+                        /*
+                        * Maximum character limit of 32,000 using FormUrlEncodedContent
+                        */
+                        using (var content = new FormUrlEncodedContent(payload))
+                        {
+                            using (var response = await client.PostAsync(client.BaseAddress, content))
                             {
-                                _responseMessage = await response.Content.ReadAsStringAsync();
+                                if (response.IsSuccessStatusCode)
+                                {
+                                    // Get the filename so we can save with the name
+                                    var fileHeaders = response.Content.Headers;
+                                    var fileName = fileHeaders.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
+                                    var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                                    {
+                                        FileName = fileName
+                                    };
+
+                                    if (!string.IsNullOrEmpty(pathValue))
+                                    {
+                                        // save the file to a specified location using an extension method
+                                        await response.Content.ReadAsFileAsync(fileName, pathValue, true);
+                                        _responseMessage = fileName;
+                                    }
+                                    else
+                                    {
+                                        _responseMessage = await response.Content.ReadAsStringAsync();
+                                    }
+                                
+                                }
+                                else
+                                {
+                                    _responseMessage = await response.Content.ReadAsStringAsync();
+                                }
                             }
                         }
-                    }
-                }
-                return _responseMessage;
 
+                    }
+                    return _responseMessage;
+                }
             }
             catch (Exception Ex)
             {
@@ -1137,6 +1188,67 @@ namespace Redcap
                         data
                     };
                     var formattedData = JsonConvert.SerializeObject(list);
+                    var payload = new Dictionary<string, string>
+                    {
+                        { "token", _apiToken },
+                        { "content", "record" },
+                        { "format", _inputFormat },
+                        { "type", _redcapDataType },
+                        { "overwriteBehavior", _overWriteBehavior },
+                        { "dateFormat", _dateFormat },
+                        { "returnFormat", _inputFormat },
+                        { "returnContent", _returnContent },
+                        { "data", formattedData }
+                    };
+
+                    // Execute send request
+                    _responseMessage = await SendRequestAsync(payload);
+                    return _responseMessage;
+                }
+                return string.Empty;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return await Task.FromResult(string.Empty);
+            }
+        }
+        /// <summary>
+        /// This method allows you to import a set of records for a project.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="returnContent"></param>
+        /// <param name="overwriteBehavior"></param>
+        /// <param name="inputFormat"></param>
+        /// <param name="redcapDataType"></param>
+        /// <param name="returnFormat"></param>
+        /// <param name="apiToken"></param>
+        /// <param name="dateFormat"></param>
+        /// <returns></returns>
+        public async Task<string> ImportRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? inputFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string apiToken, string dateFormat = "MDY")
+        {
+            try
+            {
+                string _apiToken = apiToken;
+                string _responseMessage;
+                string _dateFormat = dateFormat;
+                // Handle optional parameters
+                if (String.IsNullOrEmpty(_dateFormat))
+                {
+                    _dateFormat = "MDY";
+                }
+                var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat, redcapDataType);
+                var _returnContent = await HandleReturnContent(returnContent);
+                var _overWriteBehavior = await ExtractBehaviorAsync(overwriteBehavior);
+
+                // Extract properties from object provided
+                if (data != null)
+                {
+                    //List<object> list = new List<object>
+                    //{
+                    //    data
+                    //};
+                    var formattedData = JsonConvert.SerializeObject(data);
                     var payload = new Dictionary<string, string>
                     {
                         { "token", _apiToken },

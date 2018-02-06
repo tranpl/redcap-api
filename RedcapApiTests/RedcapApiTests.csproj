@@ -1,24 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.6</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.7.99" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="NUnit" Version="3.8.1" />
+    <PackageReference Include="Moq" Version="4.8.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.1-beta3" />
+    <PackageReference Include="NUnit" Version="3.9.0" />
     <PackageReference Include="NUnit.Runners" Version="3.7.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.9.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Redcap">
-      <HintPath>..\RedcapApi\bin\Debug\netcoreapp1.1\Redcap.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
+    <ProjectReference Include="..\RedcapApi\Redcap.csproj" />
   </ItemGroup>
 
 </Project>

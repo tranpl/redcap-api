@@ -16,13 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Redcap">
-      <HintPath>..\RedcapApi\bin\Debug\netcoreapp1.1\Redcap.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\RedcapApi\Redcap.csproj" />
   </ItemGroup>
 
 </Project>
