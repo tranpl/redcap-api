@@ -6,14 +6,16 @@ using Xunit;
 
 namespace Tests
 {
+    /// <summary>
+    /// Test class for Redcap Api
+    /// </summary>
     public class RedcapApiTests
     {
-        private string _apiKey = "F4B0CF9D4380BE3672D2B4BDAE83383F";
+        private string _apiKey = "4AAE216218B33700456A30898F2D6417";
         private string _apiEndpoint = "http://localhost/redcap/api/";
         public RedcapApiTests()
         {
-
-            if (false) _apiKey = "F4B0CF9D4380BE3672D2B4BDAE83383F";
+            // initialize stuff here
         }
 
         [Fact]
@@ -257,6 +259,11 @@ namespace Tests
             // Assert
             Assert.Contains("1", data);
         }
+        /// <summary>
+        /// Test attempts to import a file into the redcap project
+        /// There are a few assumptions, please make sure you have the files and folders
+        /// exactly as shown, or name it to your needs.
+        /// </summary>
         [Fact]
         public void CanImportFileAsync_File_ShouldReturn_Empty_string()
         {
@@ -273,7 +280,9 @@ namespace Tests
             // Assert
             Assert.Contains(string.Empty, result);
         }
-
+        /// <summary>
+        /// Test attempts exports the file previously imported
+        /// </summary>
         [Fact]
         public void CanExportFileAsync_File_ShouldReturn_string()
         {
@@ -304,6 +313,26 @@ namespace Tests
 
             // Assert
             Assert.Contains(string.Empty, result);
+        }
+        [Fact]
+        public void CanExportRecordsAsync_Should_Return_String()
+        {
+            // Arrange
+            var apiKey = _apiKey;
+            var apiEndpoint = _apiEndpoint;
+            var records = new string[] { "1" };
+            var events = new string[] { };
+            var fields = new string[] { };
+            var forms = new string[] { };
+
+            // Act
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            
+            var result = redcap_api.ExportRecordsAsync(apiKey, "record",InputFormat.json, RedcapDataType.flat, records, fields, forms, events, "raw", "raw", false, ReturnFormat.json, false, false, null).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert
+            Assert.Contains("1", data);
         }
     }
 }
