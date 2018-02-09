@@ -54,5 +54,13 @@ namespace Redcap.Utilities
                 throw new InvalidOperationException($"{Ex.Message}");
             }
         }
+        /// https://stackoverflow.com/questions/8560106/isnullorempty-equivalent-for-array-c-sharp
+        /// <summary>Indicates whether the specified array is null or has a length of zero.</summary>
+        /// <param name="array">The array to test.</param>
+        /// <returns>true if the array parameter is null or has a length of zero; otherwise, false.</returns>
+        public static bool IsNullOrEmpty<T>(this T[] array)
+        {
+            return (array == null || array.Length == 0);
+        }
     }
 }

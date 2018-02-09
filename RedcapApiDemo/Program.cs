@@ -10,10 +10,23 @@ namespace RedcapApiDemo
     {
         static void Main(string[] args)
         {
-            
+            /**
+             * This is a demo.
+             * This program sequently runs through all the APIs.
+             * Go into Redcap and create a new project with demographics.
+             * Turn on longitudinal and add two additional event.
+             * Event name should be "Event 1, Event 2, Event 3"
+             * Create a folder in C: , name it redcap_download_files
+             * Create a text file in that folder, save it as test.txt
+             * Add a field, field type file upload to the project, name it "protocol_upload"
+             * This allows the upload file method to upload files
+             * 
+             * */
+
             Console.WriteLine("Redcap Api Demo Started!");
+            // change api token for your demo project
             var _apiToken = "ED2D0A2E34D9693DCA7E9E6BD5F0941C";
-            if (false) _apiToken = "BCC9D1F214B8BE2AA4F24C56ED7674E4";
+
             var redcapApi = new RedcapApi(_apiToken, "http://localhost/redcap/api/");
 
             Console.WriteLine("Calling GetRecordAsync() . . .");
@@ -74,18 +87,18 @@ namespace RedcapApiDemo
             Console.WriteLine($"ImportEventsAsync Result: {ImportEventsAsyncData}");
 
             var pathImport = "C:\\redcap_download_files";
-            string importFileName = "test2.java";
+            string importFileName = "test.txt";
             Console.WriteLine("Calling ImportportFile() . . .");
-            var ImportFile = redcapApi.ImportFileAsync("1", "protocol_upload", "1_arm_1", "", importFileName, pathImport, ReturnFormat.json).Result;
+            var ImportFile = redcapApi.ImportFileAsync("1", "protocol_upload", "Event_1_arm_1", "", importFileName, pathImport, ReturnFormat.json).Result;
             Console.WriteLine($"File has been imported!");
 
             var pathExport = "C:\\redcap_download_files";
             Console.WriteLine("Calling ExportFile() . . .");
-            var ExportFile = redcapApi.ExportFileAsync("1", "protocol_upload", "1_arm_1", "", pathExport, ReturnFormat.json).Result;
+            var ExportFile = redcapApi.ExportFileAsync("1", "protocol_upload", "Event_1_arm_1", "", pathExport, ReturnFormat.json).Result;
             Console.WriteLine($"ExportFile Result: {ExportFile} to : {pathExport}");
 
             Console.WriteLine("Calling DeleteFile() . . .");
-            var DeleteFile = redcapApi.DeleteFileAsync("1", "protocol_upload", "1_arm_1", "", ReturnFormat.json).Result;
+            var DeleteFile = redcapApi.DeleteFileAsync("1", "protocol_upload", "Event_1_arm_1", "", ReturnFormat.json).Result;
             Console.WriteLine($"File has been deleted!");
 
             Console.ReadLine();
