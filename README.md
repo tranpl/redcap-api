@@ -3,6 +3,13 @@ The REDCap API (Application Programming Interface) for REDCap, lets you:
 1.  export/import/delete data in REDCap
 2.  export/import/delete project information (e.g., field names and types) in REDCap
 
+__Prerequisites__
+1.  Local redcap instance instsalled (visit https://project-redcap.org) if you need to download files(assuming you have access)
+2.  Create a new project with "Demographics" for the template, this gives you a basic project to work with.
+3.  Create an api token for yourself, replace that with the tokens you see on the "RedcapApiTests.cs" files, and others
+4.  You'll need to add a field type of "file_upload" so that you can test the file upload interface of the API
+5.  Build the solution, then run the tests
+
 __API METHODS SUPPORTED__
 * ExportArmsAsync
 * ImportArmsAsync
