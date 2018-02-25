@@ -19,6 +19,10 @@
         /// <summary>
         /// Extensible Markup Language
         /// </summary>
-        xml = 2
+        xml = 2,
+        /// <summary>
+        /// CDISC ODM XML format, specifically ODM version 1.3.1
+        /// </summary>
+        odm = 3
     }
 }
