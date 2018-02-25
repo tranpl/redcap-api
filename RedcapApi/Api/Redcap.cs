@@ -38,9 +38,9 @@ namespace Redcap
         /// <summary>
         /// Constructor requires an api token and a valid uri.
         /// </summary>
-        /// <param name="apiToken"></param>
-        /// <param name="redcapApiUrl"></param>
-        public RedcapApi(string apiToken, string  redcapApiUrl)
+        /// <param name="apiToken">Redcap Api Token can be obtained from redcap project or redcap administrators</param>
+        /// <param name="redcapApiUrl">Redcap instance URI</param>
+        public RedcapApi(string apiToken, string redcapApiUrl)
         {
             _apiToken = apiToken?.ToString();
             _redcapApiUri = new Uri(redcapApiUrl.ToString());
@@ -65,12 +65,12 @@ namespace Redcap
                         }
                     }
                 }
-                return string.Empty;
+                return Empty;
             }
             catch (Exception Ex)
             {
                 Log.Error(Ex.Message);
-                return string.Empty;
+                return Empty;
             }
 
         }
@@ -2344,7 +2344,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<string> ExportPdfInstrument()
+        public Task<string> ExportPDFInstruments()
         {
             throw new NotImplementedException();
         }
@@ -2352,7 +2352,7 @@ namespace Redcap
         /// Not implemented
         /// </summary>
         /// <returns></returns>
-        public Task<string> ImportPdfInstrument()
+        public Task<string> ImportPDFInstrument()
         {
             throw new NotImplementedException();
         }
