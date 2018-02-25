@@ -62,5 +62,79 @@ namespace Redcap.Utilities
         {
             return (array == null || array.Length == 0);
         }
+        /// <summary>
+        /// This method converts string[] into string. For example, given string of "firstName, lastName, age"
+        /// gets converted to "["firstName","lastName","age"]" 
+        /// This is used as optional arguments for the Redcap Api
+        /// </summary>
+        /// <param name="redcapApi"></param>
+        /// <param name="inputArray"></param>
+        /// <returns>string[]</returns>
+        public static async Task<string> ConvertStringArraytoString(this RedcapApi redcapApi, string[] inputArray)
+        {
+            try
+            {
+                if (inputArray.IsNullOrEmpty())
+                {
+                    throw new ArgumentNullException("Please provide a valid array.");
+                }
+                StringBuilder builder = new StringBuilder();
+                foreach (string v in inputArray)
+                {
+
+                    builder.Append(v);
+                    // We do not need to append the , if less than or equal to a single string
+                    if (inputArray.Length <= 1)
+                    {
+                        return await Task.FromResult(builder.ToString());
+                    }
+                    builder.Append(",");
+                }
+                // We trim the comma from the string for clarity
+                return await Task.FromResult(builder.ToString().TrimEnd(','));
+
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return await Task.FromResult(String.Empty);
+            }
+        }
+        /// <summary>
+        /// This method converts int[] into a string. For example, given int[] of "[1,2,3]"
+        /// gets converted to "["1","2","3"]" 
+        /// This is used as optional arguments for the Redcap Api
+        /// </summary>
+        /// <param name="redcapApi"></param>
+        /// <param name="inputArray"></param>
+        /// <returns>string</returns>
+        public static async Task<string> ConvertIntArraytoString(this RedcapApi redcapApi, int[] inputArray)
+        {
+            try
+            {
+                StringBuilder builder = new StringBuilder();
+                foreach (var v in inputArray)
+                {
+
+                    builder.Append(v);
+                    // We do not need to append the , if less than or equal to a single string
+                    if (inputArray.Length <= 1)
+                    {
+                        return await Task.FromResult(builder.ToString());
+                    }
+                    builder.Append(",");
+                }
+                // We trim the comma from the string for clarity
+                return await Task.FromResult(builder.ToString().TrimEnd(','));
+
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return await Task.FromResult(String.Empty);
+            }
+        }
+
+
     }
 }

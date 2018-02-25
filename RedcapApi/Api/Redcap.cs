@@ -24,13 +24,21 @@ namespace Redcap
     public class RedcapApi: IRedcap
     {
         /// <summary>
-        /// Redcap Api Token required
+        /// Redcap Api Token
+        /// The token can be obtained from your redcap project.
         /// </summary>
-        private static string _apiToken;
+        /// <example>
+        /// 4AAE216218B33700456A30898F2D6417
+        /// </example>
+        private static string _token;
         /// <summary>
-        /// Redcap Api Url
+        /// Redcap API Uri
+        /// Location of your redcap instance
         /// </summary>
-        private static Uri _redcapApiUri;
+        /// <example>
+        /// https://localhost/redcap/api
+        /// </example>
+        private static Uri _uri;
         /// <summary>
         /// The version of redcap that the api is currently interacting with.
         /// </summary>
@@ -42,8 +50,8 @@ namespace Redcap
         /// <param name="redcapApiUrl">Redcap instance URI</param>
         public RedcapApi(string apiToken, string redcapApiUrl)
         {
-            _apiToken = apiToken?.ToString();
-            _redcapApiUri = new Uri(redcapApiUrl.ToString());
+            _token = apiToken?.ToString();
+            _uri = new Uri(redcapApiUrl.ToString());
         }
         /// <summary>
         /// Method sends payload using multipart form-data
@@ -56,7 +64,7 @@ namespace Redcap
             {
                 using (var client = new HttpClient())
                 {
-                    client.BaseAddress = _redcapApiUri;
+                    client.BaseAddress = _uri;
                     using (var response = await client.PostAsync(client.BaseAddress, payload))
                     {
                         if (response.IsSuccessStatusCode)
@@ -87,7 +95,7 @@ namespace Redcap
                 string _responseMessage = String.Empty;
                 using (var client = new HttpClient())
                 {
-                    client.BaseAddress = _redcapApiUri;
+                    client.BaseAddress = _uri;
                     // extract the filepath
                     var pathValue = payload.Where(x => x.Key == "filePath").FirstOrDefault().Value;
                     var pathkey = payload.Where(x => x.Key == "filePath").FirstOrDefault().Key;
@@ -199,7 +207,7 @@ namespace Redcap
             string responseString;
             using (var client = new HttpClient())
             {
-                client.BaseAddress = _redcapApiUri;
+                client.BaseAddress = _uri;
                 // Encode the values for payload
                 using (var content = new FormUrlEncodedContent(payload))
                 {
@@ -225,7 +233,7 @@ namespace Redcap
                 Stream stream = null;
                 using (var client = new HttpClient())
                 {
-                    client.BaseAddress = _redcapApiUri;
+                    client.BaseAddress = _uri;
                     // Encode the values for payload
                     var content = new FormUrlEncodedContent(payload);
                     using (var response = await client.PostAsync(client.BaseAddress, content))
@@ -352,80 +360,6 @@ namespace Redcap
         public delegate Task<string> ExportRecords(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
 
         /// <summary>
-        /// This method converts string[] into string. For example, given string of "firstName, lastName, age"
-        /// gets converted to "["firstName","lastName","age"]" 
-        /// This is used as optional arguments for the Redcap Api
-        /// </summary>
-        /// <param name="inputArray"></param>
-        /// <returns>string[]</returns>
-        private async Task<string> ConvertStringArraytoString(string[] inputArray)
-        {
-            try {
-                if (inputArray.IsNullOrEmpty())
-                {
-                    throw new ArgumentNullException("Please provide a valid array.");
-                }
-                StringBuilder builder = new StringBuilder();
-                //builder.Append('[');
-                foreach (string v in inputArray)
-                {
-
-                    builder.Append(v);
-                    // We do not need to append the , if less than or equal to 1 record
-                    if (inputArray.Length <= 1)
-                    {
-                        return await Task.FromResult(builder.ToString());
-                    }
-                    builder.Append(",");
-                }
-                // We trim the comma from the string for clarity
-                //builder.Append(']');
-                return await Task.FromResult(builder.ToString().TrimEnd(','));
-
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return await Task.FromResult(String.Empty);
-            }
-        }
-        /// <summary>
-        /// This method converts int[] into a string. For example, given int[] of "[1,2,3]"
-        /// gets converted to "["1","2","3"]" 
-        /// This is used as optional arguments for the Redcap Api
-        /// </summary>
-        /// <param name="inputArray"></param>
-        /// <returns>string</returns>
-        private async Task<string> ConvertIntArraytoString(int[] inputArray)
-        {
-            try
-            {
-                StringBuilder builder = new StringBuilder();
-                //builder.Append('[');
-                foreach (var v in inputArray)
-                {
-
-                    builder.Append(v);
-                    // We do not need to append the , if less than or equal to 1 record
-                    if (inputArray.Length <= 1)
-                    {
-                        return await Task.FromResult(builder.ToString());
-                    }
-                    builder.Append(",");
-                }
-                // We trim the comma from the string for clarity
-                //builder.Append(']');
-                return await Task.FromResult(builder.ToString().TrimEnd(','));
-
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return await Task.FromResult(String.Empty);
-            }
-        }
-
-        /// <summary>
         /// This method allows you to export the metadata for a project. 
         /// </summary>
         /// <param name="inputFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
@@ -440,7 +374,7 @@ namespace Redcap
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "metadata" },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
@@ -489,17 +423,17 @@ namespace Redcap
                     // Convert Array List into string array
                     string[] fieldsArray = fieldsResult.ToArray();
                     // Convert string array into String
-                    _fields = await ConvertStringArraytoString(fieldsArray);
+                    _fields = await this.ConvertStringArraytoString(fieldsArray);
                 }
                 if (!String.IsNullOrEmpty(forms))
                 {
                     string[] formsArray = formsResult.ToArray();
                     // Convert string array into String
-                    _forms = await ConvertStringArraytoString(formsArray);
+                    _forms = await this.ConvertStringArraytoString(formsArray);
                 }
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "metadata" },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
@@ -803,7 +737,7 @@ namespace Redcap
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat, redcapDataType);
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "record" },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat },
@@ -819,7 +753,7 @@ namespace Redcap
                     // Convert Array List into string array
                     var inputRecords = recordResults.ToArray();
                     // Convert string array into String
-                    _records = await ConvertStringArraytoString(inputRecords);
+                    _records = await this.ConvertStringArraytoString(inputRecords);
                     payload.Add("records", _records);
                 }
                 _responseMessage = await SendRequestAsync(payload);
@@ -872,7 +806,7 @@ namespace Redcap
 
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "record" },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat },
@@ -888,27 +822,27 @@ namespace Redcap
                 {
                     // Convert Array List into string array
                     var _inputRecords = recordItems.ToArray();
-                    payload.Add("records", await ConvertStringArraytoString(_inputRecords));
+                    payload.Add("records", await this.ConvertStringArraytoString(_inputRecords));
                 }
                 // Optional
                 if(fieldItems.Count > 0)
                 {
                     var _fields = fieldItems.ToArray();
-                    payload.Add("fields", await ConvertStringArraytoString(_fields));
+                    payload.Add("fields", await this.ConvertStringArraytoString(_fields));
                 }
 
                 // Optional
                 if(formItems.Count > 0)
                 {
                     var _forms = formItems.ToArray();
-                    payload.Add("forms", await ConvertStringArraytoString(_forms));
+                    payload.Add("forms", await this.ConvertStringArraytoString(_forms));
                 }
 
                 // Optional
                 if(eventItems.Count > 0)
                 {
                     var _events = eventItems.ToArray();
-                    payload.Add("events", await ConvertStringArraytoString(_events));
+                    payload.Add("events", await this.ConvertStringArraytoString(_events));
                 }
 
                 return await SendRequestAsync(payload);
@@ -944,7 +878,7 @@ namespace Redcap
                 var response = String.Empty;
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "record" },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat },
@@ -974,7 +908,7 @@ namespace Redcap
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, ReturnFormat.json, redcapDataType);
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "version" },
                     { "format", _inputFormat },
                     { "type", _redcapDataType }
@@ -1016,7 +950,7 @@ namespace Redcap
                     var _overWriteBehavior = await ExtractBehaviorAsync(overwriteBehavior);
                     var payload = new Dictionary<string, string>
                     {
-                        { "token", _apiToken },
+                        { "token", _token },
                         { "content", "record" },
                         { "format", _inputFormat },
                         { "type", _redcapDataType },
@@ -1078,7 +1012,7 @@ namespace Redcap
                     var formattedData = JsonConvert.SerializeObject(list);
                     var payload = new Dictionary<string, string>
                     {
-                        { "token", _apiToken },
+                        { "token", _token },
                         { "content", "record" },
                         { "format", _inputFormat },
                         { "type", _redcapDataType },
@@ -1136,7 +1070,7 @@ namespace Redcap
                     var _serializedData = JsonConvert.SerializeObject(data);
                     var payload = new Dictionary<string, string>
                     {
-                        { "token", _apiToken },
+                        { "token", _token },
                         { "content", "record" },
                         { "format", _inputFormat },
                         { "type", _redcapDataType },
@@ -1196,7 +1130,7 @@ namespace Redcap
                     var formattedData = JsonConvert.SerializeObject(list);
                     var payload = new Dictionary<string, string>
                     {
-                        { "token", _apiToken },
+                        { "token", _token },
                         { "content", "record" },
                         { "format", _inputFormat },
                         { "type", _redcapDataType },
@@ -1296,7 +1230,7 @@ namespace Redcap
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "metadata" },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
@@ -1345,17 +1279,17 @@ namespace Redcap
                     // Convert Array List into string array
                     string[] fieldsArray = fieldsResult.ToArray();
                     // Convert string array into String
-                    _fields = await ConvertStringArraytoString(fieldsArray);
+                    _fields = await this.ConvertStringArraytoString(fieldsArray);
                 }
                 if (!String.IsNullOrEmpty(forms))
                 {
                     string[] formsArray = formsResult.ToArray();
                     // Convert string array into String
-                    _forms = await ConvertStringArraytoString(formsArray);
+                    _forms = await this.ConvertStringArraytoString(formsArray);
                 }
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "metadata" },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
@@ -1388,12 +1322,12 @@ namespace Redcap
                 if (arms.Length > 0)
                 {
                     // Convert string array into String
-                    _arms = await ConvertIntArraytoString(arms);
+                    _arms = await this.ConvertIntArraytoString(arms);
                 }
                 var payload = new Dictionary<string, string>
                 {
                     {"arms", _arms },
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "event" },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
@@ -1422,7 +1356,7 @@ namespace Redcap
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "event" },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
@@ -1561,7 +1495,7 @@ namespace Redcap
 
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "record" },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat },
@@ -1577,27 +1511,27 @@ namespace Redcap
                 {
                     // Convert Array List into string array
                     var _inputRecords = recordItems.ToArray();
-                    payload.Add("records", await ConvertStringArraytoString(_inputRecords));
+                    payload.Add("records", await this.ConvertStringArraytoString(_inputRecords));
                 }
                 // Optional
                 if (fieldItems.Count > 0)
                 {
                     var _fields = fieldItems.ToArray();
-                    payload.Add("fields", await ConvertStringArraytoString(_fields));
+                    payload.Add("fields", await this.ConvertStringArraytoString(_fields));
                 }
 
                 // Optional
                 if (formItems.Count > 0)
                 {
                     var _forms = formItems.ToArray();
-                    payload.Add("forms", await ConvertStringArraytoString(_forms));
+                    payload.Add("forms", await this.ConvertStringArraytoString(_forms));
                 }
 
                 // Optional
                 if (eventItems.Count > 0)
                 {
                     var _events = eventItems.ToArray();
-                    payload.Add("events", await ConvertStringArraytoString(_events));
+                    payload.Add("events", await this.ConvertStringArraytoString(_events));
                 }
 
                 return await SendRequestAsync(payload);
@@ -1641,7 +1575,7 @@ namespace Redcap
 
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "record" },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat },
@@ -1657,27 +1591,27 @@ namespace Redcap
                 {
                     // Convert Array List into string array
                     var _inputRecords = recordItems.ToArray();
-                    payload.Add("records", await ConvertStringArraytoString(_inputRecords));
+                    payload.Add("records", await this.ConvertStringArraytoString(_inputRecords));
                 }
                 // Optional
                 if (fieldItems.Count > 0)
                 {
                     var _fields = fieldItems.ToArray();
-                    payload.Add("fields", await ConvertStringArraytoString(_fields));
+                    payload.Add("fields", await this.ConvertStringArraytoString(_fields));
                 }
 
                 // Optional
                 if (formItems.Count > 0)
                 {
                     var _forms = formItems.ToArray();
-                    payload.Add("forms", await ConvertStringArraytoString(_forms));
+                    payload.Add("forms", await this.ConvertStringArraytoString(_forms));
                 }
 
                 // Optional
                 if (eventItems.Count > 0)
                 {
                     var _events = eventItems.ToArray();
-                    payload.Add("events", await ConvertStringArraytoString(_events));
+                    payload.Add("events", await this.ConvertStringArraytoString(_events));
                 }
 
                 _responseMessage = await SendRequestAsync(payload);
@@ -1719,7 +1653,7 @@ namespace Redcap
 
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "record" },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat },
@@ -1729,21 +1663,21 @@ namespace Redcap
                 if (fieldItems.Count > 0)
                 {
                     var _fields = fieldItems.ToArray();
-                    payload.Add("fields", await ConvertStringArraytoString(_fields));
+                    payload.Add("fields", await this.ConvertStringArraytoString(_fields));
                 }
 
                 // Optional
                 if (formItems.Count > 0)
                 {
                     var _forms = formItems.ToArray();
-                    payload.Add("forms", await ConvertStringArraytoString(_forms));
+                    payload.Add("forms", await this.ConvertStringArraytoString(_forms));
                 }
 
                 // Optional
                 if (eventItems.Count > 0)
                 {
                     var _events = eventItems.ToArray();
-                    payload.Add("events", await ConvertStringArraytoString(_events));
+                    payload.Add("events", await this.ConvertStringArraytoString(_events));
                 }
 
                 _responseMessage = await SendRequestAsync(payload);
@@ -1786,7 +1720,7 @@ namespace Redcap
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, ReturnFormat.json, redcapDataType);
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "version" },
                     { "format", _inputFormat },
                     { "type", _redcapDataType }
@@ -1856,7 +1790,7 @@ namespace Redcap
                 var _returnFormat = returnFormat.ToString();
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "user" },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
@@ -1916,7 +1850,7 @@ namespace Redcap
                 var (_inputFormat, _returnFormat, _redcapDataType) = await HandleFormat(inputFormat, returnFormat);
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "record" },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat },
@@ -1947,7 +1881,7 @@ namespace Redcap
 
                 var payload = new Dictionary<string, string>
                     {
-                        { "token", _apiToken },
+                        { "token", _token },
                         { "content", "arm" },
                         { "format", _inputFormat },
                         { "returnFormat", _returnFormat },
@@ -2017,7 +1951,7 @@ namespace Redcap
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                     {
-                        { "token", _apiToken },
+                        { "token", _token },
                         { "content", "arm" },
                         { "action", "import" },
                         { "format", _inputFormat },
@@ -2051,7 +1985,7 @@ namespace Redcap
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "arm" },
                     { "action", "delete" },
                     { "arms", _serializedData }
@@ -2087,7 +2021,7 @@ namespace Redcap
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "event" },
                     { "action", "import" },
                     { "format", _inputFormat },
@@ -2147,7 +2081,7 @@ namespace Redcap
                 var _field = field;
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "file" },
                     { "action", "export" },
                     { "record", _record },
@@ -2204,7 +2138,7 @@ namespace Redcap
                 var _field = field;
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _apiToken },
+                    { "token", _token },
                     { "content", "file" },
                     { "action", "export" },
                     { "record", _record },
@@ -2255,7 +2189,7 @@ namespace Redcap
                 var _field = field;
                 var payload = new MultipartFormDataContent()
                 {
-                        {new StringContent(_apiToken), "token" },
+                        {new StringContent(_token), "token" },
                         {new StringContent("file") ,"content" },
                         {new StringContent("import"), "action" },
                         {new StringContent(_record), "record" },
@@ -2310,7 +2244,7 @@ namespace Redcap
                 var _field = field;
                 var payload = new MultipartFormDataContent()
                 {
-                        {new StringContent(_apiToken), "token" },
+                        {new StringContent(_token), "token" },
                         {new StringContent("file") ,"content" },
                         {new StringContent("delete"), "action" },
                         {new StringContent(_record), "record" },
@@ -2536,25 +2470,25 @@ namespace Redcap
                      * Convert Array List into string array
                     /* User wants certain records
                      */
-                    payload.Add("records", await ConvertStringArraytoString(records));
+                    payload.Add("records", await this.ConvertStringArraytoString(records));
                 }
 
                 // Optional
                 if (fields.Count() > 0)
                 {
-                    payload.Add("fields", await ConvertStringArraytoString(fields));
+                    payload.Add("fields", await this.ConvertStringArraytoString(fields));
                 }
 
                 // Optional
                 if (forms.Count() > 0)
                 {
-                    payload.Add("forms", await ConvertStringArraytoString(forms));
+                    payload.Add("forms", await this.ConvertStringArraytoString(forms));
                 }
 
                 // Optional
                 if (events.Count() > 0)
                 {
-                    payload.Add("events", await ConvertStringArraytoString(events));
+                    payload.Add("events", await this.ConvertStringArraytoString(events));
                 }
 
                 // Optional (defaults to false)
@@ -2584,6 +2518,116 @@ namespace Redcap
                 return string.Empty;
             }
 
+        }
+
+        public Task<string> DeleteEventsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat, string apiToken = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportFields(ReturnFormat returnFormat, string field = null, string apiToken = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportInstruments(ReturnFormat returnFormat, string apiToken = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportPDFInstruments(string recordId = null, string eventName = null, string instrument = null, bool allRecord = false, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportInstrumentMapping(InputFormat inputFormat = InputFormat.json, string[] arms = null, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportInstrumentMapping<T>(List<T> data, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> CreateProject<T>(List<T> data, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json, string odm = null, string apiToken = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportProjectInfo<T>(List<T> data, InputFormat inputFormat = InputFormat.json, string apiToken = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportProjectInfo(InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportProjectXml(ReturnFormat returnFormat = ReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportFiles = false, bool returnMetaDataOnly = false, string[] records = null, string[] fields = null, string[] events = null, string apiToken = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> GenerateNextRecordName(string apiToken = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportRecordsAsync(string[] records, InputFormat inputFormat = InputFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string[] forms = null, string[] events = null, string[] fields = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportRecordsAsync(string token, string content, InputFormat format = InputFormat.json, RedcapDataType redcapDatatype = RedcapDataType.flat, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, ReturnFormat returnFormat = ReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> DeleteRecords(string token, string content, string action, string[] records, int arm)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportReports(string token, string content, int reportId, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportRedcapVersionAsync(string token, string content, InputFormat inputFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportSurveyLink(string token, string content, string record, string instrument, string eventName, int repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportSurveyParticipants(string token, string content, string instrument, string eventName, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportSurveyQueueLink(string token, string content, string record, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportSurveyReturnCode(string token, string content, string record, string instrument, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportUsersAsync(string token, string content, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportUsers<T>(string token, string content, List<T> data, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
         }
     }
 }
