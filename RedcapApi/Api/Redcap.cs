@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
 using Redcap.Interfaces;
-using System.Net.Http;
-using Serilog;
-using System.Reflection;
-using System.Text;
-using Newtonsoft.Json;
 using Redcap.Models;
+using Redcap.Utilities;
+using Serilog;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Redcap.Utilities;
+using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
 using static System.String;
 
 namespace Redcap
@@ -53,188 +52,7 @@ namespace Redcap
             _token = apiToken?.ToString();
             _uri = new Uri(redcapApiUrl.ToString());
         }
-        private async Task<string> SendRequestAsync(MultipartFormDataContent payload)
-        {
-            try
-            {
-                using (var client = new HttpClient())
-                {
-                    client.BaseAddress = _uri;
-                    using (var response = await client.PostAsync(client.BaseAddress, payload))
-                    {
-                        if (response.IsSuccessStatusCode)
-                        {
-                            return await response.Content.ReadAsStringAsync();
-                        }
-                    }
-                }
-                return Empty;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error(Ex.Message);
-                return Empty;
-            }
-
-        }
-        private async Task<string> SendRequestAsync(Dictionary<string, string> payload, bool isLargeDataset = false)
-        {
-            try
-            {
-                string _responseMessage = String.Empty;
-                using (var client = new HttpClient())
-                {
-                    client.BaseAddress = _uri;
-                    // extract the filepath
-                    var pathValue = payload.Where(x => x.Key == "filePath").FirstOrDefault().Value;
-                    var pathkey = payload.Where(x => x.Key == "filePath").FirstOrDefault().Key;
-                    if (!string.IsNullOrEmpty(pathkey))
-                    {
-                        // the actual payload does not contain a 'filePath' key
-                        payload.Remove(pathkey);
-                    }
-
-                    /*
-                     * Encode the values for payload
-                     * Add in ability to process large data set, using StringContent
-                     * Thanks to Ibrahim for pointing this out.
-                     * https://stackoverflow.com/questions/23703735/how-to-set-large-string-inside-httpcontent-when-using-httpclient/23740338
-                     */
-                    if (isLargeDataset)
-                    {
-                        var serializedPayload = JsonConvert.SerializeObject(payload);
-                        using (var content = new StringContent(serializedPayload, Encoding.UTF8, "application/json"))
-                        {
-                            using (var response = await client.PostAsync(client.BaseAddress, content))
-                            {
-                                if (response.IsSuccessStatusCode)
-                                {
-                                    // Get the filename so we can save with the name
-                                    var fileHeaders = response.Content.Headers;
-                                    var fileName = fileHeaders.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
-                                    var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-                                    {
-                                        FileName = fileName
-                                    };
-
-                                    if (!string.IsNullOrEmpty(pathValue))
-                                    {
-                                        // save the file to a specified location using an extension method
-                                        await response.Content.ReadAsFileAsync(fileName, pathValue, true);
-                                        _responseMessage = fileName;
-                                    }
-                                    else
-                                    {
-                                        _responseMessage = await response.Content.ReadAsStringAsync();
-                                    }
-
-                                }
-                                else
-                                {
-                                    _responseMessage = await response.Content.ReadAsStringAsync();
-                                }
-                            }
-
-                        }
-                        return _responseMessage;
-                    }
-                    else
-                    {
-                        /*
-                        * Maximum character limit of 32,000 using FormUrlEncodedContent
-                        */
-                        using (var content = new FormUrlEncodedContent(payload))
-                        {
-                            using (var response = await client.PostAsync(client.BaseAddress, content))
-                            {
-                                if (response.IsSuccessStatusCode)
-                                {
-                                    // Get the filename so we can save with the name
-                                    var fileHeaders = response.Content.Headers;
-                                    var fileName = fileHeaders.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
-                                    var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-                                    {
-                                        FileName = fileName
-                                    };
-
-                                    if (!string.IsNullOrEmpty(pathValue))
-                                    {
-                                        // save the file to a specified location using an extension method
-                                        await response.Content.ReadAsFileAsync(fileName, pathValue, true);
-                                        _responseMessage = fileName;
-                                    }
-                                    else
-                                    {
-                                        _responseMessage = await response.Content.ReadAsStringAsync();
-                                    }
-                                
-                                }
-                                else
-                                {
-                                    _responseMessage = await response.Content.ReadAsStringAsync();
-                                }
-                            }
-                        }
-
-                    }
-                    return _responseMessage;
-                }
-            }
-            catch (Exception Ex)
-            {
-                Log.Error(Ex.Message);
-                return string.Empty;
-            }
-        }
-        private async Task<string> SendRequest(Dictionary<string, string> payload)
-        {
-            string responseString;
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = _uri;
-                // Encode the values for payload
-                using (var content = new FormUrlEncodedContent(payload))
-                {
-                    using (var response = await client.PostAsync(client.BaseAddress, content))
-                    {
-                        // check the response and make sure its successful
-                        response.EnsureSuccessStatusCode();
-                        responseString = await response.Content.ReadAsStringAsync();
-                    }
-                }
-            }
-            return responseString;
-        }
-        public async Task<Stream> GetStreamContentAsync(Dictionary<string, string> payload)
-        {
-            try
-            {
-                Stream stream = null;
-                using (var client = new HttpClient())
-                {
-                    client.BaseAddress = _uri;
-                    // Encode the values for payload
-                    var content = new FormUrlEncodedContent(payload);
-                    using (var response = await client.PostAsync(client.BaseAddress, content))
-                    {
-                        if (response.IsSuccessStatusCode)
-                        {
-                            stream = await response.Content.ReadAsStreamAsync();
-                            return stream;
-                        }
-                    }
-
-                }
-                return null;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error(Ex.Message);
-                return null;
-            }
-        }
         public delegate Task<string> GetRedcapVersion(InputFormat inputFormat, RedcapDataType redcapDataType);
-       
         public delegate Task<string> ExportRecord(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
         public delegate Task<string> ExportRecords(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
 
@@ -252,7 +70,7 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -302,7 +120,7 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -346,7 +164,7 @@ namespace Redcap
                     _records = await this.ConvertStringArraytoString(inputRecords);
                     payload.Add("records", _records);
                 }
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -414,7 +232,7 @@ namespace Redcap
                     payload.Add("events", await this.ConvertStringArraytoString(_events));
                 }
 
-                return await SendRequestAsync(payload);
+                return await this.SendRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -438,7 +256,7 @@ namespace Redcap
                     { "returnFormat", _returnFormat },
                     { "type", _redcapDataType }
                 };
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -461,7 +279,7 @@ namespace Redcap
                     { "type", _redcapDataType }
                 };
                 // Execute send request
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -498,7 +316,7 @@ namespace Redcap
                     };
 
                     // Execute send request
-                    _responseMessage = await SendRequestAsync(payload);
+                    _responseMessage = await this.SendRequestAsync(payload, _uri);
                     return _responseMessage;
                 }
                 return null;
@@ -549,7 +367,7 @@ namespace Redcap
                     };
 
                     // Execute send request
-                    _responseMessage = await SendRequestAsync(payload);
+                    _responseMessage = await this.SendRequestAsync(payload, _uri);
                     return _responseMessage; 
                 }
                 return string.Empty;
@@ -596,7 +414,7 @@ namespace Redcap
                     };
 
                     // Execute send request
-                    _responseMessage = await SendRequestAsync(payload);
+                    _responseMessage = await this.SendRequestAsync(payload, _uri);
                     return _responseMessage;
                 }
                 return string.Empty;
@@ -645,7 +463,7 @@ namespace Redcap
                     };
 
                     // Execute send request
-                    _responseMessage = await SendRequestAsync(payload);
+                    _responseMessage = await this.SendRequestAsync(payload, _uri);
                     return _responseMessage;
                 }
                 return string.Empty;
@@ -694,7 +512,7 @@ namespace Redcap
                     };
 
                     // Execute send request
-                    _responseMessage = await SendRequestAsync(payload);
+                    _responseMessage = await this.SendRequestAsync(payload, _uri);
                     return _responseMessage;
                 }
                 return string.Empty;
@@ -719,7 +537,7 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -768,7 +586,7 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -798,7 +616,7 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -820,7 +638,7 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                return await SendRequestAsync(payload);
+                return await this.SendRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -933,7 +751,7 @@ namespace Redcap
                     payload.Add("events", await this.ConvertStringArraytoString(_events));
                 }
 
-                return await SendRequestAsync(payload);
+                return await this.SendRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1000,7 +818,7 @@ namespace Redcap
                     payload.Add("events", await this.ConvertStringArraytoString(_events));
                 }
 
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -1055,7 +873,7 @@ namespace Redcap
                     payload.Add("events", await this.ConvertStringArraytoString(_events));
                 }
 
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -1087,7 +905,7 @@ namespace Redcap
                     { "type", _redcapDataType }
                 };
                 // Execute send request
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
 
                 return await Task.FromResult(_responseMessage);
             }
@@ -1129,7 +947,7 @@ namespace Redcap
                 };
 
                 // Execute send request
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -1164,7 +982,7 @@ namespace Redcap
                     { "returnFormat", _returnFormat },
                     { "type", _redcapDataType }
                 };
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -1189,7 +1007,7 @@ namespace Redcap
                         { "arms", null}
                     };
                 // Execute send request
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -1242,7 +1060,7 @@ namespace Redcap
                         { "data", _serializedData }
                     };
                 // Execute request
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -1265,7 +1083,7 @@ namespace Redcap
                     { "arms", _serializedData }
                 };
                 // Execute request
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -1295,7 +1113,7 @@ namespace Redcap
                     { "data", _serializedData }
                 };
                 // Execute request
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -1338,7 +1156,7 @@ namespace Redcap
                     payload.Add("repeat_instance", _repeatInstance);
                 }
                 // Execute request
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -1382,7 +1200,7 @@ namespace Redcap
                     payload.Add("repeat_instance", _repeatInstance);
                 }
                 // Execute request
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch(Exception Ex)
@@ -1433,7 +1251,7 @@ namespace Redcap
                     _fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
                     payload.Add(_fileContent, "file", _fileName);
                 }
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -1467,7 +1285,7 @@ namespace Redcap
                     // add repeat instrument params if available
                     payload.Add(new StringContent(_repeatInstance), "repeat_instance");
                 }
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -1631,7 +1449,7 @@ namespace Redcap
                     payload.Add("exportDataAccessGroups", "true");
                 }
 
-                _responseMessage = await SendRequestAsync(payload);
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
