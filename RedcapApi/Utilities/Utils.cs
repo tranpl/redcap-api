@@ -1,15 +1,17 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Net.Http;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Redcap.Models;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using static System.String;
 
 namespace Redcap.Utilities
 {
@@ -460,6 +462,209 @@ namespace Redcap.Utilities
                 }
             }
             return await Task.FromResult(new List<string> { });
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="redcapApi"></param>
+        /// <param name="payload">data</param>
+        /// <param name="uri">URI of the api instance</param>
+        /// <returns>Stream</returns>
+        public static async Task<Stream> GetStreamContentAsync(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri)
+        {
+            try
+            {
+                Stream stream = null;
+                using (var client = new HttpClient())
+                {
+                    // Encode the values for payload
+                    var content = new FormUrlEncodedContent(payload);
+                    using (var response = await client.PostAsync(uri, content))
+                    {
+                        if (response.IsSuccessStatusCode)
+                        {
+                            stream = await response.Content.ReadAsStreamAsync();
+                            return stream;
+                        }
+                    }
+
+                }
+                return null;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error(Ex.Message);
+                return null;
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="redcapApi"></param>
+        /// <param name="payload">data</param>
+        /// <param name="uri">URI of the api instance</param>
+        /// <returns>string</returns>
+        public static async Task<string> SendRequestAsync(this RedcapApi redcapApi, MultipartFormDataContent payload, Uri uri)
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    using (var response = await client.PostAsync(uri, payload))
+                    {
+                        if (response.IsSuccessStatusCode)
+                        {
+                            return await response.Content.ReadAsStringAsync();
+                        }
+                    }
+                }
+                return Empty;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error(Ex.Message);
+                return Empty;
+            }
+        }
+        /// <summary>
+        /// Sends request using http
+        /// </summary>
+        /// <param name="redcapApi"></param>
+        /// <param name="payload">data</param>
+        /// <param name="uri">URI of the api instance</param>
+        /// <param name="isLargeDataset">Requests size > 32k chars </param>
+        /// <returns></returns>
+        public static async Task<string> SendRequestAsync(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, bool isLargeDataset = false)
+        {
+            try
+            {
+                string _responseMessage = Empty;
+                using (var client = new HttpClient())
+                {
+                    // extract the filepath
+                    var pathValue = payload.Where(x => x.Key == "filePath").FirstOrDefault().Value;
+                    var pathkey = payload.Where(x => x.Key == "filePath").FirstOrDefault().Key;
+                    if (!string.IsNullOrEmpty(pathkey))
+                    {
+                        // the actual payload does not contain a 'filePath' key
+                        payload.Remove(pathkey);
+                    }
+
+                    /*
+                     * Encode the values for payload
+                     * Add in ability to process large data set, using StringContent
+                     * Thanks to Ibrahim for pointing this out.
+                     * https://stackoverflow.com/questions/23703735/how-to-set-large-string-inside-httpcontent-when-using-httpclient/23740338
+                     */
+                    if (isLargeDataset)
+                    {
+                        var serializedPayload = JsonConvert.SerializeObject(payload);
+                        using (var content = new StringContent(serializedPayload, Encoding.UTF8, "application/json"))
+                        {
+                            using (var response = await client.PostAsync(uri, content))
+                            {
+                                if (response.IsSuccessStatusCode)
+                                {
+                                    // Get the filename so we can save with the name
+                                    var fileHeaders = response.Content.Headers;
+                                    var fileName = fileHeaders.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
+                                    var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                                    {
+                                        FileName = fileName
+                                    };
+
+                                    if (!string.IsNullOrEmpty(pathValue))
+                                    {
+                                        // save the file to a specified location using an extension method
+                                        await response.Content.ReadAsFileAsync(fileName, pathValue, true);
+                                        _responseMessage = fileName;
+                                    }
+                                    else
+                                    {
+                                        _responseMessage = await response.Content.ReadAsStringAsync();
+                                    }
+
+                                }
+                                else
+                                {
+                                    _responseMessage = await response.Content.ReadAsStringAsync();
+                                }
+                            }
+
+                        }
+                        return _responseMessage;
+                    }
+                    else
+                    {
+                        /*
+                        * Maximum character limit of 32,000 using FormUrlEncodedContent
+                        */
+                        using (var content = new FormUrlEncodedContent(payload))
+                        {
+                            using (var response = await client.PostAsync(uri, content))
+                            {
+                                if (response.IsSuccessStatusCode)
+                                {
+                                    // Get the filename so we can save with the name
+                                    var fileHeaders = response.Content.Headers;
+                                    var fileName = fileHeaders.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
+                                    var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                                    {
+                                        FileName = fileName
+                                    };
+
+                                    if (!string.IsNullOrEmpty(pathValue))
+                                    {
+                                        // save the file to a specified location using an extension method
+                                        await response.Content.ReadAsFileAsync(fileName, pathValue, true);
+                                        _responseMessage = fileName;
+                                    }
+                                    else
+                                    {
+                                        _responseMessage = await response.Content.ReadAsStringAsync();
+                                    }
+                                }
+                                else
+                                {
+                                    _responseMessage = await response.Content.ReadAsStringAsync();
+                                }
+                            }
+                        }
+
+                    }
+                    return _responseMessage;
+                }
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return Empty;
+            }
+        }
+        /// <summary>
+        /// Sends http request to api
+        /// </summary>
+        /// <param name="redcapApi"></param>
+        /// <param name="payload">data </param>
+        /// <param name="uri">URI of the api instance</param>
+        /// <returns>string</returns>
+        public static async Task<string> SendRequest(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri)
+        {
+            string responseString;
+            using (var client = new HttpClient())
+            {
+                // Encode the values for payload
+                using (var content = new FormUrlEncodedContent(payload))
+                {
+                    using (var response = await client.PostAsync(uri, content))
+                    {
+                        // check the response and make sure its successful
+                        response.EnsureSuccessStatusCode();
+                        responseString = await response.Content.ReadAsStringAsync();
+                    }
+                }
+            }
+            return responseString;
         }
 
     }
