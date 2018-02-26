@@ -212,157 +212,220 @@ namespace Redcap.Interfaces
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns>csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</returns>
         Task<string> ImportFileAsync(string token, string content, string action, string record, string field, string eventName, string repeatInstance, string fileName, string filePath, ReturnFormat returnFormat = ReturnFormat.json);
-        
+
         /// <summary>
+        /// Delete a File
         /// This method allows you to remove a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
         /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">file</param>
+        /// <param name="action">delete</param>
         /// <param name="record">the record ID</param>
         /// <param name="field">the name of the field that contains the file</param>
         /// <param name="eventName">the unique event name - only for longitudinal projects</param>
         /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
-        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>String</returns>
-        Task<string> DeleteFileAsync(string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json);
+        Task<string> DeleteFileAsync(string token, string content, string action, string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json);
+
         /// <summary>
+        /// Export Instruments (Data Entry Forms)
         /// This method allows you to export a list of the data collection instruments for a project. 
         /// This includes their unique instrument name as seen in the second column of the Data Dictionary, as well as each instrument's corresponding instrument label, which is seen on a project's left-hand menu when entering data. The instruments will be ordered according to their order in the project.
         /// </summary>
         /// <remarks>
-        /// Export Instruments (Data Entry Forms)
         /// To use this method, you must have API Export privileges in the project.
         /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">instrument</param>
+        /// <param name="inputFormat">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml [default] - The returnFormat is only used with regard to the format of any error messages that might be returned.</param>
-        /// <param name="apiToken">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <returns>Instruments for the project in the format specified and will be ordered according to their order in the project.</returns>
-        Task<string> ExportInstruments(ReturnFormat returnFormat, string apiToken = null);
+        Task<string> ExportInstruments(string token, string content, InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json);
+
         /// <summary>
+        /// Export PDF file of Data Collection Instruments (either as blank or with data)
         /// This method allows you to export a PDF file for any of the following: 1) a single data collection instrument (blank), 2) all instruments (blank), 3) a single instrument (with data from a single record), 4) all instruments (with data from a single record), or 5) all instruments (with data from ALL records). 
         /// This is the exact same PDF file that is downloadable from a project's data entry form in the web interface, and additionally, the user's privileges with regard to data exports will be applied here just like they are when downloading the PDF in the web interface (e.g., if they have de-identified data export rights, then it will remove data from certain fields in the PDF). 
         /// If the user has 'No Access' data export rights, they will not be able to use this method, and an error will be returned.
         /// </summary>
         /// <remarks>
-        /// Export PDF file of Data Collection Instruments (either as blank or with data)
         /// To use this method, you must have API Export privileges in the project.
         /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">pdf</param>
         /// <param name="recordId">the record ID. The value is blank by default. If record is blank, it will return the PDF as blank (i.e. with no data). If record is provided, it will return a single instrument or all instruments containing data from that record only.</param>
         /// <param name="eventName">the unique event name - only for longitudinal projects. For a longitudinal project, if record is not blank and event is blank, it will return data for all events from that record. If record is not blank and event is not blank, it will return data only for the specified event from that record.</param>
         /// <param name="instrument">the unique instrument name as seen in the second column of the Data Dictionary. The value is blank by default, which returns all instruments. If record is not blank and instrument is blank, it will return all instruments for that record.</param>
         /// <param name="allRecord">[The value of this parameter does not matter and is ignored.] If this parameter is passed with any value, it will export all instruments (and all events, if longitudinal) with data from all records. Note: If this parameter is passed, the parameters record, event, and instrument will be ignored.</param>
-        /// <param name="returnFormat">csv, json, xml [default] - The returnFormat is only used with regard to the format of any error messages that might be returned.</param>
-        /// <param name="apiToken">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="returnFormat">csv, json [default] , xml- The returnFormat is only used with regard to the format of any error messages that might be returned.</param>
         /// <returns>A PDF file containing one or all data collection instruments from the project, in which the instruments will be blank (no data), contain data from a single record, or contain data from all records in the project, depending on the parameters passed in the API request.</returns>
-        Task<string> ExportPDFInstruments(string recordId = null, string eventName = null, string instrument = null, bool allRecord = false, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null);
+        Task<string> ExportPDFInstruments(string token, string content, string recordId = null, string eventName = null, string instrument = null, bool allRecord = false, ReturnFormat returnFormat = ReturnFormat.json);
 
         /// <summary>
+        /// Export Instrument-Event Mappings
         /// This method allows you to export the instrument-event mappings for a project (i.e., how the data collection instruments are designated for certain events in a longitudinal project).
+        /// NOTE: This only works for longitudinal projects.
         /// </summary>
         /// <remarks>
-        /// Export Instrument-Event Mappings
-        /// NOTE: This only works for longitudinal projects.
+        /// To use this method, you must have API Export privileges in the project.
         /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">formEventMapping</param>
         /// <param name="inputFormat">csv, json [default], xml</param>
         /// <param name="arms">an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
-        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="apiToken">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <returns>Instrument-event mappings for the project in the format specified</returns>
-        Task<string> ExportInstrumentMapping(InputFormat inputFormat = InputFormat.json, string[] arms = null, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null);
+        Task<string> ExportInstrumentMapping(string token, string content, InputFormat inputFormat = InputFormat.json, string[] arms = null, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null);
+
         /// <summary>
+        /// Import Instrument-Event Mappings
         /// This method allows you to import Instrument-Event Mappings into a project (this corresponds to the 'Designate Instruments for My Events' page in the project). 
+        /// NOTE: This only works for longitudinal projects.
         /// </summary>
         /// <remarks>
-        /// Import Instrument-Event Mappings
-        /// NOTE: This only works for longitudinal projects.
+        /// To use this method, you must have API Import/Update privileges *and* Project Design/Setup privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">formEventMapping</param>
+        /// <param name="inputFormat">csv, json [default], xml</param>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data">Contains the attributes 'arm_num' (referring to the arm number), 'unique_event_name' (referring to the auto-generated unique event name of the given event), and 'form' (referring to the unique form name of the given data collection instrument), in which they are provided in the specified format. 
+        /// JSON Example:[{"arm_num":"1","unique_event_name":"baseline_arm_1","form":"demographics"},
+        /// {"arm_num":"1","unique_event_name":"visit_1_arm_1","form":"day_3"},
+        /// {"arm_num":"1","unique_event_name":"visit_1_arm_1","form":"other"},
+        /// {"arm_num":"1","unique_event_name":"visit_2_arm_1","form":"other"}]
+        /// </param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>Number of Instrument-Event Mappings imported</returns>
+        Task<string> ImportInstrumentMapping<T>(string token, string content, InputFormat inputFormat, List<T> data,  ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null);
+
+        /// <summary>
+        /// Export Metadata (Data Dictionary)
+        /// This method allows you to export the metadata for a project
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Export privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">metadata</param>
+        /// <param name="inputFormat">csv, json [default], xml</param>
+        /// <param name="fields">an array of field names specifying specific fields you wish to pull (by default, all metadata is pulled)</param>
+        /// <param name="forms">an array of form names specifying specific data collection instruments for which you wish to pull metadata (by default, all metadata is pulled). NOTE: These 'forms' are not the form label values that are seen on the webpages, but instead they are the unique form names seen in Column B of the data dictionary.</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
+        Task<string> ExportMetaDataAsync(string token, string content, InputFormat inputFormat, string[] fields = null, string[] forms = null, ReturnFormat returnFormat = ReturnFormat.json);
+
+        /// <summary>
+        /// Import Metadata (Data Dictionary)
+        /// 
+        /// This method allows you to import metadata (i.e., Data Dictionary) into a project. Notice: Because of this method's destructive nature, it is only available for use for projects in Development status.
+        /// </summary>
+        /// <remarks>
         /// To use this method, you must have API Import/Update privileges *and* Project Design/Setup privileges in the project.
         /// </remarks>
         /// <typeparam name="T"></typeparam>
-        /// <param name="data">Contains the attributes 'arm_num' (referring to the arm number), 'unique_event_name' (referring to the auto-generated unique event name of the given event), and 'form' (referring to the unique form name of the given data collection instrument), in which they are provided in the specified format. </param>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">metadata</param>
         /// <param name="inputFormat">csv, json [default], xml</param>
+        /// <param name="data">The formatted data to be imported.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
-        /// <param name="apiToken">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
-        /// <returns>Number of Instrument-Event Mappings imported</returns>
-        Task<string> ImportInstrumentMapping<T>(List<T> data, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null);
+        /// <returns>Number of fields imported</returns>
+        Task<string> ImportMetaDataAsync<T>(string token, string content, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json);
+
         /// <summary>
+        /// Create A New Project
+        /// 
         /// This method allows you to create a new REDCap project. A 64-character Super API Token is required for this method (as opposed to project-level API methods that require a regular 32-character token associated with the project-user). In the API request, you must minimally provide the project attributes 'project_title' and 'purpose' (with numerical value 0=Practice/Just for fun, 1=Other, 2=Research, 3=Quality Improvement, 4=Operational Support) when creating a project. 
         /// When a project is created with this method, the project will automatically be given all the project-level defaults just as if you created a new empty project via the web user interface, such as a automatically creating a single data collection instrument seeded with a single Record ID field and Form Status field, as well as (for longitudinal projects) one arm with one event. And if you intend to create your own arms or events immediately after creating the project, it is recommended that you utilize the override=1 parameter in the 'Import Arms' or 'Import Events' method, respectively, so that the default arm and event are removed when you add your own.Also, the user creating the project will automatically be added to the project as a user with full user privileges and a project-level API token, which could then be used for subsequent project-level API requests.
         /// NOTE: Only users with Super API Tokens can utilize this method.Users can only be granted a super token by a REDCap administrator(using the API Tokens page in the REDCap Control Center). Please be advised that users with a Super API Token can create new REDCap projects via the API without any approval needed by a REDCap administrator.If you are interested in obtaining a super token, please contact your local REDCap administrator.
         /// </summary>
         /// <remarks>
         /// To use this method, you must have a Super API Token.
+        /// </remarks>
+        /// To use this method, you must have a Super API Token.
+        /// <typeparam name="T"></typeparam>
+        /// <param name="token">The Super API Token specific to a user</param>
+        /// <param name="content">project</param>
+        /// <param name="inputFormat">csv, json [default], xml</param>
+        /// <param name="data">
+        /// Contains the attributes of the project to be created, in which they are provided in the specified format. While the only required attributes are 'project_title' and 'purpose', the fields listed below are all the possible attributes that can be provided in the 'data' parameter. The 'purpose' attribute must have a numerical value (0=Practice/Just for fun, 1=Other, 2=Research, 3=Quality Improvement, 4=Operational Support), in which 'purpose_other' is only required to have a value (as a text string) if purpose=1. The attributes is_longitudinal (0=False, 1=True; Default=0), surveys_enabled (0=False, 1=True; Default=0), and record_autonumbering_enabled (0=False, 1=True; Default=1) are all boolean. Please note that either is_longitudinal=1 or surveys_enabled=1 does not add arms/events or surveys to the project, respectively, but it merely enables those settings which are seen at the top of the project's Project Setup page.
         /// All available attributes:
         /// project_title, purpose, purpose_other, project_notes, is_longitudinal, surveys_enabled, record_autonumbering_enabled
-        /// </remarks>
-        /// <example>
-        /// JSON Example:[{"project_title":"My New REDCap Project","purpose":"0"}]
-        /// CSV Example:project_title,purpose,is_longitudinal "My New REDCap Project",0,1
-        /// XML Example:<?xml version="1.0" encoding="UTF-8" ?>
-        /// <item>
-        /// <project_title>My New REDCap Project</project_title>
-        /// <purpose>0</purpose>
-        /// surveys_enabled>1</surveys_enabled>
-        /// <record_autonumbering_enabled>0</record_autonumbering_enabled>
-        /// </item>
-        /// </example>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="data"></param>
-        /// <param name="inputFormat">csv, json [default], xml</param>
+        /// JSON Example:
+        /// [{"project_title":"My New REDCap Project","purpose":"0"}]
+        /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="odm">default: NULL - The 'odm' parameter must be an XML string in CDISC ODM XML format that contains project metadata (fields, forms, events, arms) and might optionally contain data to be imported as well. The XML contained in this parameter can come from a REDCap Project XML export file from REDCap itself, or may come from another system that is capable of exporting projects and data in CDISC ODM format. If the 'odm' parameter is included in the API request, it will use the XML to import its contents into the newly created project. This will allow you not only to create the project with the API request, but also to import all fields, forms, and project attributes (and events and arms, if longitudinal) as well as record data all at the same time.</param>
-        /// <param name="apiToken">The Super API Token specific to a user</param>
         /// <returns>When a project is created, a 32-character project-level API Token is returned (associated with both the project and user creating the project). This token could then ostensibly be used to make subsequent API calls to this project, such as for adding new events, fields, records, etc.</returns>
-        Task<string> CreateProject<T>(List<T> data, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json, string odm = null, string apiToken = null);
+        Task<string> CreateProject<T>(string token, string content, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json, string odm = null);
+
         /// <summary>
+        /// Import Project Information
         /// This method allows you to update some of the basic attributes of a given REDCap project, such as the project's title, if it is longitudinal, if surveys are enabled, etc. Its data format corresponds to the format in the API method Export Project Information. 
         /// </summary>
         /// <remarks>
-        /// Import Project Information
+        /// To use this method, you must have API Import/Update privileges in the project.
         /// </remarks>
         /// <typeparam name="T"></typeparam>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">project_settings</param>
+        /// <param name="inputFormat">csv, json [default], xml</param>
         /// <param name="data">Contains some or all of the attributes from Export Project Information in the same data format as in the export. These attributes will change the project information.
         /// Attributes for the project in the format specified. For any values that are boolean, they should be represented as either a '0' (no/false) or '1' (yes/true). The following project attributes can be udpated:
         /// project_title, project_language, purpose, purpose_other, project_notes, custom_record_label, secondary_unique_field, is_longitudinal, surveys_enabled, scheduling_enabled, record_autonumbering_enabled, randomization_enabled, project_irb_number, project_grant_number, project_pi_firstname, project_pi_lastname, display_today_now_button
         /// </param>
-        /// <param name="inputFormat">csv, json [default], xml</param>
-        /// <param name="apiToken">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <returns>Returns the number of values accepted to be updated in the project settings (including values which remained the same before and after the import).</returns>
-        Task<string> ImportProjectInfo<T>(List<T> data, InputFormat inputFormat = InputFormat.json, string apiToken = null);
+        Task<string> ImportProjectInfo<T>(string token, string content, InputFormat inputFormat, List<T> data);
 
         /// <summary>
+        /// 
+        /// Export Project Information
         /// This method allows you to export some of the basic attributes of a given REDCap project, such as the project's title, if it is longitudinal, if surveys are enabled, the time the project was created and moved to production, etc.
         /// </summary>
         /// <remarks>
-        /// Export Project Information
+        /// 
         /// To use this method, you must have API Export privileges in the project.
         /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">project</param>
         /// <param name="inputFormat">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
-        /// <param name="apiToken">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
-        /// <returns>Attributes for the project in the format specified. For any values that are boolean, they will be represented as either a '0' (no/false) or '1' (yes/true). Also, all date/time values will be returned in Y-M-D H:M:S format. The following attributes will be returned:
+        /// <returns>
+        /// Attributes for the project in the format specified. For any values that are boolean, they will be represented as either a '0' (no/false) or '1' (yes/true). Also, all date/time values will be returned in Y-M-D H:M:S format. The following attributes will be returned:
         /// project_id, project_title, creation_time, production_time, in_production, project_language, purpose, purpose_other, project_notes, custom_record_label, secondary_unique_field, is_longitudinal, surveys_enabled, scheduling_enabled, record_autonumbering_enabled, randomization_enabled, ddp_enabled, project_irb_number, project_grant_number, project_pi_firstname, project_pi_lastname, display_today_now_button
         /// </returns>
-        Task<string> ExportProjectInfo(InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null);
+        Task<string> ExportProjectInfo(string token, string content, InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null);
 
         /// <summary>
+        /// Export Entire Project as REDCap XML File (containing metadata & data)
         /// The entire project(all records, events, arms, instruments, fields, and project attributes) can be downloaded as a single XML file, which is in CDISC ODM format(ODM version 1.3.1). This XML file can be used to create a clone of the project(including its data, optionally) on this REDCap server or on another REDCap server (it can be uploaded on the Create New Project page). Because it is in CDISC ODM format, it can also be used to import the project into another ODM-compatible system. NOTE: All the option paramters listed below ONLY apply to data returned if the 'returnMetadataOnly' parameter is set to FALSE (default). For this API method, ALL metadata (all fields, forms, events, and arms) will always be exported.Only the data returned can be filtered using the optional parameters.
         /// Note about export rights: If the 'returnMetadataOnly' parameter is set to FALSE, then please be aware that Data Export user rights will be applied to any data returned from this API request. For example, if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then some data fields *might* be removed and filtered out of the data set returned from the API. To make sure that no data is unnecessarily filtered out of your API request, you should have 'Full Data Set' export rights in the project. 
         /// </summary>
         /// <remarks>
-        /// Export Entire Project as REDCap XML File (containing metadata & data)
+        /// 
         /// To use this method, you must have API Export privileges in the project.
         /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">project_xml</param>
+        /// <param name="returnMetadataOnly">true, false [default] - TRUE returns only metadata (all fields, forms, events, and arms), whereas FALSE returns all metadata and also data (and optionally filters the data according to any of the optional parameters provided in the request) </param>
+        /// <param name="records">an array of record names specifying specific records you wish to pull (by default, all records are pulled)</param>
+        /// <param name="fields">an array of field names specifying specific fields you wish to pull (by default, all fields are pulled)</param>
+        /// <param name="events">an array of unique event names that you wish to pull records for - only for longitudinal projects</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="exportSurveyFields">true, false [default] - specifies whether or not to export the survey identifier field (e.g., 'redcap_survey_identifier') or survey timestamp fields (e.g., instrument+'_timestamp') when surveys are utilized in the project. If you do not pass in this flag, it will default to 'false'. If set to 'true', it will return the redcap_survey_identifier field and also the survey timestamp field for a particular survey when at least one field from that survey is being exported. NOTE: If the survey identifier field or survey timestamp fields are imported via API data import, they will simply be ignored since they are not real fields in the project but rather are pseudo-fields.</param>
         /// <param name="exportDataAccessGroups">true, false [default] - specifies whether or not to export the 'redcap_data_access_group' field when data access groups are utilized in the project. If you do not pass in this flag, it will default to 'false'. NOTE: This flag is only viable if the user whose token is being used to make the API request is *not* in a data access group. If the user is in a group, then this flag will revert to its default value.</param>
         /// <param name="filterLogic">String of logic text (e.g., [age] > 30) for filtering the data to be returned by this API method, in which the API will only return the records (or record-events, if a longitudinal project) where the logic evaluates as TRUE. This parameter is blank/null by default unless a value is supplied. Please note that if the filter logic contains any incorrect syntax, the API will respond with an error message. </param>
         /// <param name="exportFiles">true, false [default] - TRUE will cause the XML returned to include all files uploaded for File Upload and Signature fields for all records in the project, whereas FALSE will cause all such fields not to be included. NOTE: Setting this option to TRUE can make the export very large and may prevent it from completing if the project contains many files or very large files. </param>
-        /// <param name="returnMetaDataOnly">true, false [default] - TRUE returns only metadata (all fields, forms, events, and arms), whereas FALSE returns all metadata and also data (and optionally filters the data according to any of the optional parameters provided in the request) </param>
-        /// <param name="records">an array of record names specifying specific records you wish to pull (by default, all records are pulled)</param>
-        /// <param name="fields">an array of field names specifying specific fields you wish to pull (by default, all fields are pulled)</param>
-        /// <param name="events">an array of unique event names that you wish to pull records for - only for longitudinal projects</param>
-        /// <param name="apiToken">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <returns>The entire REDCap project's metadata (and data, if specified) will be returned in CDISC ODM format as a single XML string.</returns>
-        Task<string> ExportProjectXml(ReturnFormat returnFormat = ReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportFiles = false,  bool returnMetaDataOnly = false, string[] records = null, string[] fields = null, string[] events = null, string apiToken = null);
+        Task<string> ExportProjectXml(string token, string content, bool returnMetadataOnly = false, string[] records = null, string[] events = null, ReturnFormat returnFormat = ReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportFiles = false);
 
         /// <summary>
+        /// Generate Next Record Name
         /// To be used by projects with record auto-numbering enabled, this method exports the next potential record ID for a project. It generates the next record name by determining the current maximum numerical record ID and then incrementing it by one.
         /// Note: This method does not create a new record, but merely determines what the next record name would be.
         /// If using Data Access Groups (DAGs) in the project, this method accounts for the special formatting of the record name for users in DAGs (e.g., DAG-ID); in this case, it only assigns the next value for ID for all numbers inside a DAG. For example, if a DAG has a corresponding DAG number of 223 wherein records 223-1 and 223-2 already exist, then the next record will be 223-3 if the API user belongs to the DAG that has DAG number 223. (The DAG number is auto-assigned by REDCap for each DAG when the DAG is first created.) When generating a new record name in a DAG, the method considers all records in the entire project when determining the maximum record ID, including those that might have been originally created in that DAG but then later reassigned to another DAG.
@@ -370,44 +433,25 @@ namespace Redcap.Interfaces
         /// </summary>
         /// 
         /// <remarks>
-        /// Generate Next Record Name
         /// To use this method, you must have API Export privileges in the project.
         /// </remarks>
-        /// <param name="apiToken">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">generateNextRecordName</param>
         /// <returns>The maximum integer record ID + 1.</returns>
-        Task<string> GenerateNextRecordName(string apiToken = null);
-       
+        Task<string> GenerateNextRecordName(string token, string content);
+
         /// <summary>
-        /// This method allows you to export a set of records for a project
-        /// </summary>
-        /// <param name="records">an array of record names specifying specific records you wish to pull (by default, all records are pulled)</param>
-        /// <param name="inputFormat">csv, json [default], xml, odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
-        /// <param name="redcapDataType">flat - output as one record per row [default], eav - output as one data point per row. Non-longitudinal: Will have the fields - record*, field_name, value. Longitudinal: Will have the fields - record*, field_name, value, redcap_event_name</param>
-        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
-        /// <param name="delimiters">char[] e.g [';',',']</param>
-        /// <param name="forms">an array of form names you wish to pull records for. If the form name has a space in it, replace the space with an underscore (by default, all records are pulled)</param>
-        /// <param name="events">an array of unique event names that you wish to pull records for - only for longitudinal projects</param>
-        /// <param name="fields">an array of field names specifying specific fields you wish to pull (by default, all fields are pulled)</param>
-        /// <returns></returns>
-        Task<string> ExportRecordsAsync(string[] records, InputFormat inputFormat = InputFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string[] forms = null, string[] events = null, string[] fields = null);
-        
-        /// <summary>
+        /// Export Records
         /// This method allows you to export a set of records for a project.
-        /// Note about export rights: Please be aware that Data Export user rights will be applied to this API request. 
-        /// For example, if you have 'No Access' data export rights in the project, then the API data export will fail and return an error. And if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then some data fields *might* be removed and filtered out of the data set returned from the API. To make sure that no data is unnecessarily filtered out of your API request, you should have 'Full Data Set' export rights in the project.        
+        /// Note about export rights: Please be aware that Data Export user rights will be applied to this API request.For example, if you have 'No Access' data export rights in the project, then the API data export will fail and return an error. And if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then some data fields *might* be removed and filtered out of the data set returned from the API. To make sure that no data is unnecessarily filtered out of your API request, you should have 'Full Data Set' export rights in the project.
         /// </summary>
         /// <remarks>
-        /// Export Records
         /// To use this method, you must have API Export privileges in the project.
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">record</param>
-        /// <param name="format">csv, json [default], xml, odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
-        /// <param name="redcapDatatype">
-        /// flat - output as one record per row[default] 
-        /// eav - output as one data point per row
-        /// Non-longitudinal: Will have the fields - record*, field_name, value
-        /// Longitudinal: Will have the fields - record*, field_name, value, redcap_event_name</param>
+        /// <param name="inputFormat">csv, json [default], xml, odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="redcapDataType">flat - output as one record per row [default], eav - output as one data point per row. Non-longitudinal: Will have the fields - record*, field_name, value. Longitudinal: Will have the fields - record*, field_name, value, redcap_event_name</param>
         /// <param name="records">an array of record names specifying specific records you wish to pull (by default, all records are pulled)</param>
         /// <param name="fields">an array of field names specifying specific fields you wish to pull (by default, all fields are pulled)</param>
         /// <param name="forms">an array of form names you wish to pull records for. If the form name has a space in it, replace the space with an underscore (by default, all records are pulled)</param>
@@ -415,31 +459,49 @@ namespace Redcap.Interfaces
         /// <param name="rawOrLabel">raw [default], label - export the raw coded values or labels for the options of multiple choice fields</param>
         /// <param name="rawOrLabelHeaders">raw [default], label - (for 'csv' format 'flat' type only) for the CSV headers, export the variable/field names (raw) or the field labels (label)</param>
         /// <param name="exportCheckboxLabel">true, false [default] - specifies the format of checkbox field values specifically when exporting the data as labels (i.e., when rawOrLabel=label) in flat format (i.e., when type=flat). When exporting labels, by default (without providing the exportCheckboxLabel flag or if exportCheckboxLabel=false), all checkboxes will either have a value 'Checked' if they are checked or 'Unchecked' if not checked. But if exportCheckboxLabel is set to true, it will instead export the checkbox value as the checkbox option's label (e.g., 'Choice 1') if checked or it will be blank/empty (no value) if not checked. If rawOrLabel=false or if type=eav, then the exportCheckboxLabel flag is ignored. (The exportCheckboxLabel parameter is ignored for type=eav because 'eav' type always exports checkboxes differently anyway, in which checkboxes are exported with their true variable name (whereas the 'flat' type exports them as variable___code format), and another difference is that 'eav' type *always* exports checkbox values as the choice label for labels export, or as 0 or 1 (if unchecked or checked, respectively) for raw export.)</param>
-        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="exportSurveyFields">true, false [default] - specifies whether or not to export the survey identifier field (e.g., 'redcap_survey_identifier') or survey timestamp fields (e.g., instrument+'_timestamp') when surveys are utilized in the project. If you do not pass in this flag, it will default to 'false'. If set to 'true', it will return the redcap_survey_identifier field and also the survey timestamp field for a particular survey when at least one field from that survey is being exported. NOTE: If the survey identifier field or survey timestamp fields are imported via API data import, they will simply be ignored since they are not real fields in the project but rather are pseudo-fields.</param>
         /// <param name="exportDataAccessGroups">true, false [default] - specifies whether or not to export the 'redcap_data_access_group' field when data access groups are utilized in the project. If you do not pass in this flag, it will default to 'false'. NOTE: This flag is only viable if the user whose token is being used to make the API request is *not* in a data access group. If the user is in a group, then this flag will revert to its default value.</param>
         /// <param name="filterLogic">String of logic text (e.g., [age] > 30) for filtering the data to be returned by this API method, in which the API will only return the records (or record-events, if a longitudinal project) where the logic evaluates as TRUE. This parameter is blank/null by default unless a value is supplied. Please note that if the filter logic contains any incorrect syntax, the API will respond with an error message. </param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        Task<string> ExportRecordsAsync(string token, string content, InputFormat format = InputFormat.json, RedcapDataType redcapDatatype = RedcapDataType.flat, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, ReturnFormat returnFormat = ReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null);
-        
+        Task<string> ExportRecordsAsync(string token, string content, InputFormat inputFormat, RedcapDataType redcapDataType, string[] records = null, string[] fields = null,  string[] forms = null,  string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, ReturnFormat returnFormat = ReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null );
+
         /// <summary>
-        /// This method allows you to import a set of records for a project.
+        /// Import Records
+        /// This method allows you to import a set of records for a project
         /// </summary>
-        /// <param name="data">Object that contains the records to be saved.</param>
-        /// <param name="returnContent">ids - a list of all record IDs that were imported, count [default] - the number of records imported</param>
-        /// <param name="overwriteBehavior">0 = normal, 1 = overwrite</param>
-        /// <param name="inputFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
-        /// <param name="redcapDataType">0 = FLAT, 1 = EAV, 2 = NONLONGITUDINAL, 3 = LONGITUDINAL</param>
-        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges in the project.
+        /// </remarks>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">record</param>
+        /// <param name="inputFormat">csv, json [default], xml, odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="redcapDataType">flat - output as one record per row [default]
+        /// eav - input as one data point per row
+        /// Non-longitudinal: Will have the fields - record*, field_name, value
+        /// Longitudinal: Will have the fields - record*, field_name, value, redcap_event_name
+        /// </param>
+        /// <param name="overwriteBehavior">
+        /// normal - blank/empty values will be ignored [default]
+        /// overwrite - blank/empty values are valid and will overwrite data</param>
+        /// <param name="forceAutoNumber">If record auto-numbering has been enabled in the project, it may be desirable to import records where each record's record name is automatically determined by REDCap (just as it does in the user interface). If this parameter is set to 'true', the record names provided in the request will not be used (although they are still required in order to associate multiple rows of data to an individual record in the request), but instead those records in the request will receive new record names during the import process. NOTE: To see how the provided record names get translated into new auto record names, the returnContent parameter should be set to 'auto_ids', which will return a record list similar to 'ids' value, but it will have the new record name followed by the provided record name in the request, in which the two are comma-delimited. For example, if 
+        /// false (or 'false') - The record names provided in the request will be used. [default]
+        /// true (or 'true') - New record names will be automatically determined.</param>
+        /// <param name="data">The formatted data to be imported.
+        /// NOTE: When importing data in EAV type format, please be aware that checkbox fields must have their field_name listed as variable+'___'+optionCode and its value as either '0' or '1' (unchecked or checked, respectively). For example, for a checkbox field with variable name 'icecream', it would be imported as EAV with the field_name as 'icecream___4' having a value of '1' in order to set the option coded with '4' (which might be 'Chocolate') as 'checked'.</param>
         /// <param name="dateFormat">MDY, DMY, YMD [default] - the format of values being imported for dates or datetime fields (understood with M representing 'month', D as 'day', and Y as 'year') - NOTE: The default format is Y-M-D (with dashes), while MDY and DMY values should always be formatted as M/D/Y or D/M/Y (with slashes), respectively.</param>
-        /// <returns>Returns the content with format specified.</returns>
-        Task<string> ImportRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? inputFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string dateFormat = "MDY");
+        /// <param name="returnContent">count [default] - the number of records imported, ids - a list of all record IDs that were imported, auto_ids = (used only when forceAutoNumber=true) a list of pairs of all record IDs that were imported, includes the new ID created and the ID value that was sent in the API request (e.g., 323,10). </param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns></returns>
+        Task<string> ImportRecordsAsync<T>(string token, string content, InputFormat inputFormat, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, List<T> data, string dateFormat, ReturnContent returnContent = ReturnContent.count, ReturnFormat returnFormat = ReturnFormat.json);
         
         /// <summary>
+        /// Delete Records
         /// This method allows you to delete one or more records from a project in a single API request.
         /// </summary>
         /// <remarks>
-        /// Delete Records
+        /// 
         /// To use this method, you must have 'Delete Record' user privileges in the project.
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
@@ -449,15 +511,15 @@ namespace Redcap.Interfaces
         /// <param name="arm">the arm number of the arm in which the record(s) should be deleted. 
         /// (This can only be used if the project is longitudinal with more than one arm.) NOTE: If the arm parameter is not provided, the specified records will be deleted from all arms in which they exist. Whereas, if arm is provided, they will only be deleted from the specified arm. </param>
         /// <returns>the number of records deleted.</returns>
-        Task<string> DeleteRecords(string token, string content, string action, string[] records, int arm);
-        
+        Task<string> DeleteRecords(string token, string content, string action, string[] records, int? arm);
+
         /// <summary>
+        /// Export Reports
         /// This method allows you to export the data set of a report created on a project's 'Data Exports, Reports, and Stats' page.
         /// Note about export rights: Please be aware that Data Export user rights will be applied to this API request.For example, if you have 'No Access' data export rights in the project, then the API report export will fail and return an error. And if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then some data fields *might* be removed and filtered out of the data set returned from the API. To make sure that no data is unnecessarily filtered out of your API request, you should have 'Full Data Set' export rights in the project.
         /// Also, please note the the 'Export Reports' method does *not* make use of the 'type' (flat/eav) parameter, which can be used in the 'Export Records' method.All data for the 'Export Reports' method is thus exported in flat format.If the 'type' parameter is supplied in the API request, it will be ignored.
         /// </summary>
         /// <remarks>
-        /// Export Reports
         /// To use this method, you must have API Export privileges in the project.
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
@@ -472,10 +534,11 @@ namespace Redcap.Interfaces
         Task<string> ExportReports(string token, string content, int reportId, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false);
 
         /// <summary>
+        /// Export REDCap Version
         /// This method returns the current REDCap version number as plain text (e.g., 4.13.18, 5.12.2, 6.0.0).
         /// </summary>
         /// <remarks>
-        /// Export REDCap Version
+        /// 
         /// To use this method, you must have API Export privileges in the project.
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
@@ -485,10 +548,11 @@ namespace Redcap.Interfaces
         Task<string> ExportRedcapVersionAsync(string token, string content, InputFormat inputFormat);
 
         /// <summary>
+        /// Export a Survey Link for a Participant
         /// This method returns a unique survey link (i.e., a URL) in plain text format for a specified record and data collection instrument (and event, if longitudinal) in a project. If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the specified data collection instrument has not been enabled as a survey in the project, an error will be returned.
         /// </summary>
         /// <remarks>
-        /// Export a Survey Link for a Participant
+        /// 
         /// To use this method, you must have API Export privileges in the project.
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
@@ -502,10 +566,11 @@ namespace Redcap.Interfaces
         Task<string> ExportSurveyLink(string token, string content, string record, string instrument, string eventName, int repeatInstance, ReturnFormat returnFormat = ReturnFormat.json);
         
         /// <summary>
+        /// Export a Survey Participant List
         /// This method returns the list of all participants for a specific survey instrument (and for a specific event, if a longitudinal project). If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the specified data collection instrument has not been enabled as a survey in the project, an error will be returned.
         /// </summary>
         /// <remarks>
-        /// Export a Survey Participant List
+        /// 
         /// To use this method, you must have API Export privileges in the project.
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
@@ -547,33 +612,27 @@ namespace Redcap.Interfaces
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Returns a unique Return Code in plain text format for the specified record and instrument (and event, if longitudinal).</returns>
         Task<string> ExportSurveyReturnCode(string token, string content, string record, string instrument, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json);
-        
-        /// <summary>
-        /// Method exports redcap users for a specific project.
-        /// </summary>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <returns></returns>
-        Task<string> ExportUsersAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json);
+
         /// <summary>
         /// Export Users
         /// This method allows you to export the list of users for a project, including their user privileges and also email address, first name, and last name. Note: If the user has been assigned to a user role, it will return the user with the role's defined privileges. 
         /// </summary>
         /// <remarks>
         /// To use this method, you must have API Export privileges in the project.
-        /// Data Export: 0=No Access, 2=De-Identified, 1=Full Data Set
-        /// Form Rights: 0=No Access, 2=Read Only, 1=View records/responses and edit records(survey responses are read-only), 3=Edit survey responses
-        /// Other attribute values: 0=No Access, 1=Access.
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">user</param>
         /// <param name="inputFormat">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>The method will return all the attributes below with regard to user privileges in the format specified. Please note that the 'forms' attribute is the only attribute that contains sub-elements (one for each data collection instrument), in which each form will have its own Form Rights value (see the key below to learn what each numerical value represents). Most user privilege attributes are boolean (0=No Access, 1=Access). Attributes returned:
-        /// username, email, firstname, lastname, expiration, data_access_group, design, user_rights, data_access_groups, data_export, reports, stats_and_charts, manage_survey_participants, calendar, data_import_tool, data_comparison_tool, logging, file_repository, data_quality_create, data_quality_execute, api_export, api_import, mobile_app, mobile_app_download_data, record_create, record_rename, record_delete, lock_records_customization, lock_records, lock_records_all_forms, forms
-        /// </returns>
-        Task<string> ExportUsersAsync(string token, string content, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json);
-
+        /// username, email, firstname, lastname, expiration, data_access_group, design, user_rights, data_access_groups, data_export, reports, stats_and_charts, manage_survey_participants, calendar, data_import_tool, data_comparison_tool, logging, file_repository, data_quality_create, data_quality_execute, api_export, api_import, mobile_app, mobile_app_download_data, record_create, record_rename, record_delete, lock_records_customization, lock_records, lock_records_all_forms, forms</returns>
+        /// <example>
+        /// KEY: Data Export: 0=No Access, 2=De-Identified, 1=Full Data Set
+        /// Form Rights: 0=No Access, 2=Read Only, 1=View records/responses and edit records(survey responses are read-only), 3=Edit survey responses
+        /// Other attribute values: 0=No Access, 1=Access.
+        /// </example>
+        Task<string> ExportUsersAsync(string token, string content, InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json);
+        
         /// <summary>
         /// Import Users
         /// This method allows you to import new users into a project while setting their user privileges, or update the privileges of existing users in the project. 
