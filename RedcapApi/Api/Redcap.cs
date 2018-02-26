@@ -9,7 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 using static System.String;
 
@@ -55,7 +54,90 @@ namespace Redcap
         public delegate Task<string> GetRedcapVersion(InputFormat inputFormat, RedcapDataType redcapDataType);
         public delegate Task<string> ExportRecord(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
         public delegate Task<string> ExportRecords(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
+        /// <summary>
+        /// Hello!
+        /// </summary>
+        /// <param name="inputFormat">test</param>
+        /// <param name="returnFormat">test</param>
+        /// <returns></returns>
+        public async Task<string> ExportArmsAsync(InputFormat inputFormat, ReturnFormat returnFormat)
+        {
+            try
+            {
+                string _responseMessage;
+                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
 
+                var payload = new Dictionary<string, string>
+                    {
+                        { "token", _token },
+                        { "content", "arm" },
+                        { "format", _inputFormat },
+                        { "returnFormat", _returnFormat },
+                        { "arms", null}
+                    };
+                // Execute send request
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                return _responseMessage;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return string.Empty;
+            }
+        }
+        public async Task<string> ImportArmsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat)
+        {
+            try
+            {
+                string _responseMessage;
+                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
+                var _override = overRide.ToString();
+                var _serializedData = JsonConvert.SerializeObject(data);
+                var payload = new Dictionary<string, string>
+                    {
+                        { "token", _token },
+                        { "content", "arm" },
+                        { "action", "import" },
+                        { "format", _inputFormat },
+                        { "type", _redcapDataType },
+                        { "override", _override },
+                        { "returnFormat", _returnFormat },
+                        { "data", _serializedData }
+                    };
+                // Execute request
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                return _responseMessage;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return string.Empty;
+            }
+        }
+        public async Task<string> DeleteArmsAsync<T>(T data)
+        {
+            try
+            {
+                string _responseMessage;
+                var _serializedData = JsonConvert.SerializeObject(data);
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", _token },
+                    { "content", "arm" },
+                    { "action", "delete" },
+                    { "arms", _serializedData }
+                };
+                // Execute request
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                return _responseMessage;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return string.Empty;
+            }
+
+        }
         public async Task<string> GetMetaDataAsync(InputFormat? inputFormat, ReturnFormat? returnFormat)
         {
             try
@@ -79,7 +161,6 @@ namespace Redcap
                 return string.Empty;
             }
         }
-
         public async Task<string> GetMetaDataAsync(InputFormat? inputFormat, ReturnFormat? returnFormat, char[] delimiters, string fields = "", string forms = "")
         {
             try
@@ -129,7 +210,6 @@ namespace Redcap
                 return string.Empty;
             }
         }
-        
         public async Task<string> GetRecordAsync(string record, InputFormat inputFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
         {
             try
@@ -173,7 +253,6 @@ namespace Redcap
                 return string.Empty;
             }
         }
-
         public async Task<string> GetRecordAsync(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
         {
             try
@@ -240,7 +319,6 @@ namespace Redcap
                 return string.Empty;
             }
         }
-
         public async Task<string> GetRecordsAsync(InputFormat inputFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType)
         {
             string _responseMessage;
@@ -329,7 +407,6 @@ namespace Redcap
             }
 
         }
-
         public async Task<string> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? inputFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string dateFormat = "MDY")
         {
             try
@@ -890,7 +967,6 @@ namespace Redcap
         {
             throw new NotImplementedException();
         }
-
         public async Task<string> ExportRedcapVersionAsync(InputFormat inputFormat, RedcapDataType redcapDataType)
         {
             try
@@ -990,108 +1066,6 @@ namespace Redcap
                 Log.Error($"{Ex.Message}");
                 return string.Empty;
             }
-        }
-        public async Task<string> ExportArmsAsync(InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            try
-            {
-                string _responseMessage;
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
-
-                var payload = new Dictionary<string, string>
-                    {
-                        { "token", _token },
-                        { "content", "arm" },
-                        { "format", _inputFormat },
-                        { "returnFormat", _returnFormat },
-                        { "arms", null}
-                    };
-                // Execute send request
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-        }
-        private async Task<List<string>> ExtractArmsAsync<T>(string arms, char[] delimiters)
-        {
-            if (!String.IsNullOrEmpty(arms))
-            {
-                try
-                {
-                    var _arms = arms.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
-                    List<string> armsResult = new List<string>();
-                    foreach (var arm in _arms)
-                    {
-                        armsResult.Add(arm);
-                    }
-                    return await Task.FromResult(armsResult);
-                }
-                catch (Exception Ex)
-                {
-                    Log.Error($"{Ex.Message}");
-                    return await Task.FromResult(new List<string> { });
-                }
-            }
-            return await Task.FromResult(new List<string> { });
-
-        }
-
-        public async Task<string> ImportArmsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            try
-            {
-                string _responseMessage;
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
-                var _override = overRide.ToString();
-                var _serializedData = JsonConvert.SerializeObject(data);
-                var payload = new Dictionary<string, string>
-                    {
-                        { "token", _token },
-                        { "content", "arm" },
-                        { "action", "import" },
-                        { "format", _inputFormat },
-                        { "type", _redcapDataType },
-                        { "override", _override },
-                        { "returnFormat", _returnFormat },
-                        { "data", _serializedData }
-                    };
-                // Execute request
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-        }
-        public async Task<string> DeleteArmsAsync<T>(T data)
-        {
-            try
-            {
-                string _responseMessage;
-                var _serializedData = JsonConvert.SerializeObject(data);
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", _token },
-                    { "content", "arm" },
-                    { "action", "delete" },
-                    { "arms", _serializedData }
-                };
-                // Execute request
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-
         }
         public async Task<string> ImportEventsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json)
         {
@@ -1566,6 +1540,11 @@ namespace Redcap
         }
 
         public Task<string> ImportUsers<T>(string token, string content, List<T> data, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportArmsAsync(string token, string content, InputFormat inputFormat = InputFormat.json, string[] arms = null, ReturnFormat returnFormat = ReturnFormat.json)
         {
             throw new NotImplementedException();
         }
