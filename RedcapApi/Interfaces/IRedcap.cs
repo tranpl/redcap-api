@@ -21,79 +21,133 @@ namespace Redcap.Interfaces
     /// </summary>
     public interface IRedcap
     {
-       
-        /// <summary>
-        /// This method allows you to export the Arms for a project.
-        /// NOTE: This only works for longitudinal projects. E.g. Arms are only available in longitudinal projects.
-        /// </summary>
-        /// <param name="inputFormat">csv, json, xml [default]</param>
-        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
-        /// <returns>Arms for the project in the format specified</returns>
-        Task<string> ExportArmsAsync(InputFormat inputFormat, ReturnFormat returnFormat);
 
         /// <summary>
+        /// Export Arms
+        /// This method allows you to export the Arms for a project
+        /// NOTE: This only works for longitudinal projects.
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Export privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">arm</param>
+        /// <param name="inputFormat">csv, json [default], xml</param>
+        /// <param name="arms">an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>Arms for the project in the format specified</returns>
+        Task<string> ExportArmsAsync(string token, string content, InputFormat inputFormat = InputFormat.json, string[] arms = null, ReturnFormat returnFormat = ReturnFormat.json);
+
+        /// <summary>
+        /// Import Arms
         /// This method allows you to import Arms into a project or to rename existing Arms in a project. 
         /// You may use the parameter override=1 as a 'delete all + import' action in order to erase all existing Arms in the project while importing new Arms. 
         /// Notice: Because of the 'override' parameter's destructive nature, this method may only use override=1 for projects in Development status.
         /// NOTE: This only works for longitudinal projects. 
         /// 
-        /// To use this method, you must have API Import/Update privileges *and* Project Design/Setup privileges in the project.
-        /// 
         /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges *and* Project Design/Setup privileges in the project.
+        /// </remarks>
         /// <typeparam name="T"></typeparam>
-        /// <param name="data"></param>
-        /// <param name="overRide"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">arm</param>
+        /// <param name="overrideBhavior">0 - false [default], 1 - true — You may use override=1 as a 'delete all + import' action in order to erase all existing Arms in the project while importing new Arms. If override=0, then you can only add new Arms or rename existing ones. </param>
+        /// <param name="action">import</param>
+        /// <param name="inputFormat">csv, json [default], xml</param>
+        /// <param name="data">Contains the attributes 'arm_num' (referring to the arm number) and 'name' (referring to the arm's name) of each arm to be created/modified, in which they are provided in the specified format. 
+        /// [{"arm_num":"1","name":"Drug A"},
+        /// {"arm_num":"2","name":"Drug B"},
+        /// {"arm_num":"3","name":"Drug C"}]
+        /// </param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns>Number of Arms imported</returns>
-        Task<string> ImportArmsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat);
-        
+        Task<string> ImportArmsAsync<T>(string token, string content, Override overrideBhavior, string action, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json);
+
         /// <summary>
-        /// This method allows you to delete Arms from a project. Notice: Because of this method's destructive nature, it is only available for use for projects in Development status. Additionally, please be aware that deleting an arm also automatically deletes all events that belong to that arm, and will also automatically delete any records/data that have been collected under that arm (this is non-reversible data loss).
+        /// Delete Arms
+        /// This method allows you to delete Arms from a project.
+        /// Notice: Because of this method's destructive nature, it is only available for use for projects in Development status. Additionally, please be aware that deleting an arm also automatically deletes all events that belong to that arm, and will also automatically delete any records/data that have been collected under that arm (this is non-reversible data loss).        
         /// NOTE: This only works for longitudinal projects. 
         /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges *and* Project Design/Setup privileges in the project.
+        /// </remarks>
         /// <typeparam name="T"></typeparam>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        Task<string> DeleteArmsAsync<T>(T data);
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">arm</param>
+        /// <param name="action">delete</param>
+        /// <param name="arms">an array of arm numbers that you wish to delete</param>
+        /// <returns>Number of Arms deleted</returns>
+        Task<string> DeleteArmsAsync<T>(string token, string content, string action, string[] arms);
+
         /// <summary>
-        /// Not implemented
-        /// </summary>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="arms"></param>
-        /// <returns></returns>
-        Task<string> ExportEventsAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json, int[] arms = null);
-        /// <summary>
+        /// Export Events
+        /// This method allows you to export the events for a project
+        /// NOTE: This only works for longitudinal projects.
         /// 
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="data"></param>
-        /// <param name="overRide"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <returns></returns>
-        Task<string> ImportEventsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json);
+        /// <remarks>
+        /// To use this method, you must have API Export privileges in the project.
+        /// </remarks>
+        /// <param name="token">
+        /// The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.
+        /// </param>
+        /// <param name="content">event</param>
+        /// <param name="inputFormat">csv, json [default], xml</param>
+        /// <param name="arms"></param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>Events for the project in the format specified</returns>
+        Task<string> ExportEventsAsync(string token, string content, InputFormat inputFormat, int[] arms = null, ReturnFormat returnFormat = ReturnFormat.json);
+
         /// <summary>
+        /// Import Events
+        /// This method allows you to import Events into a project or to update existing Events' attributes, such as the event name, days offset, etc. The unique event name of an Event cannot be changed because it is auto-generated by REDCap. Please note that the only way to update an existing Event is to provide the unique_event_name attribute, and if the unique_event_name attribute is missing for an Event being imported (when override=0), it will assume it to be a new Event that should be created. Notice: Because of the 'override' parameter's destructive nature, this method may only use override=1 for projects in Development status.
+        /// NOTE: This only works for longitudinal projects. 
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges *and* Project Design/Setup privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">event</param>
+        /// <param name="action">import</param>
+        /// <param name="overRide">0 - false [default], 1 - true — You may use override=1 as a 'delete all + import' action in order to erase all existing Events in the project while importing new Events. If override=0, then you can only add new Events or modify existing ones. </param>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data">Contains the required attributes 'event_name' (referring to the name/label of the event) and 'arm_num' (referring to the arm number to which the event belongs - assumes '1' if project only contains one arm). In order to modify an existing event, you must provide the attribute 'unique_event_name' (referring to the auto-generated unique event name of the given event). If the project utilizes the Scheduling module, the you may optionally provide the following attributes, which must be numerical: day_offset, offset_min, offset_max. If the day_offset is not provided, then the events will be auto-numbered in the order in which they are provided in the API request. 
+        /// [{"event_name":"Baseline","arm_num":"1","day_offset":"1","offset_min":"0",
+        /// "offset_max":"0","unique_event_name":"baseline_arm_1"},
+        /// {"event_name":"Visit 1","arm_num":"1","day_offset":"2","offset_min":"0",
+        /// "offset_max":"0","unique_event_name":"visit_1_arm_1"},
+        /// {"event_name":"Visit 2","arm_num":"1","day_offset":"3","offset_min":"0",
+        /// "offset_max":"0","unique_event_name":"visit_2_arm_1"}]
+        /// </param>
+        /// <param name="inputFormat">csv, json [default], xml</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>Number of Events imported</returns>
+        Task<string> ImportEventsAsync<T>(string token, string content, string action, Override overRide, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json);
+
+        /// <summary>
+        /// Delete Events
         /// This method allows you to delete Events from a project. 
         /// Notice: Because of this method's destructive nature, it is only available for use for projects in Development status. 
         /// Additionally, please be aware that deleting an event will automatically delete any records/data that have been collected under that event (this is non-reversible data loss).
+        /// NOTE: This only works for longitudinal projects.
         /// </summary>
         /// <remarks>
-        /// NOTE: This only works for longitudinal projects. 
+        ///  
         /// To use this method, you must have API Import/Update privileges *and* Project Design/Setup privileges in the project.
         /// </remarks>
-        /// 
-        /// <typeparam name="T"></typeparam>
-        /// <param name="data"></param>
-        /// <param name="overRide"></param>
-        /// <param name="inputFormat"></param>
+        /// <param name="token"></param>
+        /// <param name="content"></param>
+        /// <param name="action"></param>
+        /// <param name="events"></param>
         /// <param name="returnFormat"></param>
-        /// <param name="apiToken"></param>
         /// <returns>Number of Events deleted</returns>
-        Task<string> DeleteEventsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat, string apiToken = null);
+        Task<string> DeleteEventsAsync<T>(string token, string content, string action, string[] events, ReturnFormat returnFormat = ReturnFormat.json);
+
         /// <summary>
         /// Export List of Export Field Names (i.e. variables used during exports and imports)
+        /// 
         /// This method returns a list of the export/import-specific version of field names for all fields (or for one field, if desired) in a project. 
         /// This is mostly used for checkbox fields because during data exports and data imports, checkbox fields have a different variable name used than the exact one defined for them in the Online Designer and Data Dictionary, in which *each checkbox option* gets represented as its own export field name in the following format: field_name + triple underscore + converted coded value for the choice. 
         /// For non-checkbox fields, the export field name will be exactly the same as the original field name. 
@@ -104,30 +158,51 @@ namespace Redcap.Interfaces
         /// The export_field_name attribute represents the export/import-specific version of that field name.
         /// </summary>
         /// <remarks>
-        /// Export List of Export Field Names
+        /// To use this method, you must have API Export privileges in the project.
         /// </remarks>
-        /// <param name="returnFormat">csv, json, xml [default] - The returnFormat is only used with regard to the format of any error messages that might be returned.</param>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">exportFieldNames</param>
+        /// <param name="inputFormat">csv, json [default], xml</param>
         /// <param name="field">A field's variable name. By default, all fields are returned, but if field is provided, then it will only the export field name(s) for that field. If the field name provided is invalid, it will return an error.</param>
-        /// <param name="apiToken">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
-        /// <returns>Returns a list of the export/import-specific version of field names for all fields (or for one field, if desired) in a project in the format specified and ordered by their field order.</returns>
-        Task<string> ExportFields(ReturnFormat returnFormat, string field = null, string apiToken = null);
+        /// <param name="returnFormat">csv, json [default], xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'. 
+        /// The list that is returned will contain the original field name (variable) of the field and also the export field name(s) of that field.</param>
+        /// <returns>Returns a list of the export/import-specific version of field names for all fields (or for one field, if desired) in a project in the format specified and ordered by their field order . 
+        /// The list that is returned will contain the three following attributes for each field/choice: 'original_field_name', 'choice_value', and 'export_field_name'. The choice_value attribute represents the raw coded value for a checkbox choice. For non-checkbox fields, the choice_value attribute will always be blank/empty. The export_field_name attribute represents the export/import-specific version of that field name.
+        /// </returns>
+        Task<string> ExportFields(string token, string content, InputFormat inputFormat, string field = null, ReturnFormat returnFormat = ReturnFormat.json);
+
         /// <summary>
-        /// Method export a single file from a record within a project
+        /// Export a File
+        /// This method allows you to download a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
+        /// Note about export rights: Please be aware that Data Export user rights will be applied to this API request.For example, if you have 'No Access' data export rights in the project, then the API file export will fail and return an error. And if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then the API file export will fail and return an error *only if* the File Upload field has been tagged as an Identifier field.To make sure that your API request does not return an error, you should have 'Full Data Set' export rights in the project.
         /// </summary>
-        /// <param name="record"></param>
-        /// <param name="field"></param>
-        /// <param name="eventName"></param>
-        /// <param name="repeatInstance"></param>
-        /// <param name="filePath"></param>
-        /// <param name="returnFormat"></param>
+        /// <remarks>
+        /// To use this method, you must have API Export privileges in the project.
+        /// </remarks>
         /// <example>
         /// The MIME type of the file, along with the name of the file and its extension, can be found in the header of the returned response. Thus in order to determine these attributes of the file being exported, you will need to parse the response header. Example: content-type = application/vnd.openxmlformats-officedocument.wordprocessingml.document; name='FILE_NAME.docx'
         /// </example>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">file</param>
+        /// <param name="action">export</param>
+        /// <param name="record">the record ID</param>
+        /// <param name="field">the name of the field that contains the file</param>
+        /// <param name="eventName">the unique event name - only for longitudinal projects</param>
+        /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns>the contents of the file</returns>
-        Task<string> ExportFileAsync(string record, string field, string eventName, string repeatInstance, string filePath, ReturnFormat returnFormat = ReturnFormat.json);
+        Task<string> ExportFileAsync(string token, string content, string action, string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json);
+
         /// <summary>
-        ///  This method allows you to upload a document that will be attached to an individual record for a File Upload field. Please note that this method may NOT be used for Signature fields (i.e. File Upload fields with 'signature' validation type) because a signature can only be captured and stored using the web interface. 
+        /// Import a File
+        /// This method allows you to upload a document that will be attached to an individual record for a File Upload field. Please note that this method may NOT be used for Signature fields (i.e. File Upload fields with 'signature' validation type) because a signature can only be captured and stored using the web interface. 
         /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">file</param>
+        /// <param name="action">import</param>
         /// <param name="record">the record ID</param>
         /// <param name="field">the name of the field that contains the file</param>
         /// <param name="eventName">the unique event name - only for longitudinal projects</param>
@@ -135,8 +210,9 @@ namespace Redcap.Interfaces
         /// <param name="fileName">The File you be imported, contents of the file</param>
         /// <param name="filePath">the path where the file is located</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
-        /// <returns>csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</returns>
-        Task<string> ImportFileAsync(string record, string field, string eventName, string repeatInstance, string fileName, string filePath, ReturnFormat returnFormat = ReturnFormat.json);
+        /// <returns>csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</returns>
+        Task<string> ImportFileAsync(string token, string content, string action, string record, string field, string eventName, string repeatInstance, string fileName, string filePath, ReturnFormat returnFormat = ReturnFormat.json);
+        
         /// <summary>
         /// This method allows you to remove a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
         /// </summary>
