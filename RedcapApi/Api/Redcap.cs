@@ -1548,5 +1548,115 @@ namespace Redcap
         {
             throw new NotImplementedException();
         }
+
+        public Task<string> ImportArmsAsync<T>(string token, string content, Override overrideBhavior, string action, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> DeleteArmsAsync<T>(string token, string content, string action, string[] arms)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportEventsAsync(string token, string content, InputFormat inputFormat, int[] arms = null, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportEventsAsync<T>(string token, string content, string action, Override overRide, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> DeleteEventsAsync<T>(string token, string content, string action, string[] events, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportFields(string token, string content, InputFormat inputFormat, string field = null, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportFileAsync(string token, string content, string action, string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportFileAsync(string token, string content, string action, string record, string field, string eventName, string repeatInstance, string fileName, string filePath, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> DeleteFileAsync(string token, string content, string action, string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportInstruments(string token, string content, InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportPDFInstruments(string token, string content, string recordId = null, string eventName = null, string instrument = null, bool allRecord = false, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportInstrumentMapping(string token, string content, InputFormat inputFormat = InputFormat.json, string[] arms = null, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportInstrumentMapping<T>(string token, string content, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportMetaDataAsync(string token, string content, InputFormat inputFormat, string[] fields = null, string[] forms = null, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportMetaDataAsync<T>(string token, string content, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> CreateProject<T>(string token, string content, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json, string odm = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportProjectInfo<T>(string token, string content, InputFormat inputFormat, List<T> data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportProjectInfo(string token, string content, InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportProjectXml(string token, string content, bool returnMetadataOnly = false, string[] records = null, string[] events = null, ReturnFormat returnFormat = ReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportFiles = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> GenerateNextRecordName(string token, string content)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportRecordsAsync<T>(string token, string content, InputFormat inputFormat, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, List<T> data, string dateFormat, ReturnContent returnContent = ReturnContent.count, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> DeleteRecords(string token, string content, string action, string[] records, int? arm)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
