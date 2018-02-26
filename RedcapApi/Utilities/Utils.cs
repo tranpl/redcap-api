@@ -666,6 +666,37 @@ namespace Redcap.Utilities
             }
             return responseString;
         }
+        /// <summary>
+        /// Method obtains list of string from comma seperated strings
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="redcapApi"></param>
+        /// <param name="arms"></param>
+        /// <param name="delimiters"></param>
+        /// <returns>List of string</returns>
+        public static async Task<List<string>> ExtractArmsAsync<T>(this RedcapApi redcapApi, string arms, char[] delimiters)
+        {
+            if (!String.IsNullOrEmpty(arms))
+            {
+                try
+                {
+                    var _arms = arms.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+                    List<string> armsResult = new List<string>();
+                    foreach (var arm in _arms)
+                    {
+                        armsResult.Add(arm);
+                    }
+                    return await Task.FromResult(armsResult);
+                }
+                catch (Exception Ex)
+                {
+                    Log.Error($"{Ex.Message}");
+                    return await Task.FromResult(new List<string> { });
+                }
+            }
+            return await Task.FromResult(new List<string> { });
+
+        }
 
     }
 }
