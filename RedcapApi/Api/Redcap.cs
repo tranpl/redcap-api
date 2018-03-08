@@ -10,6 +10,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 using static System.String;
 
 namespace Redcap
@@ -29,6 +31,7 @@ namespace Redcap
         /// 4AAE216218B33700456A30898F2D6417
         /// </example>
         private static string _token;
+
         /// <summary>
         /// Redcap API Uri
         /// Location of your redcap instance
@@ -37,10 +40,12 @@ namespace Redcap
         /// https://localhost/redcap/api
         /// </example>
         private static Uri _uri;
+
         /// <summary>
         /// The version of redcap that the api is currently interacting with.
         /// </summary>
         public static string Version;
+
         /// <summary>
         /// Constructor requires an api token and a valid uri.
         /// </summary>
@@ -51,15 +56,297 @@ namespace Redcap
             _token = apiToken?.ToString();
             _uri = new Uri(redcapApiUrl.ToString());
         }
-        public delegate Task<string> GetRedcapVersion(InputFormat inputFormat, RedcapDataType redcapDataType);
-        public delegate Task<string> ExportRecord(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
-        public delegate Task<string> ExportRecords(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
+
+        public Task<string> ExportArmsAsync(string token, string content, InputFormat inputFormat = InputFormat.json, string[] arms = null, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportArmsAsync<T>(string token, string content, Override overrideBhavior, string action, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> DeleteArmsAsync<T>(string token, string content, string action, string[] arms)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportEventsAsync(string token, string content, InputFormat inputFormat, int[] arms = null, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportEventsAsync<T>(string token, string content, string action, Override overRide, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> DeleteEventsAsync<T>(string token, string content, string action, string[] events, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportFieldsAsync(string token, string content, InputFormat inputFormat, string field = null, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportFileAsync(string token, string content, string action, string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportFileAsync(string token, string content, string action, string record, string field, string eventName, string repeatInstance, string fileName, string filePath, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> DeleteFileAsync(string token, string content, string action, string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportInstrumentsAsync(string token, string content, InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportPDFInstrumentsAsync(string token, string content, string recordId = null, string eventName = null, string instrument = null, bool allRecord = false, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportInstrumentMappingAsync(string token, string content, InputFormat inputFormat = InputFormat.json, string[] arms = null, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportInstrumentMappingAsync<T>(string token, string content, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportMetaDataAsync(string token, string content, InputFormat inputFormat, string[] fields = null, string[] forms = null, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportMetaDataAsync<T>(string token, string content, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> CreateProjectAsync<T>(string token, string content, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json, string odm = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportProjectInfoAsync<T>(string token, string content, InputFormat inputFormat, List<T> data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportProjectInfoAsync(string token, string content, InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportProjectXmlAsync(string token, string content, bool returnMetadataOnly = false, string[] records = null, string[] events = null, ReturnFormat returnFormat = ReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportFiles = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> GenerateNextRecordNameAsync(string token, string content)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
-        /// Hello!
+        /// Api Version 1.0.0
+        /// Export Records
+        /// This method allows you to export a set of records for a project.
+        /// Note about export rights: Please be aware that Data Export user rights will be applied to this API request.For example, if you have 'No Access' data export rights in the project, then the API data export will fail and return an error. And if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then some data fields *might* be removed and filtered out of the data set returned from the API. To make sure that no data is unnecessarily filtered out of your API request, you should have 'Full Data Set' export rights in the project.
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Export privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">record</param>
+        /// <param name="inputFormat">csv, json [default], xml, odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="redcapDataType">flat - output as one record per row [default], eav - output as one data point per row. Non-longitudinal: Will have the fields - record*, field_name, value. Longitudinal: Will have the fields - record*, field_name, value, redcap_event_name</param>
+        /// <param name="records">an array of record names specifying specific records you wish to pull (by default, all records are pulled)</param>
+        /// <param name="fields">an array of field names specifying specific fields you wish to pull (by default, all fields are pulled)</param>
+        /// <param name="forms">an array of form names you wish to pull records for. If the form name has a space in it, replace the space with an underscore (by default, all records are pulled)</param>
+        /// <param name="events">an array of unique event names that you wish to pull records for - only for longitudinal projects</param>
+        /// <param name="rawOrLabel">raw [default], label - export the raw coded values or labels for the options of multiple choice fields</param>
+        /// <param name="rawOrLabelHeaders">raw [default], label - (for 'csv' format 'flat' type only) for the CSV headers, export the variable/field names (raw) or the field labels (label)</param>
+        /// <param name="exportCheckboxLabel">true, false [default] - specifies the format of checkbox field values specifically when exporting the data as labels (i.e., when rawOrLabel=label) in flat format (i.e., when type=flat). When exporting labels, by default (without providing the exportCheckboxLabel flag or if exportCheckboxLabel=false), all checkboxes will either have a value 'Checked' if they are checked or 'Unchecked' if not checked. But if exportCheckboxLabel is set to true, it will instead export the checkbox value as the checkbox option's label (e.g., 'Choice 1') if checked or it will be blank/empty (no value) if not checked. If rawOrLabel=false or if type=eav, then the exportCheckboxLabel flag is ignored. (The exportCheckboxLabel parameter is ignored for type=eav because 'eav' type always exports checkboxes differently anyway, in which checkboxes are exported with their true variable name (whereas the 'flat' type exports them as variable___code format), and another difference is that 'eav' type *always* exports checkbox values as the choice label for labels export, or as 0 or 1 (if unchecked or checked, respectively) for raw export.)</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="exportSurveyFields">true, false [default] - specifies whether or not to export the survey identifier field (e.g., 'redcap_survey_identifier') or survey timestamp fields (e.g., instrument+'_timestamp') when surveys are utilized in the project. If you do not pass in this flag, it will default to 'false'. If set to 'true', it will return the redcap_survey_identifier field and also the survey timestamp field for a particular survey when at least one field from that survey is being exported. NOTE: If the survey identifier field or survey timestamp fields are imported via API data import, they will simply be ignored since they are not real fields in the project but rather are pseudo-fields.</param>
+        /// <param name="exportDataAccessGroups">true, false [default] - specifies whether or not to export the 'redcap_data_access_group' field when data access groups are utilized in the project. If you do not pass in this flag, it will default to 'false'. NOTE: This flag is only viable if the user whose token is being used to make the API request is *not* in a data access group. If the user is in a group, then this flag will revert to its default value.</param>
+        /// <param name="filterLogic">String of logic text (e.g., [age] > 30) for filtering the data to be returned by this API method, in which the API will only return the records (or record-events, if a longitudinal project) where the logic evaluates as TRUE. This parameter is blank/null by default unless a value is supplied. Please note that if the filter logic contains any incorrect syntax, the API will respond with an error message. </param>
+        /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
+        public async Task<string> ExportRecordsAsync<T>(string token, string content, InputFormat inputFormat, RedcapDataType redcapDataType, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, ReturnFormat returnFormat = ReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null)
+        {
+            try
+            {
+                /*
+                 * Check the required parameters for empty or null
+                 */
+                if (IsNullOrEmpty(token) || IsNullOrEmpty(content) || IsNullOrEmpty(inputFormat.ToString()))
+                {
+                    throw new ArgumentNullException("Please provide a valid Redcap token.");
+                }
+
+                /*
+                 * Set content type
+                 * content = record
+                 */
+                content = "record";
+                var _format = inputFormat.ToString();
+                var _returnFormat = returnFormat.ToString();
+                var _redcapDataType = redcapDataType.ToString();
+                /*
+                 * Create a payload container to hold all the pieces Redcap needs
+                 * to export records for us. We'll need to convert all our arguments
+                 * as string because dictionary is created as such.
+                 */
+                var requestPayload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content },
+                    { "format", _format },
+                    { "returnFormat", _returnFormat },
+                    { "type", _redcapDataType },
+                    { "rawOrLabel", rawOrLabel.ToString()},
+                    { "rawOrLabelHeaders", rawOrLabelHeaders.ToString() },
+                    { "filterLogic", filterLogic }
+
+                };
+
+                // Optional
+                if (records.Count() == 0)
+                {
+                    // User wants all records
+                    requestPayload.Add("records", "");
+                }
+                else
+                {
+                    /*
+                     * Convert Array to string
+                    /* 
+                     */
+                    requestPayload.Add("records", await this.ConvertStringArraytoString(records));
+                }
+
+                // Optional
+                if (fields.Count() > 0)
+                {
+                    requestPayload.Add("fields", await this.ConvertStringArraytoString(fields));
+                }
+
+                // Optional
+                if (forms.Count() > 0)
+                {
+                    requestPayload.Add("forms", await this.ConvertStringArraytoString(forms));
+                }
+
+                // Optional
+                if (events.Count() > 0)
+                {
+                    requestPayload.Add("events", await this.ConvertStringArraytoString(events));
+                }
+
+                // Optional (defaults to false)
+                if (exportCheckboxLabel)
+                {
+                    requestPayload.Add("exportCheckboxLabel", exportCheckboxLabel.ToString());
+                }
+
+                // Optional (defaults to false)
+                if (exportSurveyFields)
+                {
+                    requestPayload.Add("exportSurveyFields", exportSurveyFields.ToString());
+                }
+
+                // Optional (defaults to false)
+                if (exportDataAccessGroups)
+                {
+                    requestPayload.Add("exportDataAccessGroups", exportDataAccessGroups.ToString());
+                }
+                /*
+                 * We return what the response provides, no opinions here.
+                 */ 
+                return await this.SendRequestAsync(payload: requestPayload, uri: _uri, isLargeDataset: false);
+            }
+            catch (Exception Ex)
+            {
+                /*
+                 * We'll just log the error and return the error message.
+                 */ 
+                Log.Error($"{Ex.Message}");
+                return Ex.Message;
+            }
+
+        }
+
+        public Task<string> ImportRecordsAsync<T>(string token, string content, InputFormat inputFormat, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, List<T> data, string dateFormat, ReturnContent returnContent = ReturnContent.count, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> DeleteRecordsAsync(string token, string content, string action, string[] records, int? arm)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportReportsAsync(string token, string content, int reportId, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportRedcapVersionAsync(string token, string content, InputFormat inputFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportSurveyLinkAsync(string token, string content, string record, string instrument, string eventName, int repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportSurveyParticipantsAsync(string token, string content, string instrument, string eventName, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportSurveyQueueLinkAsync(string token, string content, string record, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportSurveyReturnCodeAsync(string token, string content, string record, string instrument, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ExportUsersAsync(string token, string content, InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ImportUsersAsync<T>(string token, string content, List<T> data, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json)
+        {
+            throw new NotImplementedException();
+        }
+
+        #region deprecated methods < version 1.0.0
+        /// <summary>
+        /// Export Arms
         /// </summary>
         /// <param name="inputFormat">test</param>
         /// <param name="returnFormat">test</param>
-        /// <returns></returns>
         public async Task<string> ExportArmsAsync(InputFormat inputFormat, ReturnFormat returnFormat)
         {
             try
@@ -76,35 +363,6 @@ namespace Redcap
                         { "arms", null}
                     };
                 // Execute send request
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-        }
-        public async Task<string> ImportArmsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            try
-            {
-                string _responseMessage;
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
-                var _override = overRide.ToString();
-                var _serializedData = JsonConvert.SerializeObject(data);
-                var payload = new Dictionary<string, string>
-                    {
-                        { "token", _token },
-                        { "content", "arm" },
-                        { "action", "import" },
-                        { "format", _inputFormat },
-                        { "type", _redcapDataType },
-                        { "override", _override },
-                        { "returnFormat", _returnFormat },
-                        { "data", _serializedData }
-                    };
-                // Execute request
                 _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
@@ -174,7 +432,7 @@ namespace Redcap
                     // Provide some default delimiters, mostly comma and spaces for redcap
                     delimiters = new char[] { ',', ' ' };
                 }
-                
+
                 var fieldsResult = await this.ExtractFieldsAsync(fields, delimiters);
                 var formsResult = await this.ExtractFormsAsync(forms, delimiters);
 
@@ -291,21 +549,21 @@ namespace Redcap
                     payload.Add("records", await this.ConvertStringArraytoString(_inputRecords));
                 }
                 // Optional
-                if(fieldItems.Count > 0)
+                if (fieldItems.Count > 0)
                 {
                     var _fields = fieldItems.ToArray();
                     payload.Add("fields", await this.ConvertStringArraytoString(_fields));
                 }
 
                 // Optional
-                if(formItems.Count > 0)
+                if (formItems.Count > 0)
                 {
                     var _forms = formItems.ToArray();
                     payload.Add("forms", await this.ConvertStringArraytoString(_forms));
                 }
 
                 // Optional
-                if(eventItems.Count > 0)
+                if (eventItems.Count > 0)
                 {
                     var _events = eventItems.ToArray();
                     payload.Add("events", await this.ConvertStringArraytoString(_events));
@@ -445,10 +703,10 @@ namespace Redcap
 
                     // Execute send request
                     _responseMessage = await this.SendRequestAsync(payload, _uri);
-                    return _responseMessage; 
+                    return _responseMessage;
                 }
                 return string.Empty;
-                
+
             }
             catch (Exception Ex)
             {
@@ -456,7 +714,6 @@ namespace Redcap
                 return await Task.FromResult(string.Empty);
             }
         }
-
         public async Task<string> SaveRecordsAsync(List<string> data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, InputFormat? inputFormat, RedcapDataType? redcapDataType, ReturnFormat? returnFormat, string dateFormat = "MDY")
         {
             try
@@ -702,74 +959,67 @@ namespace Redcap
                 return string.Empty;
             }
         }
-        public async Task<string> ExportEventsAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json)
+        /// <summary>
+        /// Alias /test/compatibility
+        /// </summary>
+        /// <param name="inputFormat"></param>
+        /// <param name="redcapDataType"></param>
+        /// <returns>string</returns>
+        public delegate Task<string> GetRedcapVersion(InputFormat inputFormat, RedcapDataType redcapDataType);
+        /// <summary>
+        /// Alias /test/compatibility
+        /// </summary>
+        /// <param name="record"></param>
+        /// <param name="inputFormat"></param>
+        /// <param name="redcapDataType"></param>
+        /// <param name="returnFormat"></param>
+        /// <param name="delimiters"></param>
+        /// <param name="forms"></param>
+        /// <param name="events"></param>
+        /// <param name="fields"></param>
+        /// <returns></returns>
+        public delegate Task<string> ExportRecord(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
+        /// <summary>
+        /// Alias /test/compatibility
+        /// </summary>
+        /// <param name="record"></param>
+        /// <param name="inputFormat"></param>
+        /// <param name="redcapDataType"></param>
+        /// <param name="returnFormat"></param>
+        /// <param name="delimiters"></param>
+        /// <param name="forms"></param>
+        /// <param name="events"></param>
+        /// <param name="fields"></param>
+        /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
+        public delegate Task<string> ExportRecords(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
+        public async Task<string> ImportArmsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat)
         {
             try
             {
-                // Handle optional parameters
+                string _responseMessage;
                 var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
+                var _override = overRide.ToString();
+                var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
-                {
-                    { "token", _token },
-                    { "content", "event" },
-                    { "format", _inputFormat },
-                    { "returnFormat", _returnFormat }
-                };
-                return await this.SendRequestAsync(payload, _uri);
+                    {
+                        { "token", _token },
+                        { "content", "arm" },
+                        { "action", "import" },
+                        { "format", _inputFormat },
+                        { "type", _redcapDataType },
+                        { "override", _override },
+                        { "returnFormat", _returnFormat },
+                        { "data", _serializedData }
+                    };
+                // Execute request
+                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
                 return string.Empty;
             }
-        }
-        public Task<HttpResponseMessage> ImportEvents(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> DeleteEvents(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ExportFields(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> DeleteFile(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ExportInstruments(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ExportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ImportPdfInstrument(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> CreateProject(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ImportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ExportProjectInfo(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ExportProjectXml(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> GenerateNextRecordName(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
         }
         public async Task<string> ExportRecordAsync(string record, InputFormat inputFormat, RedcapDataType redcapDataType, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
         {
@@ -959,14 +1209,6 @@ namespace Redcap
                 return string.Empty;
             }
         }
-        public Task<string> ImportRecords(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> DeleteRecords(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
         public async Task<string> ExportRedcapVersionAsync(InputFormat inputFormat, RedcapDataType redcapDataType)
         {
             try
@@ -990,22 +1232,6 @@ namespace Redcap
                 Log.Error($"{Ex.Message}");
                 return string.Empty;
             }
-        }
-        public Task<string> ExportSurveyLink(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ExportSurveyParticipants(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ExportSurveyQueueLink(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ExportSurveyReturnCode(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
         }
         public async Task<string> ExportUsersAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json)
         {
@@ -1032,11 +1258,6 @@ namespace Redcap
                 return string.Empty;
             }
 
-        }
-        
-        public Task<string> ImportUsers(int[] arms, OverwriteBehavior overwriteBehavior, InputFormat inputFormat, ReturnFormat returnFormat)
-        {
-            throw new NotImplementedException();
         }
         public async Task<string> GetRecordsAsync(InputFormat inputFormat, ReturnFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
         {
@@ -1096,14 +1317,6 @@ namespace Redcap
                 return string.Empty;
             }
 
-        }
-        public Task<string> DeleteEvents()
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ExportFields()
-        {
-            throw new NotImplementedException();
         }
         public async Task<string> ExportFileAsync(string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
         {
@@ -1177,7 +1390,7 @@ namespace Redcap
                 _responseMessage = await this.SendRequestAsync(payload, _uri);
                 return _responseMessage;
             }
-            catch(Exception Ex)
+            catch (Exception Ex)
             {
                 Log.Error(Ex.Message);
                 return string.Empty;
@@ -1185,7 +1398,7 @@ namespace Redcap
         }
         public async Task<string> ImportFileAsync(string record, string field, string eventName, string repeatInstance, string fileName, string filePath, ReturnFormat returnFormat = ReturnFormat.json)
         {
-            
+
             try
             {
                 string _responseMessage;
@@ -1268,395 +1481,27 @@ namespace Redcap
                 return string.Empty;
             }
         }
-        public Task<string> ExportInstruments()
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ExportPDFInstruments()
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ImportPDFInstrument()
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> CreateProject()
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ImportProjectInfo()
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ExportProjectInfo()
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ExportProjectXml()
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> GenerateNextRecordName()
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ImportRecords()
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> DeleteRecords()
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ExportRedcapVersion()
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ExportSurveyLink()
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ExportSurveyParticipants()
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ExportSurveyQueueLink()
-        {
-            throw new NotImplementedException();
-        }
-        public Task<string> ExportSurveyReturnCode()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportProjectXml(ReturnFormat returnFormat = ReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportFiles = false, bool returnMetaDataOnly = false, string[] records = null, string[] fields = null, string[] events = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<string> ExportRecordsAsync(string token, string content, InputFormat format = InputFormat.json, RedcapDataType redcapDatatype = RedcapDataType.flat, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, string rawOrLabel = "raw", string rawOrLabelHeaders = "raw", bool exportCheckboxLabel = false, ReturnFormat returnFormat = ReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null)
+        public async Task<string> ExportEventsAsync(InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json)
         {
             try
             {
-
-                string _responseMessage;
-                /*
-                 * Check the required parameters for empty or null
-                 */
-                if (IsNullOrEmpty(token) || IsNullOrEmpty(content) || IsNullOrEmpty(format.ToString()))
-                {
-                    throw new ArgumentNullException("Please provide a valid Redcap token.");
-                }
-                
-                /*
-                 * If we are Exporting Records, content = record
-                 */
-                content = "record";
-                var _format = format.ToString();
-                var _returnFormat = returnFormat.ToString();
-                var _redcapDataType = redcapDatatype.ToString();
-                /*
-                 * Create a payload container to hold all the pieces Redcap needs
-                 * to export records for us.
-                 */ 
+                // Handle optional parameters
+                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", token },
-                    { "content", content },
-                    { "format", _format },
-                    { "returnFormat", _returnFormat },
-                    { "type", _redcapDataType },
-                    { "rawOrLabel", rawOrLabel},
-                    { "rawOrLabelHeaders", rawOrLabelHeaders },
-                    { "filterLogic", filterLogic }
-
+                    { "token", _token },
+                    { "content", "event" },
+                    { "format", _inputFormat },
+                    { "returnFormat", _returnFormat }
                 };
-
-                // Optional
-                if (records.Count() == 0)
-                {
-                    // User wants all records
-                    payload.Add("records", "");
-                }
-                else
-                {
-                    /*
-                     * Convert Array List into string array
-                    /* User wants certain records
-                     */
-                    payload.Add("records", await this.ConvertStringArraytoString(records));
-                }
-
-                // Optional
-                if (fields.Count() > 0)
-                {
-                    payload.Add("fields", await this.ConvertStringArraytoString(fields));
-                }
-
-                // Optional
-                if (forms.Count() > 0)
-                {
-                    payload.Add("forms", await this.ConvertStringArraytoString(forms));
-                }
-
-                // Optional
-                if (events.Count() > 0)
-                {
-                    payload.Add("events", await this.ConvertStringArraytoString(events));
-                }
-
-                // Optional (defaults to false)
-                if (exportCheckboxLabel)
-                {
-                    payload.Add("exportCheckboxLabel", "true");
-                }
-
-                // Optional (defaults to false)
-                if (exportSurveyFields)
-                {
-                    payload.Add("exportSurveyFields", "true");
-                }
-
-                // Optional (defaults to false)
-                if (exportDataAccessGroups)
-                {
-                    payload.Add("exportDataAccessGroups", "true");
-                }
-
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
-                return _responseMessage;
+                return await this.SendRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
                 return string.Empty;
             }
-
         }
-
-        public Task<string> DeleteEventsAsync<T>(List<T> data, Override overRide, InputFormat inputFormat, ReturnFormat returnFormat, string apiToken = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportFields(ReturnFormat returnFormat, string field = null, string apiToken = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportInstruments(ReturnFormat returnFormat, string apiToken = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportPDFInstruments(string recordId = null, string eventName = null, string instrument = null, bool allRecord = false, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportInstrumentMapping(InputFormat inputFormat = InputFormat.json, string[] arms = null, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ImportInstrumentMapping<T>(List<T> data, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> CreateProject<T>(List<T> data, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json, string odm = null, string apiToken = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ImportProjectInfo<T>(List<T> data, InputFormat inputFormat = InputFormat.json, string apiToken = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportProjectInfo(InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportProjectXml(ReturnFormat returnFormat = ReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportFiles = false, bool returnMetaDataOnly = false, string[] records = null, string[] fields = null, string[] events = null, string apiToken = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> GenerateNextRecordName(string apiToken = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportRecordsAsync(string[] records, InputFormat inputFormat = InputFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, ReturnFormat returnFormat = ReturnFormat.json, char[] delimiters = null, string[] forms = null, string[] events = null, string[] fields = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportRecordsAsync(string token, string content, InputFormat format = InputFormat.json, RedcapDataType redcapDatatype = RedcapDataType.flat, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, ReturnFormat returnFormat = ReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> DeleteRecords(string token, string content, string action, string[] records, int arm)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportReports(string token, string content, int reportId, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportRedcapVersionAsync(string token, string content, InputFormat inputFormat)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportSurveyLink(string token, string content, string record, string instrument, string eventName, int repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportSurveyParticipants(string token, string content, string instrument, string eventName, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportSurveyQueueLink(string token, string content, string record, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportSurveyReturnCode(string token, string content, string record, string instrument, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportUsersAsync(string token, string content, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ImportUsers<T>(string token, string content, List<T> data, InputFormat inputFormat = InputFormat.json, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportArmsAsync(string token, string content, InputFormat inputFormat = InputFormat.json, string[] arms = null, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ImportArmsAsync<T>(string token, string content, Override overrideBhavior, string action, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> DeleteArmsAsync<T>(string token, string content, string action, string[] arms)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportEventsAsync(string token, string content, InputFormat inputFormat, int[] arms = null, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ImportEventsAsync<T>(string token, string content, string action, Override overRide, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> DeleteEventsAsync<T>(string token, string content, string action, string[] events, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportFields(string token, string content, InputFormat inputFormat, string field = null, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportFileAsync(string token, string content, string action, string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ImportFileAsync(string token, string content, string action, string record, string field, string eventName, string repeatInstance, string fileName, string filePath, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> DeleteFileAsync(string token, string content, string action, string record, string field, string eventName, string repeatInstance, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportInstruments(string token, string content, InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportPDFInstruments(string token, string content, string recordId = null, string eventName = null, string instrument = null, bool allRecord = false, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportInstrumentMapping(string token, string content, InputFormat inputFormat = InputFormat.json, string[] arms = null, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ImportInstrumentMapping<T>(string token, string content, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportMetaDataAsync(string token, string content, InputFormat inputFormat, string[] fields = null, string[] forms = null, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ImportMetaDataAsync<T>(string token, string content, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> CreateProject<T>(string token, string content, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json, string odm = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ImportProjectInfo<T>(string token, string content, InputFormat inputFormat, List<T> data)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportProjectInfo(string token, string content, InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ExportProjectXml(string token, string content, bool returnMetadataOnly = false, string[] records = null, string[] events = null, ReturnFormat returnFormat = ReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportFiles = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> GenerateNextRecordName(string token, string content)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ImportRecordsAsync<T>(string token, string content, InputFormat inputFormat, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, List<T> data, string dateFormat, ReturnContent returnContent = ReturnContent.count, ReturnFormat returnFormat = ReturnFormat.json)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> DeleteRecords(string token, string content, string action, string[] records, int? arm)
-        {
-            throw new NotImplementedException();
-        }
+        #endregion deprecated
     }
 }
