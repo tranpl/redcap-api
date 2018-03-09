@@ -109,7 +109,7 @@ namespace Redcap.Interfaces
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">event</param>
         /// <param name="action">import</param>
-        /// <param name="overRide">0 - false [default], 1 - true — You may use override=1 as a 'delete all + import' action in order to erase all existing Events in the project while importing new Events. If override=0, then you can only add new Events or modify existing ones. </param>
+        /// <param name="overrideBhavior">0 - false [default], 1 - true — You may use override=1 as a 'delete all + import' action in order to erase all existing Events in the project while importing new Events. If override=0, then you can only add new Events or modify existing ones. </param>
         /// <typeparam name="T"></typeparam>
         /// <param name="data">Contains the required attributes 'event_name' (referring to the name/label of the event) and 'arm_num' (referring to the arm number to which the event belongs - assumes '1' if project only contains one arm). In order to modify an existing event, you must provide the attribute 'unique_event_name' (referring to the auto-generated unique event name of the given event). If the project utilizes the Scheduling module, the you may optionally provide the following attributes, which must be numerical: day_offset, offset_min, offset_max. If the day_offset is not provided, then the events will be auto-numbered in the order in which they are provided in the API request. 
         /// [{"event_name":"Baseline","arm_num":"1","day_offset":"1","offset_min":"0",
@@ -122,7 +122,7 @@ namespace Redcap.Interfaces
         /// <param name="inputFormat">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Number of Events imported</returns>
-        Task<string> ImportEventsAsync<T>(string token, string content, string action, Override overRide, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json);
+        Task<string> ImportEventsAsync<T>(string token, string content, string action, Override overrideBhavior, InputFormat inputFormat, List<T> data, ReturnFormat returnFormat = ReturnFormat.json);
 
         /// <summary>
         /// Delete Events
@@ -139,9 +139,8 @@ namespace Redcap.Interfaces
         /// <param name="content"></param>
         /// <param name="action"></param>
         /// <param name="events"></param>
-        /// <param name="returnFormat"></param>
         /// <returns>Number of Events deleted</returns>
-        Task<string> DeleteEventsAsync<T>(string token, string content, string action, string[] events, ReturnFormat returnFormat = ReturnFormat.json);
+        Task<string> DeleteEventsAsync<T>(string token, string content, string action, string[] events);
 
         /// <summary>
         /// Export List of Export Field Names (i.e. variables used during exports and imports)
@@ -167,7 +166,7 @@ namespace Redcap.Interfaces
         /// <returns>Returns a list of the export/import-specific version of field names for all fields (or for one field, if desired) in a project in the format specified and ordered by their field order . 
         /// The list that is returned will contain the three following attributes for each field/choice: 'original_field_name', 'choice_value', and 'export_field_name'. The choice_value attribute represents the raw coded value for a checkbox choice. For non-checkbox fields, the choice_value attribute will always be blank/empty. The export_field_name attribute represents the export/import-specific version of that field name.
         /// </returns>
-        Task<string> ExportFieldsAsync(string token, string content, InputFormat inputFormat, string field = null, ReturnFormat returnFormat = ReturnFormat.json);
+        Task<string> ExportFieldNamesAsync(string token, string content, InputFormat inputFormat, string field = null, ReturnFormat returnFormat = ReturnFormat.json);
 
         /// <summary>
         /// Export a File
@@ -240,9 +239,8 @@ namespace Redcap.Interfaces
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">instrument</param>
         /// <param name="inputFormat">csv, json [default], xml</param>
-        /// <param name="returnFormat">csv, json, xml [default] - The returnFormat is only used with regard to the format of any error messages that might be returned.</param>
         /// <returns>Instruments for the project in the format specified and will be ordered according to their order in the project.</returns>
-        Task<string> ExportInstrumentsAsync(string token, string content, InputFormat inputFormat, ReturnFormat returnFormat = ReturnFormat.json);
+        Task<string> ExportInstrumentsAsync(string token, string content, InputFormat inputFormat);
 
         /// <summary>
         /// Export PDF file of Data Collection Instruments (either as blank or with data)
@@ -276,9 +274,8 @@ namespace Redcap.Interfaces
         /// <param name="inputFormat">csv, json [default], xml</param>
         /// <param name="arms">an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
-        /// <param name="apiToken">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <returns>Instrument-event mappings for the project in the format specified</returns>
-        Task<string> ExportInstrumentMappingAsync(string token, string content, InputFormat inputFormat = InputFormat.json, string[] arms = null, ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null);
+        Task<string> ExportInstrumentMappingAsync(string token, string content, InputFormat inputFormat = InputFormat.json, string[] arms = null, ReturnFormat returnFormat = ReturnFormat.json);
 
         /// <summary>
         /// Import Instrument-Event Mappings
@@ -300,7 +297,7 @@ namespace Redcap.Interfaces
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Number of Instrument-Event Mappings imported</returns>
-        Task<string> ImportInstrumentMappingAsync<T>(string token, string content, InputFormat inputFormat, List<T> data,  ReturnFormat returnFormat = ReturnFormat.json, string apiToken = null);
+        Task<string> ImportInstrumentMappingAsync<T>(string token, string content, InputFormat inputFormat, List<T> data,  ReturnFormat returnFormat = ReturnFormat.json);
 
         /// <summary>
         /// Export Metadata (Data Dictionary)
