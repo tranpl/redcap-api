@@ -1,12 +1,12 @@
 ﻿namespace Redcap.Models
 {
     /// <summary>
-    /// The format which is provided when requesting through Redcap API
-    /// RedcapFormat, 0 = JSON
-    /// RedcapFormat, 1 = CSV
-    /// RedcapFormat, 2 = XML
+    /// The format that the response object should be if there are errors generated when executing the http request.
+    /// OnErrorFormat, 0 = JSON
+    /// OnErrorFormat, 1 = CSV
+    /// OnErrorFormat, 2 = XML
     /// </summary>
-    public enum InputFormat
+    public enum OnErrorFormat
     {
         /// <summary>
         /// Default Javascript Notation
@@ -19,10 +19,6 @@
         /// <summary>
         /// Extensible Markup Language
         /// </summary>
-        xml = 2,
-        /// <summary>
-        /// CDISC ODM XML format, specifically ODM version 1.3.1
-        /// </summary>
-        odm = 3
+        xml = 2
     }
 }

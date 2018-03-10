@@ -74,7 +74,7 @@ namespace Redcap.Utilities
         /// <param name="redcapApi"></param>
         /// <param name="inputArray"></param>
         /// <returns>string[]</returns>
-        public static async Task<string> ConvertStringArraytoString(this RedcapApi redcapApi, string[] inputArray)
+        public static async Task<string> ConvertStringArraytoString<T>(this RedcapApi redcapApi, T[] inputArray)
         {
             try
             {
@@ -83,7 +83,7 @@ namespace Redcap.Utilities
                     throw new ArgumentNullException("Please provide a valid array.");
                 }
                 StringBuilder builder = new StringBuilder();
-                foreach (string v in inputArray)
+                foreach (T v in inputArray)
                 {
 
                     builder.Append(v);
@@ -174,35 +174,19 @@ namespace Redcap.Utilities
         /// Tuple that returns both inputFormat and redcap returnFormat
         /// </summary>
         /// <param name="redcapApi"></param>
-        /// <param name="inputFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
-        /// <param name="returnFormat"></param>
+        /// <param name="returnFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="onErrorFormat"></param>
         /// <param name="redcapDataType"></param>
         /// <returns>tuple, string, string, string</returns>
-        public static async Task<(string inputFormat, string returnFormat, string redcapDataType)> HandleFormat(this RedcapApi redcapApi, InputFormat? inputFormat = InputFormat.json, ReturnFormat? returnFormat = ReturnFormat.json, RedcapDataType? redcapDataType = RedcapDataType.flat)
+        public static async Task<(string returnFormat, string onErrorFormat, string redcapDataType)> HandleFormat(this RedcapApi redcapApi, ReturnFormat? returnFormat = ReturnFormat.json, OnErrorFormat? onErrorFormat = OnErrorFormat.json, RedcapDataType? redcapDataType = RedcapDataType.flat)
         {
             // default
-            var _inputFormat = InputFormat.json.ToString();
             var _returnFormat = ReturnFormat.json.ToString();
+            var _onErrorFormat = OnErrorFormat.json.ToString();
             var _redcapDataType = RedcapDataType.flat.ToString();
 
             try
             {
-
-                switch (inputFormat)
-                {
-                    case InputFormat.json:
-                        _inputFormat = InputFormat.json.ToString();
-                        break;
-                    case InputFormat.csv:
-                        _inputFormat = InputFormat.csv.ToString();
-                        break;
-                    case InputFormat.xml:
-                        _inputFormat = InputFormat.xml.ToString();
-                        break;
-                    default:
-                        _inputFormat = InputFormat.json.ToString();
-                        break;
-                }
 
                 switch (returnFormat)
                 {
@@ -220,31 +204,47 @@ namespace Redcap.Utilities
                         break;
                 }
 
-                switch (redcapDataType)
+                switch (onErrorFormat)
                 {
-                    case RedcapDataType.flat:
-                        _returnFormat = RedcapDataType.flat.ToString();
+                    case OnErrorFormat.json:
+                        _onErrorFormat = OnErrorFormat.json.ToString();
                         break;
-                    case RedcapDataType.eav:
-                        _returnFormat = RedcapDataType.eav.ToString();
+                    case OnErrorFormat.csv:
+                        _onErrorFormat = OnErrorFormat.csv.ToString();
                         break;
-                    case RedcapDataType.longitudinal:
-                        _returnFormat = RedcapDataType.longitudinal.ToString();
-                        break;
-                    case RedcapDataType.nonlongitudinal:
-                        _returnFormat = RedcapDataType.nonlongitudinal.ToString();
+                    case OnErrorFormat.xml:
+                        _onErrorFormat = OnErrorFormat.xml.ToString();
                         break;
                     default:
-                        _returnFormat = RedcapDataType.flat.ToString();
+                        _onErrorFormat = OnErrorFormat.json.ToString();
                         break;
                 }
 
-                return await Task.FromResult((_inputFormat, _returnFormat, _redcapDataType));
+                switch (redcapDataType)
+                {
+                    case RedcapDataType.flat:
+                        _onErrorFormat = RedcapDataType.flat.ToString();
+                        break;
+                    case RedcapDataType.eav:
+                        _onErrorFormat = RedcapDataType.eav.ToString();
+                        break;
+                    case RedcapDataType.longitudinal:
+                        _onErrorFormat = RedcapDataType.longitudinal.ToString();
+                        break;
+                    case RedcapDataType.nonlongitudinal:
+                        _onErrorFormat = RedcapDataType.nonlongitudinal.ToString();
+                        break;
+                    default:
+                        _onErrorFormat = RedcapDataType.flat.ToString();
+                        break;
+                }
+
+                return await Task.FromResult((_returnFormat, _onErrorFormat, _redcapDataType));
             }
             catch (Exception Ex)
             {
                 Log.Error(Ex.Message);
-                return await Task.FromResult((_inputFormat, _returnFormat, _redcapDataType));
+                return await Task.FromResult((_returnFormat, _onErrorFormat, _redcapDataType));
             }
         }
 
@@ -498,7 +498,8 @@ namespace Redcap.Utilities
             }
         }
         /// <summary>
-        /// 
+        /// Method to send http request using MultipartFormDataContent
+        /// Requests with attachments
         /// </summary>
         /// <param name="redcapApi"></param>
         /// <param name="payload">data</param>
@@ -558,6 +559,10 @@ namespace Redcap.Utilities
                      */
                     if (isLargeDataset)
                     {
+                        /*
+                         * Send request with large data set
+                         */ 
+
                         var serializedPayload = JsonConvert.SerializeObject(payload);
                         using (var content = new StringContent(serializedPayload, Encoding.UTF8, "application/json"))
                         {
@@ -566,12 +571,15 @@ namespace Redcap.Utilities
                                 if (response.IsSuccessStatusCode)
                                 {
                                     // Get the filename so we can save with the name
-                                    var fileHeaders = response.Content.Headers;
-                                    var fileName = fileHeaders.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
-                                    var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                                    var headers = response.Content.Headers;
+                                    var fileName = headers.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
+                                    if (!string.IsNullOrEmpty(fileName))
                                     {
-                                        FileName = fileName
-                                    };
+                                        var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                                        {
+                                            FileName = fileName
+                                        };
+                                    }
 
                                     if (!string.IsNullOrEmpty(pathValue))
                                     {
@@ -598,6 +606,7 @@ namespace Redcap.Utilities
                     {
                         /*
                         * Maximum character limit of 32,000 using FormUrlEncodedContent
+                        * Send request using small data set
                         */
                         using (var content = new FormUrlEncodedContent(payload))
                         {
@@ -606,12 +615,16 @@ namespace Redcap.Utilities
                                 if (response.IsSuccessStatusCode)
                                 {
                                     // Get the filename so we can save with the name
-                                    var fileHeaders = response.Content.Headers;
-                                    var fileName = fileHeaders.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
-                                    var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                                    var headers = response.Content.Headers;
+                                    var fileName = headers.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
+                                    if (!string.IsNullOrEmpty(fileName))
                                     {
-                                        FileName = fileName
-                                    };
+                                        var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                                        {
+                                            FileName = fileName
+                                        };
+                                    }
+
 
                                     if (!string.IsNullOrEmpty(pathValue))
                                     {

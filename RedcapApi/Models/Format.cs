@@ -2,9 +2,9 @@
 {
     /// <summary>
     /// The format that the response object should be when returned from Redcap API.
-    /// RedcapFormat, 0 = JSON
-    /// RedcapFormat, 1 = CSV
-    /// RedcapFormat, 2 = XML
+    /// Format, 0 = JSON
+    /// Format, 1 = CSV
+    /// Format, 2 = XML
     /// </summary>
     public enum ReturnFormat
     {
@@ -19,6 +19,10 @@
         /// <summary>
         /// Extensible Markup Language
         /// </summary>
-        xml = 2
+        xml = 2,
+        /// <summary>
+        /// CDISC ODM XML format, specifically ODM version 1.3.1
+        /// </summary>
+        odm = 3
     }
 }
