@@ -8,27 +8,46 @@ namespace RedcapApiDemo
 {
     class Program
     {
+        /*
+         * Change this token for your demo project
+         * Using one created from a local dev instance
+         */
+        private const string _token = "A8E6949EF4380F1111C66D5374E1AE6C";
+        /*
+         * Using a local redcap development instsance
+         */
+        private const string _uri = "http://localhost/redcap/api/";
         static void Main(string[] args)
         {
-            /**
-             * This is a demo.
-             * This program sequently runs through all the APIs.
-             * Go into Redcap and create a new project with demographics.
-             * Turn on longitudinal and add two additional event.
-             * Event name should be "Event 1, Event 2, Event 3"
-             * Create a folder in C: , name it redcap_download_files
-             * Create a text file in that folder, save it as test.txt
-             * Add a field, field type file upload to the project, name it "protocol_upload"
+            /*
+             * This is a demo. This program provides a demonstration of potential calls using the API library.
+             * 
+             * This program sequently runs through all the APIs methods.
+             * 
+             * Directions:
+             * 
+             * 1. Go into Redcap and create a new project with demographics.
+             * 2. Turn on longitudinal and add two additional event. Event name should be "Event 1, Event 2, Event 3"
+             *  Important, make sure you designate the instrument to atleast one event
+             * 3. Create a folder in C: , name it redcap_download_files
+             * 4. Create a text file in that folder, save it as test.txt
+             * 5. Add a field, field type file upload to the project, name it "protocol_upload"
              * This allows the upload file method to upload files
              * 
-             * */
+             */
 
-            Console.WriteLine("Redcap Api Demo Started!");
-            // change api token for your demo project
-            var _apiToken = "ED2D0A2E34D9693DCA7E9E6BD5F0941C";
+            /*
+             * Output to console
+             */ 
+            Console.WriteLine("Starting Redcap Api Demo..");
+            Console.WriteLine("Please make sure you include a working redcap api token.");
 
-            var redcapApi = new RedcapApi(_apiToken, "http://localhost/redcap/api/");
+            /*
+             * Start a new instance of Redcap APi
+             */ 
+            var redcapApi = new RedcapApi(_token, _uri);
 
+            Console.WriteLine("Calling API Methods < 1.0.0");
             Console.WriteLine("Calling GetRecordAsync() . . .");
             var GetRecordAsync = redcapApi.GetRecordAsync("1", InputFormat.json, RedcapDataType.flat, ReturnFormat.json, null, null, null, null).Result;
             var GetRecordAsyncData = JsonConvert.DeserializeObject(GetRecordAsync);
@@ -88,18 +107,20 @@ namespace RedcapApiDemo
 
             var pathImport = "C:\\redcap_download_files";
             string importFileName = "test.txt";
-            Console.WriteLine("Calling ImportportFile() . . .");
-            var ImportFile = redcapApi.ImportFileAsync("1", "protocol_upload", "Event_1_arm_1", "", importFileName, pathImport, ReturnFormat.json).Result;
-            Console.WriteLine($"File has been imported!");
+            Console.WriteLine("Calling ImportFile() . . .");
+            var ImportFile = redcapApi.ImportFileAsync("1", "protocol_upload", "event_1_arm_1", "", importFileName, pathImport, ReturnFormat.json).Result;
+            Console.WriteLine($"File has been imported! To verify, field history!");
 
             var pathExport = "C:\\redcap_download_files";
             Console.WriteLine("Calling ExportFile() . . .");
-            var ExportFile = redcapApi.ExportFileAsync("1", "protocol_upload", "Event_1_arm_1", "", pathExport, ReturnFormat.json).Result;
+            var ExportFile = redcapApi.ExportFileAsync("1", "protocol_upload", "event_1_arm_1", "", pathExport, ReturnFormat.json).Result;
             Console.WriteLine($"ExportFile Result: {ExportFile} to : {pathExport}");
 
             Console.WriteLine("Calling DeleteFile() . . .");
-            var DeleteFile = redcapApi.DeleteFileAsync("1", "protocol_upload", "Event_1_arm_1", "", ReturnFormat.json).Result;
-            Console.WriteLine($"File has been deleted!");
+            var DeleteFile = redcapApi.DeleteFileAsync("1", "protocol_upload", "event_1_arm_1", "", ReturnFormat.json).Result;
+            Console.WriteLine($"File has been deleted! To verify, field history!" );
+
+            Console.WriteLine("Calls to < 1.0.0 completed...");
 
             Console.ReadLine();
 
