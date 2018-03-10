@@ -72,7 +72,7 @@ namespace Redcap
 
         #region API Version 1.0.0 Begin
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0 **
         /// Export Arms
         /// This method allows you to export the Arms for a project
         /// NOTE: This only works for longitudinal projects.
@@ -83,8 +83,8 @@ namespace Redcap
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">arm</param>
         /// <param name="format">csv, json [default], xml</param>
-        /// <param name="arms">an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
-        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="arms">(optional) ** Passing anything other than an empty string array works, verifying with Vanderbilt. an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
+        /// <param name="onErrorFormat">(optional) csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Arms for the project in the format specified</returns>
         public async Task<string> ExportArmsAsync(string token, string content, ReturnFormat format = ReturnFormat.json, string[] arms = null, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
@@ -119,10 +119,9 @@ namespace Redcap
                 var _onErrorFormatValue = _onErrorFormat.ToString();
                 if (!IsNullOrEmpty(_onErrorFormatValue))
                 {
+                    // defaults to 'xml'
                     payload.Add("returnFormat", _onErrorFormatValue);
-
                 }
-                var requestPayload = JsonConvert.SerializeObject(payload);
                 // Execute send request
                 return await this.SendRequestAsync(payload, _uri);
             }
@@ -216,13 +215,12 @@ namespace Redcap
         /// <remarks>
         /// To use this method, you must have API Import/Update privileges *and* Project Design/Setup privileges in the project.
         /// </remarks>
-        /// <typeparam name="T"></typeparam>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">arm</param>
         /// <param name="action">delete</param>
         /// <param name="arms">an array of arm numbers that you wish to delete</param>
         /// <returns>Number of Arms deleted</returns>
-        public async Task<string> DeleteArmsAsync<T>(string token, string content, string action, string[] arms)
+        public async Task<string> DeleteArmsAsync(string token, string content, string action, string[] arms)
         {
             try
             {

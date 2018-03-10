@@ -71,13 +71,12 @@ namespace Redcap.Interfaces
         /// <remarks>
         /// To use this method, you must have API Import/Update privileges *and* Project Design/Setup privileges in the project.
         /// </remarks>
-        /// <typeparam name="T"></typeparam>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">arm</param>
         /// <param name="action">delete</param>
         /// <param name="arms">an array of arm numbers that you wish to delete</param>
         /// <returns>Number of Arms deleted</returns>
-        Task<string> DeleteArmsAsync<T>(string token, string content, string action, string[] arms);
+        Task<string> DeleteArmsAsync(string token, string content, string action, string[] arms);
 
         /// <summary>
         /// Export Events
