@@ -697,6 +697,22 @@ namespace Redcap.Utilities
             return await Task.FromResult(new List<string> { });
 
         }
+        /// <summary>
+        /// Checks where the string passed is null or empty.
+        /// </summary>
+        /// <param name="redcapApi"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public static void CheckToken(this RedcapApi redcapApi, string token)
+        {
+            /*
+             * Check the required parameters for empty or null
+             */
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new ArgumentNullException("Please provide a valid Redcap token.");
+            }
+        }
 
     }
 }
