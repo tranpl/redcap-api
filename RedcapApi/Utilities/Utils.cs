@@ -74,7 +74,7 @@ namespace Redcap.Utilities
         /// <param name="redcapApi"></param>
         /// <param name="inputArray"></param>
         /// <returns>string[]</returns>
-        public static async Task<string> ConvertStringArraytoString<T>(this RedcapApi redcapApi, T[] inputArray)
+        public static async Task<string> ConvertArraytoString<T>(this RedcapApi redcapApi, T[] inputArray)
         {
             try
             {
@@ -527,6 +527,7 @@ namespace Redcap.Utilities
                 return Empty;
             }
         }
+
         /// <summary>
         /// Sends request using http
         /// </summary>

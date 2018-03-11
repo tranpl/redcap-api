@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Redcap.Interfaces;
 using Redcap.Models;
 using Redcap.Utilities;
@@ -83,9 +84,9 @@ namespace Redcap
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">arm</param>
         /// <param name="format">csv, json [default], xml</param>
-        /// <param name="arms">(optional) ** Passing anything other than an empty string array works, verifying with Vanderbilt. an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
-        /// <param name="onErrorFormat">(optional) csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
-        /// <returns>Arms for the project in the format specified</returns>
+        /// <param name="arms">an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>Arms for the project in the format specified(only ones with Events available)</returns>
         public async Task<string> ExportArmsAsync(string token, string content, ReturnFormat format = ReturnFormat.json, string[] arms = null, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
             try
@@ -114,7 +115,7 @@ namespace Redcap
                 // Optional
                 if (arms?.Length > 0)
                 {
-                    payload.Add("arms", await this.ConvertStringArraytoString(arms));
+                    payload.Add("arms", await this.ConvertArraytoString(arms));
                 }
                 var _onErrorFormatValue = _onErrorFormat.ToString();
                 if (!IsNullOrEmpty(_onErrorFormatValue))
@@ -236,14 +237,14 @@ namespace Redcap
                 {
                     action = "delete";
                 }
-                var _serializedData = JsonConvert.SerializeObject(arms);
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
                     { "content", content },
-                    { "action", action },
-                    { "arms", _serializedData }
+                    { "action", action }
                 };
+                // Required
+                payload.Add("arms[0]", await this.ConvertArraytoString(arms));
                 // Execute request
                 return await this.SendRequestAsync(payload, _uri);
             }
@@ -860,7 +861,7 @@ namespace Redcap
                 // Add all optional parameters
                 if (arms?.Length > 0)
                 {
-                    payload.Add("arms", await this.ConvertStringArraytoString(arms));
+                    payload.Add("arms", await this.ConvertArraytoString(arms));
                 }
                 // Execute request
                 return await this.SendRequestAsync(payload, _uri);
@@ -971,11 +972,11 @@ namespace Redcap
                 // Optional
                 if (fields?.Length > 0)
                 {
-                    payload.Add("fields", await this.ConvertStringArraytoString(fields));
+                    payload.Add("fields", await this.ConvertArraytoString(fields));
                 }
                 if (forms?.Length > 0)
                 {
-                    payload.Add("forms", await this.ConvertStringArraytoString(forms));
+                    payload.Add("forms", await this.ConvertArraytoString(forms));
                 }
                 return await this.SendRequestAsync(payload, _uri);
             }
@@ -1258,11 +1259,11 @@ namespace Redcap
                 }
                 if (records?.Length > 0)
                 {
-                    payload.Add("records", await this.ConvertStringArraytoString(records));
+                    payload.Add("records", await this.ConvertArraytoString(records));
                 }
                 if (events?.Length > 0)
                 {
-                    payload.Add("events", await this.ConvertStringArraytoString(events));
+                    payload.Add("events", await this.ConvertArraytoString(events));
                 }
                 if (exportSurveyFields)
                 {
@@ -1395,19 +1396,19 @@ namespace Redcap
                 // Optional
                 if (records?.Length > 0)
                 {
-                    payload.Add("records", await this.ConvertStringArraytoString(records));
+                    payload.Add("records", await this.ConvertArraytoString(records));
                 }
                 if (fields?.Length > 0)
                 {
-                    payload.Add("fields", await this.ConvertStringArraytoString(fields));
+                    payload.Add("fields", await this.ConvertArraytoString(fields));
                 }
                 if (forms?.Length > 0)
                 {
-                    payload.Add("forms", await this.ConvertStringArraytoString(forms));
+                    payload.Add("forms", await this.ConvertArraytoString(forms));
                 }
                 if (events?.Length > 0)
                 {
-                    payload.Add("events", await this.ConvertStringArraytoString(events));
+                    payload.Add("events", await this.ConvertArraytoString(events));
                 }
                 /*
                  * Pertains to CSV data only
@@ -1572,7 +1573,7 @@ namespace Redcap
                     { "action",  action}
                 };
                 // Required
-                payload.Add("records", await this.ConvertStringArraytoString(records));
+                payload.Add("records", await this.ConvertArraytoString(records));
 
                 // Optional
                 payload.Add("arm", arm?.ToString());
@@ -2174,13 +2175,13 @@ namespace Redcap
                     // Convert Array List into string array
                     string[] fieldsArray = fieldsResult.ToArray();
                     // Convert string array into String
-                    _fields = await this.ConvertStringArraytoString(fieldsArray);
+                    _fields = await this.ConvertArraytoString(fieldsArray);
                 }
                 if (!String.IsNullOrEmpty(forms))
                 {
                     string[] formsArray = formsResult.ToArray();
                     // Convert string array into String
-                    _forms = await this.ConvertStringArraytoString(formsArray);
+                    _forms = await this.ConvertArraytoString(formsArray);
                 }
                 var payload = new Dictionary<string, string>
                 {
@@ -2229,7 +2230,7 @@ namespace Redcap
                     // Convert Array List into string array
                     var inputRecords = recordResults.ToArray();
                     // Convert string array into String
-                    _records = await this.ConvertStringArraytoString(inputRecords);
+                    _records = await this.ConvertArraytoString(inputRecords);
                     payload.Add("records", _records);
                 }
                 _responseMessage = await this.SendRequestAsync(payload, _uri);
@@ -2276,27 +2277,27 @@ namespace Redcap
                 {
                     // Convert Array List into string array
                     var _inputRecords = recordItems.ToArray();
-                    payload.Add("records", await this.ConvertStringArraytoString(_inputRecords));
+                    payload.Add("records", await this.ConvertArraytoString(_inputRecords));
                 }
                 // Optional
                 if (fieldItems.Count > 0)
                 {
                     var _fields = fieldItems.ToArray();
-                    payload.Add("fields", await this.ConvertStringArraytoString(_fields));
+                    payload.Add("fields", await this.ConvertArraytoString(_fields));
                 }
 
                 // Optional
                 if (formItems.Count > 0)
                 {
                     var _forms = formItems.ToArray();
-                    payload.Add("forms", await this.ConvertStringArraytoString(_forms));
+                    payload.Add("forms", await this.ConvertArraytoString(_forms));
                 }
 
                 // Optional
                 if (eventItems.Count > 0)
                 {
                     var _events = eventItems.ToArray();
-                    payload.Add("events", await this.ConvertStringArraytoString(_events));
+                    payload.Add("events", await this.ConvertArraytoString(_events));
                 }
 
                 return await this.SendRequestAsync(payload, _uri);
@@ -2635,13 +2636,13 @@ namespace Redcap
                     // Convert Array List into string array
                     string[] fieldsArray = fieldsResult.ToArray();
                     // Convert string array into String
-                    _fields = await this.ConvertStringArraytoString(fieldsArray);
+                    _fields = await this.ConvertArraytoString(fieldsArray);
                 }
                 if (!String.IsNullOrEmpty(forms))
                 {
                     string[] formsArray = formsResult.ToArray();
                     // Convert string array into String
-                    _forms = await this.ConvertStringArraytoString(formsArray);
+                    _forms = await this.ConvertArraytoString(formsArray);
                 }
                 var payload = new Dictionary<string, string>
                 {
@@ -2785,27 +2786,27 @@ namespace Redcap
                 {
                     // Convert Array List into string array
                     var _inputRecords = recordItems.ToArray();
-                    payload.Add("records", await this.ConvertStringArraytoString(_inputRecords));
+                    payload.Add("records", await this.ConvertArraytoString(_inputRecords));
                 }
                 // Optional
                 if (fieldItems.Count > 0)
                 {
                     var _fields = fieldItems.ToArray();
-                    payload.Add("fields", await this.ConvertStringArraytoString(_fields));
+                    payload.Add("fields", await this.ConvertArraytoString(_fields));
                 }
 
                 // Optional
                 if (formItems.Count > 0)
                 {
                     var _forms = formItems.ToArray();
-                    payload.Add("forms", await this.ConvertStringArraytoString(_forms));
+                    payload.Add("forms", await this.ConvertArraytoString(_forms));
                 }
 
                 // Optional
                 if (eventItems.Count > 0)
                 {
                     var _events = eventItems.ToArray();
-                    payload.Add("events", await this.ConvertStringArraytoString(_events));
+                    payload.Add("events", await this.ConvertArraytoString(_events));
                 }
 
                 return await this.SendRequestAsync(payload, _uri);
@@ -2852,27 +2853,27 @@ namespace Redcap
                 {
                     // Convert Array List into string array
                     var _inputRecords = recordItems.ToArray();
-                    payload.Add("records", await this.ConvertStringArraytoString(_inputRecords));
+                    payload.Add("records", await this.ConvertArraytoString(_inputRecords));
                 }
                 // Optional
                 if (fieldItems.Count > 0)
                 {
                     var _fields = fieldItems.ToArray();
-                    payload.Add("fields", await this.ConvertStringArraytoString(_fields));
+                    payload.Add("fields", await this.ConvertArraytoString(_fields));
                 }
 
                 // Optional
                 if (formItems.Count > 0)
                 {
                     var _forms = formItems.ToArray();
-                    payload.Add("forms", await this.ConvertStringArraytoString(_forms));
+                    payload.Add("forms", await this.ConvertArraytoString(_forms));
                 }
 
                 // Optional
                 if (eventItems.Count > 0)
                 {
                     var _events = eventItems.ToArray();
-                    payload.Add("events", await this.ConvertStringArraytoString(_events));
+                    payload.Add("events", await this.ConvertArraytoString(_events));
                 }
 
                 _responseMessage = await this.SendRequestAsync(payload, _uri);
@@ -2913,21 +2914,21 @@ namespace Redcap
                 if (fieldItems.Count > 0)
                 {
                     var _fields = fieldItems.ToArray();
-                    payload.Add("fields", await this.ConvertStringArraytoString(_fields));
+                    payload.Add("fields", await this.ConvertArraytoString(_fields));
                 }
 
                 // Optional
                 if (formItems.Count > 0)
                 {
                     var _forms = formItems.ToArray();
-                    payload.Add("forms", await this.ConvertStringArraytoString(_forms));
+                    payload.Add("forms", await this.ConvertArraytoString(_forms));
                 }
 
                 // Optional
                 if (eventItems.Count > 0)
                 {
                     var _events = eventItems.ToArray();
-                    payload.Add("events", await this.ConvertStringArraytoString(_events));
+                    payload.Add("events", await this.ConvertArraytoString(_events));
                 }
 
                 _responseMessage = await this.SendRequestAsync(payload, _uri);
