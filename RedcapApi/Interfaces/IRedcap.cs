@@ -95,7 +95,7 @@ namespace Redcap.Interfaces
         /// <param name="arms"></param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Events for the project in the format specified</returns>
-        Task<string> ExportEventsAsync(string token, string content, ReturnFormat inputFormat, int[] arms = null, OnErrorFormat returnFormat = OnErrorFormat.json);
+        Task<string> ExportEventsAsync(string token, string content, ReturnFormat inputFormat, string[] arms = null, OnErrorFormat returnFormat = OnErrorFormat.json);
 
         /// <summary>
         /// Import Events
@@ -139,7 +139,7 @@ namespace Redcap.Interfaces
         /// <param name="action"></param>
         /// <param name="events"></param>
         /// <returns>Number of Events deleted</returns>
-        Task<string> DeleteEventsAsync<T>(string token, string content, string action, string[] events);
+        Task<string> DeleteEventsAsync(string token, string content, string action, string[] events);
 
         /// <summary>
         /// Export List of Export Field Names (i.e. variables used during exports and imports)
