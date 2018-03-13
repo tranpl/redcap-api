@@ -276,7 +276,7 @@ namespace Redcap
         /// <param name="arms"></param>
         /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Events for the project in the format specified</returns>
-        public async Task<string> ExportEventsAsync(string token, string content, ReturnFormat format, int[] arms = null, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        public async Task<string> ExportEventsAsync(string token, string content, ReturnFormat format, string[] arms = null, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
             try
             {
@@ -285,7 +285,7 @@ namespace Redcap
                  */
                 this.CheckToken(token);
                 // Handle optional parameters
-                var (_format, _onErrorFormat, _redcapDataType) = await this.HandleFormat(format, onErrorFormat);
+                var (_format, _onErrorFormat, _redcapDataType) = await this.HandleFormat(format, onErrorFormat, null);
                 if (IsNullOrEmpty(content))
                 {
                     content = "event";
@@ -300,7 +300,7 @@ namespace Redcap
                 // Optional
                 if (arms?.Length > 0)
                 {
-                    payload.Add("arms", await this.ConvertIntArraytoString(arms));
+                    payload.Add("arms", await this.ConvertArraytoString(arms));
                 }
                 // Execute request
                 return await this.SendRequestAsync(payload, _uri);
@@ -400,7 +400,7 @@ namespace Redcap
         /// <param name="action"></param>
         /// <param name="events">Array of unique event names</param>
         /// <returns>Number of Events deleted</returns>
-        public async Task<string> DeleteEventsAsync<T>(string token, string content, string action, string[] events)
+        public async Task<string> DeleteEventsAsync(string token, string content, string action, string[] events)
         {
             try
             {
@@ -416,14 +416,17 @@ namespace Redcap
                 {
                     action = "delete";
                 }
-                var _serializedData = JsonConvert.SerializeObject(events);
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
                     { "content", content },
-                    { "action", action },
-                    { "data", _serializedData }
+                    { "action", action }
                 };
+                // Required
+                if(events?.Length > 0)
+                {
+                    payload.Add("events[0]", await this.ConvertArraytoString(events));
+                }
                 // Execute request
                 return await this.SendRequestAsync(payload, _uri);
             }
@@ -501,6 +504,7 @@ namespace Redcap
         }
 
         /// <summary>
+        /// API Version 1.0.0
         /// Export a File
         /// This method allows you to download a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
         /// Note about export rights: Please be aware that Data Export user rights will be applied to this API request.For example, if you have 'No Access' data export rights in the project, then the API file export will fail and return an error. And if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then the API file export will fail and return an error *only if* the File Upload field has been tagged as an Identifier field.To make sure that your API request does not return an error, you should have 'Full Data Set' export rights in the project.
@@ -563,6 +567,83 @@ namespace Redcap
             }
 
         }
+        /// <summary>
+        /// API Version 1.0.0
+        /// Export a File
+        /// **Allows for file download to a path.**
+        /// This method allows you to download a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
+        /// Note about export rights: Please be aware that Data Export user rights will be applied to this API request.For example, if you have 'No Access' data export rights in the project, then the API file export will fail and return an error. And if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then the API file export will fail and return an error *only if* the File Upload field has been tagged as an Identifier field.To make sure that your API request does not return an error, you should have 'Full Data Set' export rights in the project.
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Export privileges in the project.
+        /// </remarks>
+        /// <example>
+        /// The MIME type of the file, along with the name of the file and its extension, can be found in the header of the returned response. Thus in order to determine these attributes of the file being exported, you will need to parse the response header. Example: content-type = application/vnd.openxmlformats-officedocument.wordprocessingml.document; name='FILE_NAME.docx'
+        /// </example>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">file</param>
+        /// <param name="action">export</param>
+        /// <param name="record">the record ID</param>
+        /// <param name="field">the name of the field that contains the file</param>
+        /// <param name="eventName">the unique event name - only for longitudinal projects</param>
+        /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="filePath">File path which the file will be saved.</param>
+        /// <returns>the file name that was exported</returns>
+        public async Task<string> ExportFileAsync(string token, string content, string action, string record, string field, string eventName, string repeatInstance = "1", OnErrorFormat onErrorFormat = OnErrorFormat.json, string filePath = null)
+        {
+            try
+            {
+                /*
+                 * Check for presence of token
+                 */
+                this.CheckToken(token);
+                var (_format, _onErrorFormat, _redcapDataType) = await this.HandleFormat(null, onErrorFormat);
+
+                if (IsNullOrEmpty(content))
+                {
+                    content = "file";
+                }
+                if (IsNullOrEmpty(action))
+                {
+                    action = "export";
+                }
+                /*
+                 * FilePath check..
+                 */ 
+                if (!Directory.Exists(filePath) && !IsNullOrEmpty(filePath))
+                {
+                    Log.Warning($"The directory provided does not exist! Creating a folder for you.");
+                    Directory.CreateDirectory(filePath);
+                }
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", _token },
+                    { "content", content },
+                    { "action", action },
+                    { "record", record },
+                    { "field", field },
+                    { "event", eventName },
+                    { "returnFormat", _onErrorFormat },
+                    { "filePath", $@"{filePath}" }
+                };
+                // Optional
+                if (!IsNullOrEmpty(repeatInstance))
+                {
+                    payload.Add("repeat_instance", repeatInstance);
+                }
+                // Execute request
+                return await this.SendRequestAsync(payload, _uri);
+            }
+            catch (Exception Ex)
+            {
+                /*
+                 * We'll just log the error and return the error message.
+                 */
+                Log.Error($"{Ex.Message}");
+                return Ex.Message;
+            }
+        }
 
         /// <summary>
         /// API Version 1.0.0
@@ -571,6 +652,7 @@ namespace Redcap
         /// </summary>
         /// <remarks>
         /// To use this method, you must have API Import/Update privileges in the project.
+        /// If you pass in a record parameter that does not exist, Redcap will create it for you.
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">file</param>
