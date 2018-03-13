@@ -174,33 +174,33 @@ namespace Redcap.Utilities
         /// Tuple that returns both inputFormat and redcap returnFormat
         /// </summary>
         /// <param name="redcapApi"></param>
-        /// <param name="returnFormat">csv, json, xml [default], odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="format">csv, json[default], xml , odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
         /// <param name="onErrorFormat"></param>
         /// <param name="redcapDataType"></param>
         /// <returns>tuple, string, string, string</returns>
-        public static async Task<(string returnFormat, string onErrorFormat, string redcapDataType)> HandleFormat(this RedcapApi redcapApi, ReturnFormat? returnFormat = ReturnFormat.json, OnErrorFormat? onErrorFormat = OnErrorFormat.json, RedcapDataType? redcapDataType = RedcapDataType.flat)
+        public static async Task<(string format, string onErrorFormat, string redcapDataType)> HandleFormat(this RedcapApi redcapApi, ReturnFormat? format = ReturnFormat.json, OnErrorFormat? onErrorFormat = OnErrorFormat.json, RedcapDataType? redcapDataType = RedcapDataType.flat)
         {
             // default
-            var _returnFormat = ReturnFormat.json.ToString();
+            var _format = ReturnFormat.json.ToString();
             var _onErrorFormat = OnErrorFormat.json.ToString();
             var _redcapDataType = RedcapDataType.flat.ToString();
 
             try
             {
 
-                switch (returnFormat)
+                switch (format)
                 {
                     case ReturnFormat.json:
-                        _returnFormat = ReturnFormat.json.ToString();
+                        _format = ReturnFormat.json.ToString();
                         break;
                     case ReturnFormat.csv:
-                        _returnFormat = ReturnFormat.csv.ToString();
+                        _format = ReturnFormat.csv.ToString();
                         break;
                     case ReturnFormat.xml:
-                        _returnFormat = ReturnFormat.xml.ToString();
+                        _format = ReturnFormat.xml.ToString();
                         break;
                     default:
-                        _returnFormat = ReturnFormat.json.ToString();
+                        _format = ReturnFormat.json.ToString();
                         break;
                 }
 
@@ -223,28 +223,28 @@ namespace Redcap.Utilities
                 switch (redcapDataType)
                 {
                     case RedcapDataType.flat:
-                        _onErrorFormat = RedcapDataType.flat.ToString();
+                        _redcapDataType = RedcapDataType.flat.ToString();
                         break;
                     case RedcapDataType.eav:
-                        _onErrorFormat = RedcapDataType.eav.ToString();
+                        _redcapDataType = RedcapDataType.eav.ToString();
                         break;
                     case RedcapDataType.longitudinal:
-                        _onErrorFormat = RedcapDataType.longitudinal.ToString();
+                        _redcapDataType = RedcapDataType.longitudinal.ToString();
                         break;
                     case RedcapDataType.nonlongitudinal:
-                        _onErrorFormat = RedcapDataType.nonlongitudinal.ToString();
+                        _redcapDataType = RedcapDataType.nonlongitudinal.ToString();
                         break;
                     default:
-                        _onErrorFormat = RedcapDataType.flat.ToString();
+                        _redcapDataType = RedcapDataType.flat.ToString();
                         break;
                 }
 
-                return await Task.FromResult((_returnFormat, _onErrorFormat, _redcapDataType));
+                return await Task.FromResult((_format, _onErrorFormat, _redcapDataType));
             }
             catch (Exception Ex)
             {
                 Log.Error(Ex.Message);
-                return await Task.FromResult((_returnFormat, _onErrorFormat, _redcapDataType));
+                return await Task.FromResult((_format, _onErrorFormat, _redcapDataType));
             }
         }
 
@@ -541,11 +541,12 @@ namespace Redcap.Utilities
             try
             {
                 string _responseMessage = Empty;
+                // extract the filepath
+                var pathValue = payload.Where(x => x.Key == "filePath").FirstOrDefault().Value;
+                var pathkey = payload.Where(x => x.Key == "filePath").FirstOrDefault().Key;
+
                 using (var client = new HttpClient())
                 {
-                    // extract the filepath
-                    var pathValue = payload.Where(x => x.Key == "filePath").FirstOrDefault().Value;
-                    var pathkey = payload.Where(x => x.Key == "filePath").FirstOrDefault().Key;
                     if (!string.IsNullOrEmpty(pathkey))
                     {
                         // the actual payload does not contain a 'filePath' key
