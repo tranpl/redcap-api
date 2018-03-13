@@ -1,7 +1,7 @@
 ﻿namespace Redcap.Models
 {
     /// <summary>
-    /// The format that the response object should be when returned from Redcap API.
+    /// The format that the response object should be when returned from the http request.
     /// Format, 0 = JSON
     /// Format, 1 = CSV
     /// Format, 2 = XML
@@ -22,6 +22,7 @@
         xml = 2,
         /// <summary>
         /// CDISC ODM XML format, specifically ODM version 1.3.1
+        /// Only usable on Project Create 
         /// </summary>
         odm = 3
     }

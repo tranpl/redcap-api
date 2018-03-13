@@ -541,12 +541,13 @@ namespace Redcap.Utilities
             try
             {
                 string _responseMessage = Empty;
-                // extract the filepath
-                var pathValue = payload.Where(x => x.Key == "filePath").FirstOrDefault().Value;
-                var pathkey = payload.Where(x => x.Key == "filePath").FirstOrDefault().Key;
 
                 using (var client = new HttpClient())
                 {
+                    // extract the filepath
+                    var pathValue = payload.Where(x => x.Key == "filePath").FirstOrDefault().Value;
+                    var pathkey = payload.Where(x => x.Key == "filePath").FirstOrDefault().Key;
+
                     if (!string.IsNullOrEmpty(pathkey))
                     {
                         // the actual payload does not contain a 'filePath' key
