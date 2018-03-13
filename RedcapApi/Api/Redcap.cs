@@ -618,7 +618,7 @@ namespace Redcap
                 }
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _token },
+                    { "token", token },
                     { "content", content },
                     { "action", action },
                     { "record", record },
