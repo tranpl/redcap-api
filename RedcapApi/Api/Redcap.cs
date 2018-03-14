@@ -752,7 +752,7 @@ namespace Redcap
                  * Check for presence of token
                  */
                 this.CheckToken(token);
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(null, onErrorFormat);
+                var (_format, _onErrorFormat, _redcapDataType) = await this.HandleFormat(null, onErrorFormat);
 
                 if (IsNullOrEmpty(content))
                 {
@@ -764,13 +764,13 @@ namespace Redcap
                 }
                 var payload = new MultipartFormDataContent()
                 {
-                        {new StringContent(token), "token" },
-                        {new StringContent(content) ,"content" },
-                        {new StringContent(action), "action" },
-                        {new StringContent(record), "record" },
-                        {new StringContent(field), "field" },
-                        {new StringContent(eventName),  "event" },
-                        {new StringContent(_returnFormat), "returnFormat" }
+                    {new StringContent(token), "token" },
+                    {new StringContent(content) ,"content" },
+                    {new StringContent(action), "action" },
+                    {new StringContent(record), "record" },
+                    {new StringContent(field), "field" },
+                    {new StringContent(eventName),  "event" },
+                    {new StringContent(_onErrorFormat), "returnFormat" }
                 };
                 if (!IsNullOrEmpty(repeatInstance))
                 {
@@ -836,6 +836,7 @@ namespace Redcap
         }
 
         /// <summary>
+        /// API Version 1.0.0
         /// Export PDF file of Data Collection Instruments (either as blank or with data)
         /// This method allows you to export a PDF file for any of the following: 1) a single data collection instrument (blank), 2) all instruments (blank), 3) a single instrument (with data from a single record), 4) all instruments (with data from a single record), or 5) all instruments (with data from ALL records). 
         /// This is the exact same PDF file that is downloadable from a project's data entry form in the web interface, and additionally, the user's privileges with regard to data exports will be applied here just like they are when downloading the PDF in the web interface (e.g., if they have de-identified data export rights, then it will remove data from certain fields in the PDF). 
@@ -871,6 +872,84 @@ namespace Redcap
                     { "token", token },
                     { "content", content },
                     { "returnFormat", _onErrorFormat }
+                };
+                // Add all optional parameters
+                if (!IsNullOrEmpty(recordId))
+                {
+                    payload.Add("record", recordId);
+                }
+                if (!IsNullOrEmpty(eventName))
+                {
+                    payload.Add("event", eventName);
+                }
+                if (!IsNullOrEmpty(instrument))
+                {
+                    payload.Add("instrument", instrument);
+                }
+                if (allRecord)
+                {
+                    payload.Add("allRecords", allRecord.ToString());
+                }
+                // Execute request
+                return await this.SendRequestAsync(payload, _uri);
+            }
+            catch (Exception Ex)
+            {
+                /*
+                 * We'll just log the error and return the error message.
+                 */
+                Log.Error($"{Ex.Message}");
+                return Ex.Message;
+            }
+        }
+
+        /// <summary>
+        /// API Version 1.0.0
+        /// **Allows for file download to a path.**
+        /// Export PDF file of Data Collection Instruments (either as blank or with data)
+        /// This method allows you to export a PDF file for any of the following: 1) a single data collection instrument (blank), 2) all instruments (blank), 3) a single instrument (with data from a single record), 4) all instruments (with data from a single record), or 5) all instruments (with data from ALL records). 
+        /// This is the exact same PDF file that is downloadable from a project's data entry form in the web interface, and additionally, the user's privileges with regard to data exports will be applied here just like they are when downloading the PDF in the web interface (e.g., if they have de-identified data export rights, then it will remove data from certain fields in the PDF). 
+        /// If the user has 'No Access' data export rights, they will not be able to use this method, and an error will be returned.
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Export privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">pdf</param>
+        /// <param name="recordId">the record ID. The value is blank by default. If record is blank, it will return the PDF as blank (i.e. with no data). If record is provided, it will return a single instrument or all instruments containing data from that record only.</param>
+        /// <param name="eventName">the unique event name - only for longitudinal projects. For a longitudinal project, if record is not blank and event is blank, it will return data for all events from that record. If record is not blank and event is not blank, it will return data only for the specified event from that record.</param>
+        /// <param name="instrument">the unique instrument name as seen in the second column of the Data Dictionary. The value is blank by default, which returns all instruments. If record is not blank and instrument is blank, it will return all instruments for that record.</param>
+        /// <param name="allRecord">[The value of this parameter does not matter and is ignored.] If this parameter is passed with any value, it will export all instruments (and all events, if longitudinal) with data from all records. Note: If this parameter is passed, the parameters record, event, and instrument will be ignored.</param>
+        /// <param name="filePath">the path where the file is located</param>
+        /// <param name="onErrorFormat">csv, json [default] , xml- The returnFormat is only used with regard to the format of any error messages that might be returned.</param>
+        /// <returns>A PDF file containing one or all data collection instruments from the project, in which the instruments will be blank (no data), contain data from a single record, or contain data from all records in the project, depending on the parameters passed in the API request.</returns>
+        public async Task<string> ExportPDFInstrumentsAsync(string token, string content, string recordId = null, string eventName = null, string instrument = null, bool allRecord = false, string filePath = null, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        {
+            try
+            {
+                /*
+                 * Check for presence of token
+                 */
+                this.CheckToken(token);
+                var (_format, _onErrorFormat, _redcapDataType) = await this.HandleFormat(null, onErrorFormat);
+                /*
+                 * FilePath check..
+                 */
+                if (!Directory.Exists(filePath) && !IsNullOrEmpty(filePath))
+                {
+                    Log.Warning($"The directory provided does not exist! Creating a folder for you.");
+                    Directory.CreateDirectory(filePath);
+                }
+                if (IsNullOrEmpty(content))
+                {
+                    content = "pdf";
+                }
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content },
+                    { "returnFormat", _onErrorFormat },
+                    { "filePath", $@"{filePath}" }
                 };
                 // Add all optional parameters
                 if (!IsNullOrEmpty(recordId))
