@@ -28,10 +28,10 @@ namespace Redcap.Utilities
         /// <param name="path"></param>
         /// <param name="overwrite"></param>
         /// <returns>HttpContent</returns>
-        public static Task ReadAsFileAsync(this HttpContent httpContent, string fileName, string path, bool overwrite)
+        public static Task ReadAsFileAsync(this HttpContent httpContent, string fileName, string path, bool overwrite, string fileExtension = "pdf")
         {
 
-            if (!overwrite && File.Exists(Path.Combine(fileName, path)))
+            if (!overwrite && File.Exists(Path.Combine(fileName + fileExtension?.SingleOrDefault(), path)))
             {
                 throw new InvalidOperationException($"File {fileName} already exists.");
             }
@@ -39,6 +39,13 @@ namespace Redcap.Utilities
             try
             {
                 fileName = fileName.Replace("\"", "");
+                /*
+                 * Add extension
+                 */ 
+                if (!string.IsNullOrEmpty(fileExtension))
+                {
+                    fileName = fileName + "." + fileExtension;
+                }
                 filestream = new FileStream(Path.Combine(path, fileName), FileMode.Create, FileAccess.Write, FileShare.None);
                 return httpContent.CopyToAsync(filestream).ContinueWith(
                     (copyTask) =>
@@ -631,8 +638,21 @@ namespace Redcap.Utilities
 
                                     if (!string.IsNullOrEmpty(pathValue))
                                     {
-                                        // save the file to a specified location using an extension method
-                                        await response.Content.ReadAsFileAsync(fileName, pathValue, true);
+                                        var fileExtension = payload.Where(x => x.Key == "content" && x.Value == "pdf").SingleOrDefault().Value;
+                                        if (!string.IsNullOrEmpty(fileExtension))
+                                        {
+                                            // pdf 
+                                            fileName = payload.Where(x => x.Key == "instrument").SingleOrDefault().Value;
+                                            // to do , make extensions for various types
+                                            // save the file to a specified location using an extension method
+                                            await response.Content.ReadAsFileAsync(fileName, pathValue, true, fileExtension);
+
+                                        }
+                                        else
+                                        {
+                                            await response.Content.ReadAsFileAsync(fileName, pathValue, true, fileExtension);
+
+                                        }
                                         _responseMessage = fileName;
                                     }
                                     else
