@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using Redcap;
 using Redcap.Models;
 
@@ -205,16 +206,17 @@ namespace RedcapApiDemo
             var recordId = "1";
             var fieldName = "protocol_upload";
             var fileName = "test.txt";
+            var eventName = "clinical_arm_1";
             var fileUploadPath = @"C:\redcap_upload_files";
             Console.WriteLine($"Calling ImportFileAsync(), {fileName}");
-            var ImportFileAsyncResult = redcap_api_1_0_0.ImportFileAsync(_token, "file", "import", recordId, fieldName, "clinical_arm_1", null, fileName, fileUploadPath, OnErrorFormat.json).Result;
+            var ImportFileAsyncResult = redcap_api_1_0_0.ImportFileAsync(_token, "file", "import", recordId, fieldName, eventName, null, fileName, fileUploadPath, OnErrorFormat.json).Result;
             Console.WriteLine($"ImportFileAsyncResult: {ImportFileAsyncResult}");
             #endregion ImportFileAsync()
 
 
             #region ExportFileAsync()
-            Console.WriteLine($"Calling ExportFileAsync(), {fileName} for field name {fieldName}, does not save the file.");
-            var ExportFileAsyncResult = redcap_api_1_0_0.ExportFileAsync(_token, "file", "export", recordId, fieldName, "clinical_arm_1", null, OnErrorFormat.json).Result;
+            Console.WriteLine($"Calling ExportFileAsync(), {fileName} for field name {fieldName}, not save the file.");
+            var ExportFileAsyncResult = redcap_api_1_0_0.ExportFileAsync(_token, "file", "export", recordId, fieldName, eventName, null, OnErrorFormat.json).Result;
             Console.WriteLine($"ExportFileAsyncResult: {ExportFileAsyncResult}");
             #endregion ExportFileAsync()
 
@@ -222,11 +224,34 @@ namespace RedcapApiDemo
             #region ExportFileAsync()
             var filedDownloadPath = @"C:\redcap_download_files";
             Console.WriteLine($"Calling ExportFileAsync(), {fileName} for field name {fieldName}, saving the file.");
-            var ExportFileAsyncResult2 = redcap_api_1_0_0.ExportFileAsync(_token, "file", "export", recordId, fieldName, "clinical_arm_1", null, OnErrorFormat.json, filedDownloadPath).Result;
+            var ExportFileAsyncResult2 = redcap_api_1_0_0.ExportFileAsync(_token, "file", "export", recordId, fieldName, eventName, null, OnErrorFormat.json, filedDownloadPath).Result;
             Console.WriteLine($"ExportFileAsyncResult2: {ExportFileAsyncResult2}");
             #endregion ExportFileAsync()
 
+            #region DeleteFileAsync()
+            Console.WriteLine($"Calling DeleteFileAsync(), deleting file: {fileName} for field: {fieldName}");
+            var DeleteFileAsyncResult = redcap_api_1_0_0.DeleteFileAsync(_token, "file", "delete", recordId, fieldName, eventName, "1", OnErrorFormat.json).Result;
+            Console.WriteLine($"DeleteFileAsyncResult: {DeleteFileAsyncResult}");
+            #endregion DeleteFileAsync()
 
+            #region ExportInstrumentsAsync()
+            Console.WriteLine($"Calling DeleteFileAsync()");
+            var ExportInstrumentsAsyncResult = redcap_api_1_0_0.ExportInstrumentsAsync(_token, "instrument", ReturnFormat.json).Result;
+            Console.WriteLine($"ExportInstrumentsAsyncResult: {ExportInstrumentsAsyncResult}");
+            #endregion ExportInstrumentsAsync()
+
+            #region ExportPDFInstrumentsAsync()
+            Console.WriteLine($"Calling ExportPDFInstrumentsAsync(), returns raw");
+            var ExportPDFInstrumentsAsyncResult = redcap_api_1_0_0.ExportPDFInstrumentsAsync(_token, "pdf", recordId, eventName, "demographics", true, OnErrorFormat.json).Result;
+            Console.WriteLine($"ExportInstrumentsAsyncResult: {JsonConvert.SerializeObject(ExportPDFInstrumentsAsyncResult)}");
+            #endregion ExportPDFInstrumentsAsync()
+
+
+            #region ExportPDFInstrumentsAsync()
+            Console.WriteLine($"Calling ExportPDFInstrumentsAsync(), saving pdf file to {filedDownloadPath}");
+            var ExportPDFInstrumentsAsyncResult2 = redcap_api_1_0_0.ExportPDFInstrumentsAsync(_token, "pdf", recordId, eventName, "demographics", true, filedDownloadPath, OnErrorFormat.json).Result;
+            Console.WriteLine($"ExportPDFInstrumentsAsyncResult2: {ExportPDFInstrumentsAsyncResult2}");
+            #endregion ExportPDFInstrumentsAsync()
             Console.ReadLine();
 
         }
