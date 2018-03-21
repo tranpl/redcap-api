@@ -7,13 +7,13 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/cctrbic/redcap-api</RepositoryUrl>
     <PackageProjectUrl>https://github.com/cctrbic/redcap-api</PackageProjectUrl>
-    <Description>This library allows external applications to connect to REDCap remotely and is used to programmatically retrieve or modify data or settings within REDCap, e.g Import/Export records into Redcap</Description>
+    <Description>This library allows applications on .NET to make calls to REDCap instance.</Description>
     <Product>Redcap Api Library</Product>
     <PackageId>RedcapAPI</PackageId>
-    <Version>0.4.1-alpha</Version>
-    <AssemblyVersion>0.4.1.0</AssemblyVersion>
+    <Version>1.0.0-beta</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <PackageTags>redcap</PackageTags>
-    <PackageReleaseNotes>alpha release</PackageReleaseNotes>
+    <PackageReleaseNotes>100% API Method Coverage</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
@@ -22,10 +22,10 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>true</Optimize>
-    <DocumentationFile>bin\Debug\netcoreapp1.1\Redcap.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\netcoreapp2.0\Redcap.xml</DocumentationFile>
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -39,8 +39,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.1-beta3" />
-    <PackageReference Include="Serilog" Version="2.6.1-dev-00936" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
+    <PackageReference Include="Serilog" Version="2.6.0" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
   </ItemGroup>
 

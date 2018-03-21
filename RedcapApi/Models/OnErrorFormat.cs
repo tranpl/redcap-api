@@ -1,12 +1,12 @@
 ﻿namespace Redcap.Models
 {
     /// <summary>
-    /// The format that the response object should be when returned from Redcap API.
-    /// RedcapFormat, 0 = JSON
-    /// RedcapFormat, 1 = CSV
-    /// RedcapFormat, 2 = XML
+    /// The format that the response object should be if there are errors generated when executing the http request.
+    /// OnErrorFormat, 0 = JSON
+    /// OnErrorFormat, 1 = CSV
+    /// OnErrorFormat, 2 = XML
     /// </summary>
-    public enum ReturnFormat
+    public enum OnErrorFormat
     {
         /// <summary>
         /// Default Javascript Notation
