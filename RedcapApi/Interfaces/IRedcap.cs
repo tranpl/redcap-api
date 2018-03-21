@@ -369,12 +369,12 @@ namespace Redcap.Interfaces
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">project_settings</param>
         /// <param name="inputFormat">csv, json [default], xml</param>
-        /// <param name="data">Contains some or all of the attributes from Export Project Information in the same data format as in the export. These attributes will change the project information.
+        /// <param name="projectInfo">Contains some or all of the attributes from Export Project Information in the same data format as in the export. These attributes will change the project information.
         /// Attributes for the project in the format specified. For any values that are boolean, they should be represented as either a '0' (no/false) or '1' (yes/true). The following project attributes can be udpated:
         /// project_title, project_language, purpose, purpose_other, project_notes, custom_record_label, secondary_unique_field, is_longitudinal, surveys_enabled, scheduling_enabled, record_autonumbering_enabled, randomization_enabled, project_irb_number, project_grant_number, project_pi_firstname, project_pi_lastname, display_today_now_button
         /// </param>
         /// <returns>Returns the number of values accepted to be updated in the project settings (including values which remained the same before and after the import).</returns>
-        Task<string> ImportProjectInfoAsync<T>(string token, string content, ReturnFormat inputFormat, List<T> data);
+        Task<string> ImportProjectInfoAsync(string token, string content, ReturnFormat inputFormat, RedcapProjectInfo projectInfo);
 
         /// <summary>
         /// 

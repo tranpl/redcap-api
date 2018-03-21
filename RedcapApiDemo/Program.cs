@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Redcap;
 using Redcap.Models;
+using CsvHelper;
+using System.IO;
+using System.Linq;
 
 namespace RedcapApiDemo
 {
@@ -252,6 +255,61 @@ namespace RedcapApiDemo
             var ExportPDFInstrumentsAsyncResult2 = redcap_api_1_0_0.ExportPDFInstrumentsAsync(_token, "pdf", recordId, eventName, "demographics", true, filedDownloadPath, OnErrorFormat.json).Result;
             Console.WriteLine($"ExportPDFInstrumentsAsyncResult2: {ExportPDFInstrumentsAsyncResult2}");
             #endregion ExportPDFInstrumentsAsync()
+
+
+            #region ExportInstrumentMappingAsync()
+            Console.WriteLine($"Calling ExportInstrumentMappingAsync()");
+            var ExportInstrumentMappingAsyncResult = redcap_api_1_0_0.ExportInstrumentMappingAsync(_token, "formEventMapping", ReturnFormat.json, arms, OnErrorFormat.json).Result;
+            Console.WriteLine($"ExportInstrumentMappingAsyncResult: {ExportInstrumentMappingAsyncResult}");
+            #endregion ExportInstrumentMappingAsync()
+
+            #region ImportInstrumentMappingAsync()
+            var importInstrumentMappingData = new List<FormEventMapping>{new FormEventMapping {arm_num = "1", unique_event_name = "clinical_arm_1", form= "demographics" } };
+            Console.WriteLine($"Calling ImportInstrumentMappingAsync()");
+            var ImportInstrumentMappingAsyncResult = redcap_api_1_0_0.ImportInstrumentMappingAsync(_token, "formEventMapping", ReturnFormat.json, importInstrumentMappingData, OnErrorFormat.json).Result;
+            Console.WriteLine($"ImportInstrumentMappingAsyncResult: {ImportInstrumentMappingAsyncResult}");
+            #endregion ImportInstrumentMappingAsync()
+
+            #region ExportMetaDataAsync()
+            Console.WriteLine($"Calling ExportMetaDataAsync()");
+            var ExportMetaDataAsyncResult = redcap_api_1_0_0.ExportMetaDataAsync(_token, "metadata", ReturnFormat.json, null, null, OnErrorFormat.json).Result;
+            Console.WriteLine($"ExportMetaDataAsyncResult: {ExportMetaDataAsyncResult}");
+            #endregion ExportMetaDataAsync()
+
+            #region ImportMetaDataAsync()
+            /*
+             * This imports 1 field into the data dictionary
+             */
+            var importMetaData = new List<RedcapMetaData> { new RedcapMetaData { field_name = "first_name", form_name = "demographics", field_type = "text", field_label = "First Name" } };
+            Console.WriteLine($"Not calling ImportMetaDataAsync(), still change data dictionary to include 1 field");
+            //var ImportMetaDataAsyncResult = redcap_api_1_0_0.ImportMetaDataAsync(_token, "metadata", ReturnFormat.json, importMetaData, OnErrorFormat.json).Result;
+            //Console.WriteLine($"ImportMetaDataAsyncResult: {ImportMetaDataAsyncResult}");
+            #endregion ImportMetaDataAsync()
+
+            #region CreateProjectAsync()
+            var projectData = new List<RedcapProject> { new RedcapProject {project_title = "Amazing Project ", purpose = ProjectPurpose.Other, purpose_other = "Test"} };
+            Console.WriteLine($"Calling CreateProjectAsync(), creating a new project with Amazing Project as title, purpose 1 (other) ");
+            Console.WriteLine($"-----------------------Notice the use of SUPER TOKEN------------------------");
+            var CreateProjectAsyncResult = redcap_api_1_0_0.CreateProjectAsync(_superToken, "project", ReturnFormat.json, projectData, OnErrorFormat.json, null).Result;
+            Console.WriteLine($"CreateProjectAsyncResult: {CreateProjectAsyncResult}");
+            #endregion CreateProjectAsync()
+
+
+            #region ImportProjectInfoAsync()
+            var projectInfo = new RedcapProjectInfo { project_title = "Updated Amazing Project ", purpose = ProjectPurpose.QualityImprovement, surveys_enabled = 1 };
+            Console.WriteLine($"Calling ImportProjectInfoAsync()");
+            var ImportProjectInfoAsyncResult = redcap_api_1_0_0.ImportProjectInfoAsync(_token, "project_settings", ReturnFormat.json, projectInfo).Result;
+            Console.WriteLine($"ImportProjectInfoAsyncResult: {ImportProjectInfoAsyncResult}");
+            #endregion ImportProjectInfoAsync()
+
+
+            #region ExportProjectInfoAsync()
+            Console.WriteLine($"Calling ExportProjectInfoAsync()");
+            var ExportProjectInfoAsyncResult = redcap_api_1_0_0.ExportProjectInfoAsync(_token, "project_settings", ReturnFormat.json).Result;
+            Console.WriteLine($"ExportProjectInfoAsyncResult: {ExportProjectInfoAsyncResult}");
+            #endregion ExportProjectInfoAsync()
+
+
             Console.ReadLine();
 
         }
