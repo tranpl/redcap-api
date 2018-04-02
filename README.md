@@ -10,7 +10,7 @@ __Prerequisites__
 4.  You'll need to add a field type of "file_upload" so that you can test the file upload interface of the API
 5.  Build the solution, then run the tests
 
-__API METHODS SUPPORTED__
+__API METHODS SUPPORTED (Not all listed)__
 * ExportArmsAsync
 * ImportArmsAsync
 * DeleteArmsAsync
@@ -64,20 +64,26 @@ namespace RedcapApiDemo
 
 __Install directly in Package Manager Console or Command Line Interface__
 ```C#
-Install-Package RedcapAPI -Version 0.3.0-alpha  
+
+Install-Package RedcapAPI -Version 1.0.0-beta
+
 ```
 
 ```C#
-dotnet add package RedcapAPI --version 0.3.0-alpha 
+
+dotnet add package RedcapAPI --version 1.0.0-beta
+
  ```
 
 ```C#
-paket add RedcapAPI --version 0.3.0-alpha  
+
+paket add RedcapAPI --version 1.0.0-beta
+
 ```
 
 __Example Project__
 
-A console project has been included with the source code to get started.
+A console project has been included with the source code to get started. Some examples of method usage. You can use this to get started potentially.
 
 __Test Project__
 
