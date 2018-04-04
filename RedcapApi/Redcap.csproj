@@ -7,7 +7,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/cctrbic/redcap-api</RepositoryUrl>
     <PackageProjectUrl>https://github.com/cctrbic/redcap-api</PackageProjectUrl>
-    <Description>This library allows applications on .NET to make calls to REDCap instance.</Description>
+    <Description>This library allows applications on .NET to make calls to REDCap instances.</Description>
     <Product>Redcap Api Library</Product>
     <PackageId>RedcapAPI</PackageId>
     <Version>1.0.0-beta</Version>
