@@ -7,19 +7,104 @@ using Xunit;
 namespace Tests
 {
     /// <summary>
-    /// Test class for Redcap Api
+    /// Very simplified test class for Redcap Api
+    /// This is not a comprehensive test, add more if you'd like.
+    /// Make sure you have some records in the redcap project for the instance you are testing
     /// </summary>
     public class RedcapApiTests
     {
-        private const string _token = "4AAE216218B33700456A30898F2D6417";
+        private const string _token = "A8E6949EF4380F1111C66D5374E1AE6C";
         private const string _uri = "http://localhost/redcap/api/";
         public RedcapApiTests()
         {
             // initialize stuff here
         }
-
+        /// <summary>
+        /// Can Export Arms
+        /// All arms should be returned
+        /// Using API version 1.0.0+
+        /// </summary>
         [Fact]
-        public void CanExportAsync_SingleRecord_ShouldContain_string_1()
+        public void CanExportArmsAsync_AllArms_ShouldContain_armnum()
+        {
+            // Arrange
+            var apiKey = _token;
+            var apiEndpoint = _uri;
+
+            // Act
+            /*
+             * Using API Version 1.0.0+
+             */ 
+            var redcapApi = new RedcapApi(apiEndpoint);
+            var result = redcapApi.ExportArmsAsync(apiKey, "arm", ReturnFormat.json, null, OnErrorFormat.json).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert 
+            // Expecting multiple arms to be return since we asked for all arms by not providing any arms by passing null for the params
+            Assert.Contains("1", data);
+            Assert.Contains("2", data);
+        }
+        /// <summary>
+        /// Can Import Arms
+        /// Using API version 1.0.0+
+        /// </summary>
+        [Fact]
+        public void CanImportArmsAsync_SingleArm_ShouldReturn_number()
+        {
+            // Arrange
+            var apiKey = _token;
+            var apiEndpoint = _uri;
+            var armlist = new List<RedcapArm>
+            {
+                new RedcapArm{arm_num = "1", name = "testarm"}
+            };
+
+            // Act
+            /*
+             * Using API Version 1.0.0+
+             */
+            var redcapApi = new RedcapApi(apiEndpoint);
+            var result = redcapApi.ImportArmsAsync(apiKey, "arm", Override.False, "import", ReturnFormat.json, armlist, OnErrorFormat.json).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert 
+            // Expecting "1", the number of arms imported, since we pass 1 arm to be imported
+            Assert.Contains("1", data);
+        }
+        /// <summary>
+        /// Can Delete Arms
+        /// Using API version 1.0.0+
+        /// </summary>
+        [Fact]
+        public void CanDeleteArmsAsync_SingleArm_ShouldReturn_number()
+        {
+            // Arrange
+            var apiKey = _token;
+            var apiEndpoint = _uri;
+            // arm 3 to be deleted
+            var armarray = new string[]
+            {
+               "3"
+            };
+
+            // Act
+            /*
+             * Using API Version 1.0.0+
+             */
+            var redcapApi = new RedcapApi(apiEndpoint);
+            var result = redcapApi.DeleteArmsAsync(apiKey, "arm", "delete", armarray).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert 
+            // Expecting "1", the number of arms deleted, since we pass 1 arm to be deleted
+            Assert.Contains("1", data);
+        }
+
+        /// <summary>
+        /// Export / Get single record
+        /// </summary>
+        [Fact]
+        public void CanGetRecordsAsync_SingleRecord_ShouldContain_string_1()
         {
             // Arrange
             var apiKey = _token;
@@ -33,6 +118,46 @@ namespace Tests
             // Assert
             Assert.Contains("1", data);
         }
+        /// <summary>
+        /// Can export multiple records
+        /// </summary>
+        [Fact]
+        public void CanExportRecordsAsync_MultipleRecord_ShouldContain_string_1_2()
+        {
+            // Arrange
+            var apiKey = _token;
+            var apiEndpoint = _uri;
+
+            // Act
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.ExportRecordsAsync("1,2", ReturnFormat.json, RedcapDataType.flat, OnErrorFormat.json, null, null, null, null).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert
+            Assert.Contains("1", data);
+            Assert.Contains("2", data);
+        }
+        /// <summary>
+        /// Can export single record
+        /// </summary>
+        [Fact]
+        public void CanExportRecordAsync_SingleRecord_ShouldContain_string_1()
+        {
+            // Arrange
+            var apiKey = _token;
+            var apiEndpoint = _uri;
+
+            // Act
+            var redcap_api = new RedcapApi(apiKey, apiEndpoint);
+            var result = redcap_api.ExportRecordAsync("1", ReturnFormat.json, RedcapDataType.flat, OnErrorFormat.json, null, null, null, null).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert
+            Assert.Contains("1", data);
+        }
+        /// <summary>
+        /// Can export events
+        /// </summary>
         [Fact]
         public void CanExportAsync_AllEvents_ShouldContain_event_name()
         {
@@ -49,6 +174,9 @@ namespace Tests
             Assert.Contains("event_name", data);
 
         }
+        /// <summary>
+        /// Can get all records
+        /// </summary>
         [Fact]
         public void CanGetRecordsAsync1_AllRecords_ShouldContain_string_record_id()
         {
@@ -65,7 +193,9 @@ namespace Tests
             Assert.Contains("record_id", data);
 
         }
-
+        /// <summary>
+        /// Can get all records
+        /// </summary>
         [Fact]
         public void CanGetRecordsAsync2_AllRecords_ShouldContain_string_record_id()
         {
@@ -83,13 +213,15 @@ namespace Tests
             Assert.Contains("record_id", data);
 
         }
-
+        /// <summary>
+        /// Can get redcap version
+        /// </summary>
         [Fact]
         public void CanGetRedcapVersion_VersionNumber_Shouldontain_Number()
         {
             // Arrange
-            // Assume current redcap version is 8.1.2
-            var currentRedcapVersion = "8.1.2";
+            // Assume current redcap version is 8.1.9
+            var currentRedcapVersion = "8.1.9";
             var apiKey = _token;
             var apiEndpoint = _uri;
 
@@ -102,13 +234,15 @@ namespace Tests
             Assert.Equal(currentRedcapVersion, data);
 
         }
-
+        /// <summary>
+        /// Can export redcap version
+        /// </summary>
         [Fact]
         public void CanExportRedcapVersion_VersionNumber_Shouldontain_Number()
         {
             // Arrange
-            // Assume current redcap version is 8.1.2
-            var currentRedcapVersion = "8.1.2";
+            // Assume current redcap version is 8.1.9
+            var currentRedcapVersion = "8.1.9";
             var apiKey = _token;
             var apiEndpoint = _uri;
 
@@ -121,7 +255,9 @@ namespace Tests
             Assert.Equal(currentRedcapVersion, data);
 
         }
-
+        /// <summary>
+        /// Can export users
+        /// </summary>
         [Fact]
         public void CanExportUsers_AllUsers_ShouldReturn_username()
         {
@@ -138,7 +274,9 @@ namespace Tests
             Assert.Contains(username, data);
 
         }
-
+        /// <summary>
+        /// Can save record
+        /// </summary>
         [Fact]
         public void CanSaveRecord1_SingleRecord_ShouldReturn_Ids()
         {
@@ -162,7 +300,9 @@ namespace Tests
             Assert.Contains("1", data);
 
         }
-
+        /// <summary>
+        /// Can save record
+        /// </summary>
         [Fact]
         public void CanSaveRecord2_SingleRecord_ShouldReturn_Ids()
         {
@@ -187,7 +327,9 @@ namespace Tests
             Assert.Contains("1", data);
 
         }
-
+        /// <summary>
+        /// Can export records
+        /// </summary>
         [Fact]
         public void CanExportRecordsAsync_AllRecords_ShouldReturn_string_record_id()
         {
@@ -203,6 +345,9 @@ namespace Tests
             // Assert
             Assert.Contains("record_id", data);
         }
+        /// <summary>
+        /// Can export meta data
+        /// </summary>
         [Fact]
         public void CanExportMetaDataAsync_Metadata_ShouldReturn_string_record_id()
         {
@@ -218,10 +363,14 @@ namespace Tests
             // Assert
             Assert.Contains("record_id", data);
         }
+        /// <summary>
+        /// Can export arms
+        /// </summary>
         [Fact]
         public void CanExportArmsAsync_Arms_ShouldReturn_arms_array()
         {
             // Arrange
+            // Make sure the project is a longitudinal project, no arms in classic
             var apiKey = _token;
             var apiEndpoint = _uri;
             // Act
@@ -232,7 +381,9 @@ namespace Tests
             // Assert
             Assert.Contains("arm_num", data);
         }
-
+        /// <summary>
+        /// Can import arms
+        /// </summary>
         [Fact]
         public void CanImportEventsAsync_Events_ShouldReturn_Number()
         {
@@ -297,9 +448,12 @@ namespace Tests
             var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert
-            var expectedString = "test2.java";
+            var expectedString = "test.txt";
             Assert.Contains(expectedString, data);
         }
+        /// <summary>
+        /// Can delete file previously uploaded
+        /// </summary>
         [Fact]
         public void CanDeleteFileAsync_File_ShouldReturn_Empty_string()
         {
@@ -309,11 +463,14 @@ namespace Tests
 
             // Act
             var redcap_api = new RedcapApi(apiKey, apiEndpoint);
-            var result = redcap_api.DeleteFileAsync("1", "protocol_upload", "event_1_arm_1", "", OnErrorFormat.json).Result;
+            var result = redcap_api.DeleteFileAsync(_token, "protocol_upload", "event_1_arm_1", null, OnErrorFormat.json).Result;
 
             // Assert
             Assert.Contains(string.Empty, result);
         }
+        /// <summary>
+        /// Can export records
+        /// </summary>
         [Fact]
         public void CanExportRecordsAsync_Should_Return_String()
         {
