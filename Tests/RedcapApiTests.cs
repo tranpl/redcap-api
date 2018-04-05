@@ -22,7 +22,7 @@ namespace Tests
         /// <summary>
         /// Can Export Arms
         /// All arms should be returned
-        /// Version 1.0.0
+        /// Using API version 1.0.0+
         /// </summary>
         [Fact]
         public void CanExportArmsAsync_AllArms_ShouldContain_armnum()
@@ -32,6 +32,9 @@ namespace Tests
             var apiEndpoint = _uri;
 
             // Act
+            /*
+             * Using API Version 1.0.0+
+             */ 
             var redcapApi = new RedcapApi(apiEndpoint);
             var result = redcapApi.ExportArmsAsync(apiKey, "arm", ReturnFormat.json, null, OnErrorFormat.json).Result;
             var data = JsonConvert.DeserializeObject(result).ToString();
@@ -41,6 +44,62 @@ namespace Tests
             Assert.Contains("1", data);
             Assert.Contains("2", data);
         }
+        /// <summary>
+        /// Can Import Arms
+        /// Using API version 1.0.0+
+        /// </summary>
+        [Fact]
+        public void CanImportArmsAsync_SingleArm_ShouldReturn_number()
+        {
+            // Arrange
+            var apiKey = _token;
+            var apiEndpoint = _uri;
+            var armlist = new List<RedcapArm>
+            {
+                new RedcapArm{arm_num = "1", name = "testarm"}
+            };
+
+            // Act
+            /*
+             * Using API Version 1.0.0+
+             */
+            var redcapApi = new RedcapApi(apiEndpoint);
+            var result = redcapApi.ImportArmsAsync(apiKey, "arm", Override.False, "import", ReturnFormat.json, armlist, OnErrorFormat.json).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert 
+            // Expecting "1", the number of arms imported, since we pass 1 arm to be imported
+            Assert.Contains("1", data);
+        }
+        /// <summary>
+        /// Can Delete Arms
+        /// Using API version 1.0.0+
+        /// </summary>
+        [Fact]
+        public void CanDeleteArmsAsync_SingleArm_ShouldReturn_number()
+        {
+            // Arrange
+            var apiKey = _token;
+            var apiEndpoint = _uri;
+            // arm 3 to be deleted
+            var armarray = new string[]
+            {
+               "3"
+            };
+
+            // Act
+            /*
+             * Using API Version 1.0.0+
+             */
+            var redcapApi = new RedcapApi(apiEndpoint);
+            var result = redcapApi.DeleteArmsAsync(apiKey, "arm", "delete", armarray).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert 
+            // Expecting "1", the number of arms deleted, since we pass 1 arm to be deleted
+            Assert.Contains("1", data);
+        }
+
         /// <summary>
         /// Export / Get single record
         /// </summary>
