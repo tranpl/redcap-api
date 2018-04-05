@@ -56,7 +56,7 @@ namespace Tests
             var apiEndpoint = _uri;
             var armlist = new List<RedcapArm>
             {
-                new RedcapArm{arm_num = "1", name = "testarm"}
+                new RedcapArm{arm_num = "3", name = "testarm_this_will_be_deleted"}
             };
 
             // Act
@@ -97,6 +97,105 @@ namespace Tests
 
             // Assert 
             // Expecting "1", the number of arms deleted, since we pass 1 arm to be deleted
+            Assert.Contains("1", data);
+        }
+        /// <summary>
+        /// Can Export Events
+        /// Using API version 1.0.0+
+        /// </summary>
+        [Fact]
+        public void CanExportEventsAsync_SingleEvent_ShouldReturn_event()
+        {
+            // Arrange
+            var apiKey = _token;
+            var apiEndpoint = _uri;
+            var ExportEventsAsyncData = new string[] { "1" };
+
+            // Act
+            /*
+             * Using API Version 1.0.0+
+             */
+            var redcapApi = new RedcapApi(apiEndpoint);
+            var result = redcapApi.ExportEventsAsync(apiKey, null, ReturnFormat.json, ExportEventsAsyncData, OnErrorFormat.json).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert 
+            Assert.Contains("event_name", data);
+        }
+        /// <summary>
+        /// Can Import Events
+        /// Using API version 1.0.0+
+        /// </summary>
+        [Fact]
+        public void CanImportEventsAsync_MultipleEvents_ShouldReturn_number()
+        {
+            // Arrange
+            var apiKey = _token;
+            var apiEndpoint = _uri;
+            var eventList = new List<RedcapEvent> {
+                new RedcapEvent {
+                    event_name = "baseline",
+                    arm_num = "1",
+                    day_offset = "1",
+                    offset_min = "0",
+                    offset_max = "0",
+                    unique_event_name = "baseline_arm_1",
+                    custom_event_label = "hello baseline"
+                },
+                new RedcapEvent {
+                    event_name = "clinical",
+                    arm_num = "1",
+                    day_offset = "1",
+                    offset_min = "0",
+                    offset_max = "0",
+                    unique_event_name = "clinical_arm_2",
+                    custom_event_label = "hello clinical 2"
+                },
+                new RedcapEvent {
+                    event_name = "clinical",
+                    arm_num = "3",
+                    day_offset = "1",
+                    offset_min = "0",
+                    offset_max = "0",
+                    unique_event_name = "clinical_arm_3",
+                    custom_event_label = "hello clinical 3"
+                }
+            };
+
+            // Act
+            /*
+             * Using API Version 1.0.0+
+             */
+            var redcapApi = new RedcapApi(apiEndpoint);
+            var result = redcapApi.ImportEventsAsync(apiKey, null, null, Override.False, ReturnFormat.json, eventList, OnErrorFormat.json).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert 
+            // Expecting "3", since we had 3 redcap events imported
+            Assert.Contains("3", data);
+        }
+        /// <summary>
+        /// Can delete Events
+        /// Using API version 1.0.0+
+        /// </summary>
+        [Fact]
+        public void CanDeleteEventsAsync_SingleEvent_ShouldReturn_number()
+        {
+            // Arrange
+            var apiKey = _token;
+            var apiEndpoint = _uri;
+            var DeleteEventsAsyncData = new string[] { "baseline_arm_1" };
+
+            // Act
+            /*
+             * Using API Version 1.0.0+
+             */
+            var redcapApi = new RedcapApi(apiEndpoint);
+            var result = redcapApi.DeleteEventsAsync(apiKey, null, null, DeleteEventsAsyncData).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert 
+            // Expecting "3", since we had 3 redcap events imported
             Assert.Contains("1", data);
         }
 
