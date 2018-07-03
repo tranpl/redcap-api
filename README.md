@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/cctrbic/redcap-api.svg?branch=master)](https://travis-ci.org/cctrbic/redcap-api)
 # REDCap API Library for C#
 The REDCap API (Application Programming Interface) for REDCap, lets you:
 1.  export/import/delete data in REDCap
