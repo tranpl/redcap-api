@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Redcap;
 using Redcap.Models;
-using CsvHelper;
-using System.IO;
-using System.Linq;
+using System;
+using System.Collections.Generic;
 
 namespace RedcapApiDemo
 {
@@ -52,85 +49,85 @@ namespace RedcapApiDemo
 
             /*
              * Start a new instance of Redcap APi
-             */ 
-            //var redcapApi = new RedcapApi(_token, _uri);
+             */
+            var redcapApi = new RedcapApi(_token, _uri);
 
-            //Console.WriteLine("Calling API Methods < 1.0.0");
-            //Console.WriteLine("Calling GetRecordAsync() . . .");
-            //var GetRecordAsync = redcapApi.GetRecordAsync("1", InputFormat.json, RedcapDataType.flat, ReturnFormat.json, null, null, null, null).Result;
-            //var GetRecordAsyncData = JsonConvert.DeserializeObject(GetRecordAsync);
-            //Console.WriteLine($"GetRecordAsync Result: {GetRecordAsyncData}");
+            Console.WriteLine("Calling API Methods < 1.0.0");
+            Console.WriteLine("Calling GetRecordAsync() . . .");
+            var GetRecordAsync = redcapApi.GetRecordAsync("1", ReturnFormat.json, RedcapDataType.flat, OnErrorFormat.json, null, null, null, null).Result;
+            var GetRecordAsyncData = JsonConvert.DeserializeObject(GetRecordAsync);
+            Console.WriteLine($"GetRecordAsync Result: {GetRecordAsyncData}");
 
-            //Console.WriteLine("Calling ExportEventsAsync() . . .");
-            //var exportEvents = redcapApi.ExportEventsAsync(InputFormat.json, ReturnFormat.json).Result;
-            //var exportEventsAsync = JsonConvert.DeserializeObject(exportEvents);
-            //Console.WriteLine($"ExportEventsAsync Result: {exportEventsAsync}");
+            Console.WriteLine("Calling ExportEventsAsync() . . .");
+            var exportEvents = redcapApi.ExportEventsAsync(ReturnFormat.json, OnErrorFormat.json).Result;
+            var exportEventsAsync = JsonConvert.DeserializeObject(exportEvents);
+            Console.WriteLine($"ExportEventsAsync Result: {exportEventsAsync}");
 
-            //Console.WriteLine("Calling GetRecordsAsync() . . .");
-            //var GetRecordsAsync = redcapApi.GetRecordsAsync(InputFormat.json, ReturnFormat.json, RedcapDataType.flat).Result;
-            //var GetRecordsAsyncData = JsonConvert.DeserializeObject(GetRecordsAsync);
-            //Console.WriteLine($"GetRecordsAsync Result: {GetRecordsAsyncData}");
+            Console.WriteLine("Calling GetRecordsAsync() . . .");
+            var GetRecordsAsync = redcapApi.GetRecordsAsync(ReturnFormat.json, OnErrorFormat.json, RedcapDataType.flat).Result;
+            var GetRecordsAsyncData = JsonConvert.DeserializeObject(GetRecordsAsync);
+            Console.WriteLine($"GetRecordsAsync Result: {GetRecordsAsyncData}");
 
-            //Console.WriteLine("Calling GetRedcapVersionAsync() . . .");
-            //var GetRedcapVersionAsync = redcapApi.GetRedcapVersionAsync(InputFormat.json, RedcapDataType.flat).Result;
-            //Console.WriteLine($"GetRedcapVersionAsync Result: {GetRedcapVersionAsync}");
-
-
-            //var saveRecordsAsyncObject = new
-            //{
-            //    record_id = "1",
-            //    redcap_event_name = "event_1_arm_1",
-            //    first_name = "John",
-            //    last_name = "Doe"
-            //};
-
-            //Console.WriteLine("Calling SaveRecordsAsync() . . .");
-            //var SaveRecordsAsync = redcapApi.SaveRecordsAsync(saveRecordsAsyncObject, ReturnContent.ids, OverwriteBehavior.overwrite, InputFormat.json, RedcapDataType.flat, ReturnFormat.json).Result;
-            //var SaveRecordsAsyncData = JsonConvert.DeserializeObject(SaveRecordsAsync);
-            //Console.WriteLine($"SaveRecordsAsync Result: {SaveRecordsAsyncData}");
+            Console.WriteLine("Calling GetRedcapVersionAsync() . . .");
+            var GetRedcapVersionAsync = redcapApi.GetRedcapVersionAsync(ReturnFormat.json, RedcapDataType.flat).Result;
+            Console.WriteLine($"GetRedcapVersionAsync Result: {GetRedcapVersionAsync}");
 
 
-            //Console.WriteLine("Calling ExportRecordsAsync() . . .");
-            //var ExportRecordsAsync = redcapApi.ExportRecordsAsync(InputFormat.json, RedcapDataType.flat).Result;
-            //var ExportRecordsAsyncData = JsonConvert.DeserializeObject(ExportRecordsAsync);
-            //Console.WriteLine($"ExportRecordsAsync Result: {ExportRecordsAsyncData}");
+            var saveRecordsAsyncObject = new
+            {
+                record_id = "1",
+                redcap_event_name = "event_1_arm_1",
+                first_name = "John",
+                last_name = "Doe"
+            };
 
-            //Console.WriteLine("Calling ExportArmsAsync() . . .");
-            //var ExportArmsAsync = redcapApi.ExportArmsAsync(InputFormat.json, ReturnFormat.json).Result;
-            //var ExportArmsAsyncData = JsonConvert.DeserializeObject(ExportArmsAsync);
-            //Console.WriteLine($"ExportArmsAsync Result: {ExportArmsAsyncData}");
+            Console.WriteLine("Calling SaveRecordsAsync() . . .");
+            var SaveRecordsAsync = redcapApi.SaveRecordsAsync(saveRecordsAsyncObject, ReturnContent.ids, OverwriteBehavior.overwrite, ReturnFormat.json, RedcapDataType.flat, OnErrorFormat.json).Result;
+            var SaveRecordsAsyncData = JsonConvert.DeserializeObject(SaveRecordsAsync);
+            Console.WriteLine($"SaveRecordsAsync Result: {SaveRecordsAsyncData}");
 
-            //Console.WriteLine("Calling ExportRecordsAsync() . . .");
-            //var ExportRecordsAsync2 = redcapApi.ExportRecordsAsync(InputFormat.json, RedcapDataType.flat, ReturnFormat.json, null, "research_opportunities", "event1_arm1", "cda_check,info_check,protocol_check,synopsis_check,feasquestion_check").Result;
-            //var ExportRecordsAsyncdata = JsonConvert.DeserializeObject(ExportRecordsAsync2);
-            //Console.WriteLine($"ExportRecordsAsync Result: {ExportRecordsAsyncdata}");
 
-            //var listOfEvents = new List<RedcapEvent>() {
-            //    new RedcapEvent{arm_num = "1", custom_event_label = null, event_name = "Event 1", day_offset = "1", offset_min = "0", offset_max = "0", unique_event_name = "event_1_arm_1" }
-            //};
-            //Console.WriteLine("Calling ImportEventsAsync() . . .");
-            //var ImportEventsAsync = redcapApi.ImportEventsAsync(listOfEvents, Override.False, InputFormat.json, ReturnFormat.json).Result;
-            //var ImportEventsAsyncData = JsonConvert.DeserializeObject(ImportEventsAsync);
-            //Console.WriteLine($"ImportEventsAsync Result: {ImportEventsAsyncData}");
+            Console.WriteLine("Calling ExportRecordsAsync() . . .");
+            var ExportRecordsAsync = redcapApi.ExportRecordsAsync(ReturnFormat.json, RedcapDataType.flat).Result;
+            var ExportRecordsAsyncData = JsonConvert.DeserializeObject(ExportRecordsAsync);
+            Console.WriteLine($"ExportRecordsAsync Result: {ExportRecordsAsyncData}");
 
-            //var pathImport = "C:\\redcap_download_files";
-            //string importFileName = "test.txt";
-            //Console.WriteLine("Calling ImportFile() . . .");
-            //var ImportFile = redcapApi.ImportFileAsync("1", "protocol_upload", "event_1_arm_1", "", importFileName, pathImport, ReturnFormat.json).Result;
-            //Console.WriteLine($"File has been imported! To verify, field history!");
+            Console.WriteLine("Calling ExportArmsAsync() . . .");
+            var ExportArmsAsync = redcapApi.ExportArmsAsync(ReturnFormat.json, OnErrorFormat.json).Result;
+            var ExportArmsAsyncData = JsonConvert.DeserializeObject(ExportArmsAsync);
+            Console.WriteLine($"ExportArmsAsync Result: {ExportArmsAsyncData}");
 
-            //var pathExport = "C:\\redcap_download_files";
-            //Console.WriteLine("Calling ExportFile() . . .");
-            //var ExportFile = redcapApi.ExportFileAsync("1", "protocol_upload", "event_1_arm_1", "", pathExport, ReturnFormat.json).Result;
-            //Console.WriteLine($"ExportFile Result: {ExportFile} to : {pathExport}");
+            Console.WriteLine("Calling ExportRecordsAsync() . . .");
+            var ExportRecordsAsync2 = redcapApi.ExportRecordsAsync(ReturnFormat.json, RedcapDataType.flat, OnErrorFormat.json, null, "research_opportunities", "event1_arm1", "cda_check,info_check,protocol_check,synopsis_check,feasquestion_check").Result;
+            var ExportRecordsAsyncdata = JsonConvert.DeserializeObject(ExportRecordsAsync2);
+            Console.WriteLine($"ExportRecordsAsync Result: {ExportRecordsAsyncdata}");
 
-            //Console.WriteLine("Calling DeleteFile() . . .");
-            //var DeleteFile = redcapApi.DeleteFileAsync("1", "protocol_upload", "event_1_arm_1", "", ReturnFormat.json).Result;
-            //Console.WriteLine($"File has been deleted! To verify, field history!" );
+            var listOfEvents = new List<RedcapEvent>() {
+                new RedcapEvent{arm_num = "1", custom_event_label = null, event_name = "Event 1", day_offset = "1", offset_min = "0", offset_max = "0", unique_event_name = "event_1_arm_1" }
+            };
+            Console.WriteLine("Calling ImportEventsAsync() . . .");
+            var ImportEventsAsync = redcapApi.ImportEventsAsync(listOfEvents, Override.False, ReturnFormat.json, OnErrorFormat.json).Result;
+            var ImportEventsAsyncData = JsonConvert.DeserializeObject(ImportEventsAsync);
+            Console.WriteLine($"ImportEventsAsync Result: {ImportEventsAsyncData}");
 
-            //Console.WriteLine("Calls to < 1.0.0 completed...");
-            //// Make a sound!
-            //Console.Beep();
+            var pathImport = "C:\\redcap_download_files";
+            string importFileName = "test.txt";
+            Console.WriteLine("Calling ImportFile() . . .");
+            var ImportFile = redcapApi.ImportFileAsync("1", "protocol_upload", "event_1_arm_1", "", importFileName, pathImport, OnErrorFormat.json).Result;
+            Console.WriteLine($"File has been imported! To verify, field history!");
+
+            var pathExport = "C:\\redcap_download_files";
+            Console.WriteLine("Calling ExportFile() . . .");
+            var ExportFile = redcapApi.ExportFileAsync("1", "protocol_upload", "event_1_arm_1", "", pathExport, OnErrorFormat.json).Result;
+            Console.WriteLine($"ExportFile Result: {ExportFile} to : {pathExport}");
+
+            Console.WriteLine("Calling DeleteFile() . . .");
+            var DeleteFile = redcapApi.DeleteFileAsync("1", "protocol_upload", "event_1_arm_1", "", OnErrorFormat.json).Result;
+            Console.WriteLine($"File has been deleted! To verify, field history!");
+
+            Console.WriteLine("Calls to < 1.0.0 completed...");
+            // Make a sound!
+            Console.Beep();
 
             Console.WriteLine("Starting demo for API Version 1.0.0");
 
@@ -150,7 +147,6 @@ namespace RedcapApiDemo
             var ImportArmsAsyncResult = redcap_api_1_0_0.ImportArmsAsync(_token, "arm", Override.False, null, ReturnFormat.json, ImportArmsAsyncData, OnErrorFormat.json).Result;
             Console.WriteLine($"ImportArmsAsyncResult: {ImportArmsAsyncResult}");
             #endregion ImportArmsAsync()
-
 
             #region DeleteArmsAsync()
             var DeleteArmsAsyncData = new string[] {"3"};            
