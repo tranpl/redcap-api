@@ -1,8 +1,9 @@
 [![Build Status](https://travis-ci.org/cctrbic/redcap-api.svg?branch=master)](https://travis-ci.org/cctrbic/redcap-api)
+Project Feedback, using REDCap of course: https://redcap.vcu.edu/surveys/?s=KJLHWRTJYA
+Other Redcap-Tools: http://redcap-tools.github.io/projects/
+
 # REDCap API Library for .NET
-The REDCap API (Application Programming Interface) for REDCap, lets you:
-1.  export/import/delete data in REDCap
-2.  export/import/delete project information (e.g., field names and types) in REDCap
+The REDCap Api Library for .NET provides the ability to interact with REDCap programmatically using various .NET languages(C#,F#,VB);
 
 __Prerequisites__
 1.  Local redcap instance instsalled (visit https://project-redcap.org) if you need to download files(assuming you have access)
@@ -92,3 +93,7 @@ A console project has been included with the source code to get started. Some ex
 __Test Project__
 
 A project with associated test cases is included. Make sure to change the api token
+
+# Please Cite Us
+Publications resulting from the use of this software should cite the Wright Center's Clinical and Translational Science Award (CTSA) grant #UL1TR002649, National Center for Advancing Translational Sciences, NIH.
+
