@@ -1,5 +1,12 @@
 [![Build Status](https://travis-ci.org/cctrbic/redcap-api.svg?branch=master)](https://travis-ci.org/cctrbic/redcap-api)
 
+[![Github All Releases](https://img.shields.io/github/downloads/atom/atom/total.svg)](https://github.com/cctrbic/redcap-api/releases/)
+
+[![NuGet](https://img.shields.io/nuget/v/Nuget.Core.svg)](https://www.nuget.org/packages/RedcapAPI/1.0.1-beta)
+
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md)
+
+
 Project Feedback, using REDCap of course: https://redcap.vcu.edu/surveys/?s=KJLHWRTJYA
 
 Other Redcap-Tools: http://redcap-tools.github.io/projects/
