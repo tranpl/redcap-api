@@ -19,6 +19,29 @@ namespace Tests
         {
             // initialize stuff here
         }
+        [Fact]
+        public void CanExportRepeatingInstrumentsAndEvents_ShouldReturn_string()
+        {
+            // Arrange
+            var apiKey = _token;
+            var apiEndpoint = _uri;
+
+            // Act
+            /*
+             * Using API Version 1.0.0+
+             */
+            var redcapApi = new RedcapApi(apiEndpoint);
+            // executing method using default options
+            var result = redcapApi.ExportRepeatingInstrumentsAndEvents(apiKey).Result;
+
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert 
+            // Expecting multiple arms to be return since we asked for all arms by not providing any arms by passing null for the params
+            Assert.Contains("event_name", data);
+            Assert.Contains("form_name", data);
+        }
+
         /// <summary>
         /// Can Export Arms
         /// All arms should be returned
@@ -44,6 +67,8 @@ namespace Tests
             Assert.Contains("1", data);
             Assert.Contains("2", data);
         }
+
+
         /// <summary>
         /// Can Import Arms
         /// Using API version 1.0.0+
@@ -196,7 +221,7 @@ namespace Tests
 
             // Assert 
             // Expecting "3", since we had 3 redcap events imported
-            Assert.Contains("1", data);
+            Assert.Contains("3", data);
         }
 
         /// <summary>
@@ -319,8 +344,8 @@ namespace Tests
         public void CanGetRedcapVersion_VersionNumber_Shouldontain_Number()
         {
             // Arrange
-            // Assume current redcap version is 8.1.9
-            var currentRedcapVersion = "8.1.9";
+            // Assume current redcap version is 8.5.5
+            var currentRedcapVersion = "8.5.5";
             var apiKey = _token;
             var apiEndpoint = _uri;
 
@@ -340,8 +365,8 @@ namespace Tests
         public void CanExportRedcapVersion_VersionNumber_Shouldontain_Number()
         {
             // Arrange
-            // Assume current redcap version is 8.1.9
-            var currentRedcapVersion = "8.1.9";
+            // Assume current redcap version is 8.5.5
+            var currentRedcapVersion = "8.5.5";
             var apiKey = _token;
             var apiEndpoint = _uri;
 
