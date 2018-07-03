@@ -27,6 +27,7 @@ namespace Redcap.Utilities
         /// <param name="fileName"></param>
         /// <param name="path"></param>
         /// <param name="overwrite"></param>
+        /// <param name="fileExtension"></param>
         /// <returns>HttpContent</returns>
         public static Task ReadAsFileAsync(this HttpContent httpContent, string fileName, string path, bool overwrite, string fileExtension = "pdf")
         {
