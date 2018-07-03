@@ -1,4 +1,5 @@
-[![Travis](https://img.shields.io/travis/cctrbic/redcap-api.svg?style=for-the-badge)](https://github.com/cctrbic/redcap-api) [![NuGet](https://img.shields.io/nuget/dt/RedcapApi.svg?style=for-the-badge)](https://www.nuget.org/packages/RedcapAPI/1.0.1-beta) ![license](https://img.shields.io/github/license/cctrbic/redcap-api.svg?style=for-the-badge)
+[![Travis](https://img.shields.io/travis/cctrbic/redcap-api.svg?style=for-the-badge)](https://travis-ci.org/cctrbic/redcap-api) [![NuGet](https://img.shields.io/nuget/dt/RedcapApi.svg?style=for-the-badge)](https://www.nuget.org/packages/RedcapAPI/1.0.1-beta) [![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=for-the-badge)](https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md)
+
 
 
 Project Feedback, using REDCap of course: https://redcap.vcu.edu/surveys/?s=KJLHWRTJYA
