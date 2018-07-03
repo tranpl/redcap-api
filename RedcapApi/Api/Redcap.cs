@@ -1299,7 +1299,6 @@ namespace Redcap
         /// <remarks>
         /// To use this method, you must have API Import/Update privileges in the project.
         /// </remarks>
-        /// <typeparam name="T"></typeparam>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">project_settings</param>
         /// <param name="format">csv, json [default], xml</param>
@@ -2123,7 +2122,7 @@ namespace Redcap
 
         /// <summary>
         /// Export a Survey Return Code for a Participant
-        /// This method returns a unique Return Code in plain text format for a specified record and data collection instrument (and event, if longitudinal) in a project. If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the specified data collection instrument has not been enabled as a survey in the project or does not have the 'Save & Return Later' feature enabled, an error will be returned.
+        /// This method returns a unique Return Code in plain text format for a specified record and data collection instrument (and event, if longitudinal) in a project. If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the specified data collection instrument has not been enabled as a survey in the project or does not have the 'Save and Return Later' feature enabled, an error will be returned.
         /// </summary>
         /// <remarks>
         /// To use this method, you must have API Export privileges in the project.
