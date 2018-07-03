@@ -81,7 +81,7 @@ dotnet add package RedcapAPI --version 1.0.1-beta
 ```C#
 Paket CLI
 
-paket add RedcapAPI --version 1.0.0-beta
+paket add RedcapAPI --version 1.0.1-beta
 
 ```
 
