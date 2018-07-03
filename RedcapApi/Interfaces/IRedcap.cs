@@ -365,7 +365,6 @@ namespace Redcap.Interfaces
         /// <remarks>
         /// To use this method, you must have API Import/Update privileges in the project.
         /// </remarks>
-        /// <typeparam name="T"></typeparam>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">project_settings</param>
         /// <param name="inputFormat">csv, json [default], xml</param>
@@ -396,7 +395,7 @@ namespace Redcap.Interfaces
         Task<string> ExportProjectInfoAsync(string token, string content, ReturnFormat inputFormat, OnErrorFormat returnFormat = OnErrorFormat.json);
 
         /// <summary>
-        /// Export Entire Project as REDCap XML File (containing metadata & data)
+        /// Export Entire Project as REDCap XML File (containing metadata and data)
         /// The entire project(all records, events, arms, instruments, fields, and project attributes) can be downloaded as a single XML file, which is in CDISC ODM format(ODM version 1.3.1). This XML file can be used to create a clone of the project(including its data, optionally) on this REDCap server or on another REDCap server (it can be uploaded on the Create New Project page). Because it is in CDISC ODM format, it can also be used to import the project into another ODM-compatible system. NOTE: All the option paramters listed below ONLY apply to data returned if the 'returnMetadataOnly' parameter is set to FALSE (default). For this API method, ALL metadata (all fields, forms, events, and arms) will always be exported.Only the data returned can be filtered using the optional parameters.
         /// Note about export rights: If the 'returnMetadataOnly' parameter is set to FALSE, then please be aware that Data Export user rights will be applied to any data returned from this API request. For example, if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then some data fields *might* be removed and filtered out of the data set returned from the API. To make sure that no data is unnecessarily filtered out of your API request, you should have 'Full Data Set' export rights in the project. 
         /// </summary>
@@ -508,6 +507,20 @@ namespace Redcap.Interfaces
         Task<string> DeleteRecordsAsync(string token, string content, string action, string[] records, int? arm);
 
         /// <summary>
+        /// API Version 1.0.0
+        /// From Redcap Version 8.2.0
+        /// 
+        /// Export Repeating Instruments and Events
+        /// 
+        /// This method allows you to export a list of the repeated instruments and repeating events for a project. This includes their unique instrument name as seen in the second column of the Data Dictionary, as well as each repeating instrument's corresponding custom repeating instrument label. For longitudinal projects, the unique event name is also returned for each repeating instrument. Additionally, repeating events are returned as separate items, in which the instrument name will be blank/null to indicate that it is a repeating event (rather than a repeating instrument). 
+        /// </summary>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">repeatingFormsEvents</param>
+        /// <param name="format">csv, json [default], xml odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <returns>Repeated instruments and events for the project in the format specified and will be ordered according to their order in the project.</returns>
+        Task<string> ExportRepeatingInstrumentsAndEvents(string token, string content = "repeatingFormsEvents", ReturnFormat format = ReturnFormat.json);
+
+        /// <summary>
         /// Export Reports
         /// This method allows you to export the data set of a report created on a project's 'Data Exports, Reports, and Stats' page.
         /// Note about export rights: Please be aware that Data Export user rights will be applied to this API request.For example, if you have 'No Access' data export rights in the project, then the API report export will fail and return an error. And if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then some data fields *might* be removed and filtered out of the data set returned from the API. To make sure that no data is unnecessarily filtered out of your API request, you should have 'Full Data Set' export rights in the project.
@@ -592,7 +605,7 @@ namespace Redcap.Interfaces
         
         /// <summary>
         /// Export a Survey Return Code for a Participant
-        /// This method returns a unique Return Code in plain text format for a specified record and data collection instrument (and event, if longitudinal) in a project. If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the specified data collection instrument has not been enabled as a survey in the project or does not have the 'Save & Return Later' feature enabled, an error will be returned.
+        /// This method returns a unique Return Code in plain text format for a specified record and data collection instrument (and event, if longitudinal) in a project. If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the specified data collection instrument has not been enabled as a survey in the project or does not have the 'Save and Return Later' feature enabled, an error will be returned.
         /// </summary>
         /// <remarks>
         /// To use this method, you must have API Export privileges in the project.
