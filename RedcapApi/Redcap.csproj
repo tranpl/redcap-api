@@ -10,8 +10,8 @@
     <Description>This library allows applications on .NET to make calls to REDCap instances.</Description>
     <Product>Redcap Api Library</Product>
     <PackageId>RedcapAPI</PackageId>
-    <Version>1.0.0-beta</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <Version>1.0.1-beta</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
     <PackageTags>redcap</PackageTags>
     <PackageReleaseNotes>100% API Method Coverage</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -39,9 +39,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
-    <PackageReference Include="Serilog" Version="2.6.0" />
-    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Serilog" Version="2.7.1" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
 </Project>

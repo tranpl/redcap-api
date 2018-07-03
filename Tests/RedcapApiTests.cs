@@ -19,6 +19,29 @@ namespace Tests
         {
             // initialize stuff here
         }
+        [Fact]
+        public void CanExportRepeatingInstrumentsAndEvents_ShouldReturn_string()
+        {
+            // Arrange
+            var apiKey = _token;
+            var apiEndpoint = _uri;
+
+            // Act
+            /*
+             * Using API Version 1.0.0+
+             */
+            var redcapApi = new RedcapApi(apiEndpoint);
+            // executing method using default options
+            var result = redcapApi.ExportRepeatingInstrumentsAndEvents(apiKey).Result;
+
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert 
+            // Expecting multiple arms to be return since we asked for all arms by not providing any arms by passing null for the params
+            Assert.Contains("event_name", data);
+            Assert.Contains("form_name", data);
+        }
+
         /// <summary>
         /// Can Export Arms
         /// All arms should be returned
@@ -44,6 +67,8 @@ namespace Tests
             Assert.Contains("1", data);
             Assert.Contains("2", data);
         }
+
+
         /// <summary>
         /// Can Import Arms
         /// Using API version 1.0.0+
@@ -56,7 +81,7 @@ namespace Tests
             var apiEndpoint = _uri;
             var armlist = new List<RedcapArm>
             {
-                new RedcapArm{arm_num = "1", name = "testarm"}
+                new RedcapArm{arm_num = "3", name = "testarm_this_will_be_deleted"}
             };
 
             // Act
@@ -98,6 +123,105 @@ namespace Tests
             // Assert 
             // Expecting "1", the number of arms deleted, since we pass 1 arm to be deleted
             Assert.Contains("1", data);
+        }
+        /// <summary>
+        /// Can Export Events
+        /// Using API version 1.0.0+
+        /// </summary>
+        [Fact]
+        public void CanExportEventsAsync_SingleEvent_ShouldReturn_event()
+        {
+            // Arrange
+            var apiKey = _token;
+            var apiEndpoint = _uri;
+            var ExportEventsAsyncData = new string[] { "1" };
+
+            // Act
+            /*
+             * Using API Version 1.0.0+
+             */
+            var redcapApi = new RedcapApi(apiEndpoint);
+            var result = redcapApi.ExportEventsAsync(apiKey, null, ReturnFormat.json, ExportEventsAsyncData, OnErrorFormat.json).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert 
+            Assert.Contains("event_name", data);
+        }
+        /// <summary>
+        /// Can Import Events
+        /// Using API version 1.0.0+
+        /// </summary>
+        [Fact]
+        public void CanImportEventsAsync_MultipleEvents_ShouldReturn_number()
+        {
+            // Arrange
+            var apiKey = _token;
+            var apiEndpoint = _uri;
+            var eventList = new List<RedcapEvent> {
+                new RedcapEvent {
+                    event_name = "baseline",
+                    arm_num = "1",
+                    day_offset = "1",
+                    offset_min = "0",
+                    offset_max = "0",
+                    unique_event_name = "baseline_arm_1",
+                    custom_event_label = "hello baseline"
+                },
+                new RedcapEvent {
+                    event_name = "clinical",
+                    arm_num = "1",
+                    day_offset = "1",
+                    offset_min = "0",
+                    offset_max = "0",
+                    unique_event_name = "clinical_arm_2",
+                    custom_event_label = "hello clinical 2"
+                },
+                new RedcapEvent {
+                    event_name = "clinical",
+                    arm_num = "3",
+                    day_offset = "1",
+                    offset_min = "0",
+                    offset_max = "0",
+                    unique_event_name = "clinical_arm_3",
+                    custom_event_label = "hello clinical 3"
+                }
+            };
+
+            // Act
+            /*
+             * Using API Version 1.0.0+
+             */
+            var redcapApi = new RedcapApi(apiEndpoint);
+            var result = redcapApi.ImportEventsAsync(apiKey, null, null, Override.False, ReturnFormat.json, eventList, OnErrorFormat.json).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert 
+            // Expecting "3", since we had 3 redcap events imported
+            Assert.Contains("3", data);
+        }
+        /// <summary>
+        /// Can delete Events
+        /// Using API version 1.0.0+
+        /// </summary>
+        [Fact]
+        public void CanDeleteEventsAsync_SingleEvent_ShouldReturn_number()
+        {
+            // Arrange
+            var apiKey = _token;
+            var apiEndpoint = _uri;
+            var DeleteEventsAsyncData = new string[] { "baseline_arm_1" };
+
+            // Act
+            /*
+             * Using API Version 1.0.0+
+             */
+            var redcapApi = new RedcapApi(apiEndpoint);
+            var result = redcapApi.DeleteEventsAsync(apiKey, null, null, DeleteEventsAsyncData).Result;
+            var data = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert 
+            // Expecting "3", since we had 3 redcap events imported
+            Assert.Contains("3", data);
         }
 
         /// <summary>
@@ -220,8 +344,8 @@ namespace Tests
         public void CanGetRedcapVersion_VersionNumber_Shouldontain_Number()
         {
             // Arrange
-            // Assume current redcap version is 8.1.9
-            var currentRedcapVersion = "8.1.9";
+            // Assume current redcap version is 8.5.5
+            var currentRedcapVersion = "8.5.5";
             var apiKey = _token;
             var apiEndpoint = _uri;
 
@@ -241,8 +365,8 @@ namespace Tests
         public void CanExportRedcapVersion_VersionNumber_Shouldontain_Number()
         {
             // Arrange
-            // Assume current redcap version is 8.1.9
-            var currentRedcapVersion = "8.1.9";
+            // Assume current redcap version is 8.5.5
+            var currentRedcapVersion = "8.5.5";
             var apiKey = _token;
             var apiEndpoint = _uri;
 
