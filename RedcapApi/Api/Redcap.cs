@@ -1760,7 +1760,10 @@ namespace Redcap
                     { "action",  action}
                 };
                 // Required
-                payload.Add("records", await this.ConvertArraytoString(records));
+                for (var i = 0; i < records.Length; i++)
+                {
+                    payload.Add($"records[{i}]", records[i]);
+                }
 
                 // Optional
                 payload.Add("arm", arm?.ToString());
