@@ -7,17 +7,20 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/cctrbic/redcap-api</RepositoryUrl>
     <PackageProjectUrl>https://github.com/cctrbic/redcap-api</PackageProjectUrl>
-    <Description>This library allows applications on .NET to make calls to REDCap instances.</Description>
+    <Description>This library allows applications on the .NET platform to make http calls to REDCap instances.</Description>
     <Product>Redcap Api Library</Product>
     <PackageId>RedcapAPI</PackageId>
-    <Version>1.0.1-beta</Version>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
-    <PackageTags>redcap</PackageTags>
-    <PackageReleaseNotes>100% API Method Coverage</PackageReleaseNotes>
+    <Version>1.0.2-beta</Version>
+    <AssemblyVersion>1.0.2.0</AssemblyVersion>
+    <PackageTags>redcap api library</PackageTags>
+    <PackageReleaseNotes>1. Fixed bug with DeleteRecordsAsync method
+2. Added additional tests and demo
+</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />
+    <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -25,7 +28,7 @@
     <DocumentationFile>bin\Debug\netcoreapp2.0\Redcap.xml</DocumentationFile>
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
