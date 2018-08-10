@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace Redcap.Models
 {
@@ -11,127 +12,127 @@ namespace Redcap.Models
         /// Arm Content
         /// </summary>
         /// 
-        [Description("arm")]
+        [Display(Name = "arm")]
         Arm,
         /// <summary>
         /// Event Content
         /// </summary>
         /// 
-        [Description("event")]
+        [Display(Name = "event")]
         Event,
         /// <summary>
         /// Export Field Names Content
         /// </summary>
         /// 
-        [Description("exportFieldNames")]
+        [Display(Name = "exportFieldNames")]
         ExportFieldNames,
         /// <summary>
         /// File Content
         /// </summary>
         /// 
-        [Description("file")]
+        [Display(Name = "file")]
         File,
         /// <summary>
         /// Meta Data Content
         /// </summary>
         /// 
-        [Description("metadata")]
+        [Display(Name = "metadata")]
         MetaData,
         /// <summary>
         /// Instrument Content
         /// </summary>
         /// 
-        [Description("instrument")]
+        [Display(Name = "instrument")]
         Instrument,
         /// <summary>
         /// Pdf Content
         /// </summary>
         /// 
-        [Description("pdf")]
+        [Display(Name = "pdf")]
         Pdf,
         /// <summary>
         /// Form Event Mapping Content
         /// </summary>
         /// 
-        [Description("pdf")]
+        [Display(Name = "formEventMapping")]
         FormEventMapping,
         /// <summary>
         /// Project Content
         /// </summary>
         /// 
-        [Description("project")]
+        [Display(Name = "project")]
         Project,
         /// <summary>
         /// Project Settings Content
         /// </summary>
         /// 
-        [Description("project_settings")]
+        [Display(Name = "project_settings")]
         ProjectSettings,
         /// <summary>
         /// Project Xml Content
         /// </summary>
         /// 
-        [Description("project_xml")]
+        [Display(Name = "project_xml")]
         ProjectXml,
         /// <summary>
         /// Record Content
         /// </summary>
         /// 
-        [Description("record")]
+        [Display(Name = "record")]
         Record,
         /// <summary>
         /// Generate Next Record Name Content
         /// </summary>
         /// 
-        [Description("generateNextRecordName")]
+        [Display(Name = "generateNextRecordName")]
         GenerateNextRecordName,
         /// <summary>
         /// Repeating Forms Events Content
         /// </summary>
         /// 
-        [Description("repeatingFormsEvents")]
+        [Display(Name = "repeatingFormsEvents")]
         RepeatingFormsEvents,
         /// <summary>
         /// Report Content
         /// </summary>
         /// 
-        [Description("report")]
+        [Display(Name = "report")]
         Report,
         /// <summary>
         /// Version Content
         /// </summary>
         /// 
-        [Description("version")]
+        [Display(Name = "version")]
         Version,
         /// <summary>
         /// Survey Link Content
         /// </summary>
         /// 
-        [Description("surveyLink")]
+        [Display(Name = "surveyLink")]
         SurveyLink,
         /// <summary>
         /// Participant List Content
         /// </summary>
         /// 
-        [Description("participantList")]
+        [Display(Name = "participantList")]
         ParticipantList,
         /// <summary>
         /// Survey Queue Link Content
         /// </summary>
         /// 
-        [Description("surveyQueueLink")]
+        [Display(Name = "surveyQueueLink")]
         SurveyQueueLink,
         /// <summary>
         /// Survey Return Code Content
         /// </summary>
         /// 
-        [Description("surveyReturnCode")]
+        [Display(Name = "surveyReturnCode")]
         SurveyReturnCode,
         /// <summary>
         /// User Content
         /// </summary>
         /// 
-        [Description("user")]
+        [Display(Name = "user")]
         User
 
     }

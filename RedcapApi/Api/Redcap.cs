@@ -100,10 +100,6 @@ namespace Redcap
                  * Get the formats
                  */
                 var (_format, _onErrorFormat, _redcapDataType) = await this.HandleFormat(format, onErrorFormat);
-                if (IsNullOrEmpty(content.GetDisplayName()))
-                {
-                    content = Content.Arm;
-                }
                 /*
                  * Request payload
                  */
@@ -116,7 +112,11 @@ namespace Redcap
                 // Optional
                 if (arms?.Length > 0)
                 {
-                    payload.Add("arms", await this.ConvertArraytoString(arms));
+                    for(var i =0; i< arms.Length; i++)
+                    {
+                        payload.Add($"arms[{i}]", arms[i].ToString());
+
+                    }
                 }
                 var _onErrorFormatValue = _onErrorFormat.ToString();
                 if (!IsNullOrEmpty(_onErrorFormatValue))

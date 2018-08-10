@@ -1,4 +1,6 @@
-﻿namespace Redcap.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Redcap.Models
 {
     /// <summary>
     /// The data format which the Redcap API endpoint should receive.
@@ -12,18 +14,26 @@
         /// <summary>
         /// output as one record per row [default]
         /// </summary>
+        /// 
+        [Display(Name = "flat")]
         flat = 0,
         /// <summary>
         /// input as one data point per row
         /// </summary>
+        /// 
+        [Display(Name = "eav")]
         eav = 1,
         /// <summary>
         /// EAV: Non-longitudinal: Will have the fields - record*, field_name, value
         /// </summary>
+        /// 
+        [Display(Name = "nonLongitudinal")]
         nonlongitudinal = 2,
         /// <summary>
         /// EAV: Longitudinal: Will have the fields - record*, field_name, value, redcap_event_name
         /// </summary>
+        /// 
+        [Display(Name = "longitudinal")]
         longitudinal = 3
     }
 }

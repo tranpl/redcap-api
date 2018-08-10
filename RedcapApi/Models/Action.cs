@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace Redcap.Models
@@ -14,20 +15,20 @@ namespace Redcap.Models
         /// Export Action
         /// </summary>
         /// 
-        [Description("export")]
+        [Display(Name = "export")]
         Export,
 
         /// <summary>
         /// Import Action
         /// </summary>
         /// 
-        [Description("Import")]
+        [Display(Name = "import")]
         Import,
         /// <summary>
         /// Delete Action
         /// </summary>
         /// 
-        [Description("Delete")]
+        [Display(Name = "delete")]
         Delete,
     }
 }
