@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using Redcap;
 using Redcap.Models;
+using Redcap.Utilities;
 using System.Collections.Generic;
 using Xunit;
 
@@ -125,7 +126,7 @@ namespace Tests
             // Assert 
             // Expecting multiple arms to be return since we asked for all arms by not providing any arms by passing null for the params
             Assert.Contains("1", data);
-            Assert.Contains("2", data);
+            Assert.Contains("3", data);
         }
 
 
@@ -133,7 +134,7 @@ namespace Tests
         /// Can Import Arms
         /// Using API version 1.0.0+
         /// </summary>
-        [Fact]
+        [Fact, TestPriority(0)]
         public void CanImportArmsAsync_SingleArm_ShouldReturn_number()
         {
             // Arrange
@@ -141,7 +142,9 @@ namespace Tests
             var apiEndpoint = _uri;
             var armlist = new List<RedcapArm>
             {
-                new RedcapArm{arm_num = "3", name = "testarm_this_will_be_deleted"}
+                new RedcapArm{arm_num = "3", name = "testarm3_this_will_be_deleted"},
+                new RedcapArm{arm_num = "2", name = "testarm2_this_will_be_deleted"}
+
             };
 
             // Act
@@ -153,8 +156,8 @@ namespace Tests
             var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert 
-            // Expecting "1", the number of arms imported, since we pass 1 arm to be imported
-            Assert.Contains("1", data);
+            // Expecting "2", the number of arms imported, since we pass 2 arm to be imported
+            Assert.Contains("2", data);
         }
         /// <summary>
         /// Can Delete Arms
@@ -182,6 +185,7 @@ namespace Tests
 
             // Assert 
             // Expecting "1", the number of arms deleted, since we pass 1 arm to be deleted
+            // You'll need an arm 3 to be available first, run import arm
             Assert.Contains("1", data);
         }
         /// <summary>
