@@ -119,7 +119,7 @@ namespace Tests
              * Using API Version 1.0.0+
              */ 
             var redcapApi = new RedcapApi(apiEndpoint);
-            var result = redcapApi.ExportArmsAsync(apiToken, "arm", ReturnFormat.json, null, OnErrorFormat.json).Result;
+            var result = redcapApi.ExportArmsAsync(apiToken, Content.Arm, ReturnFormat.json, null, OnErrorFormat.json).Result;
             var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert 
@@ -149,7 +149,7 @@ namespace Tests
              * Using API Version 1.0.0+
              */
             var redcapApi = new RedcapApi(apiEndpoint);
-            var result = redcapApi.ImportArmsAsync(apiToken, "arm", Override.False, "import", ReturnFormat.json, armlist, OnErrorFormat.json).Result;
+            var result = redcapApi.ImportArmsAsync(apiToken, armlist, Override.False, ReturnFormat.json).Result;
             var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert 
@@ -177,7 +177,7 @@ namespace Tests
              * Using API Version 1.0.0+
              */
             var redcapApi = new RedcapApi(apiEndpoint);
-            var result = redcapApi.DeleteArmsAsync(apiToken, "arm", "delete", armarray).Result;
+            var result = redcapApi.DeleteArmsAsync(apiToken, Content.Arm, RedcapAction.Delete, armarray).Result;
             var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert 

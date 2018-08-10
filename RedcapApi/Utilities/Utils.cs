@@ -4,6 +4,7 @@ using Redcap.Models;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -20,6 +21,23 @@ namespace Redcap.Utilities
     /// </summary>
     public static class Utils
     {
+
+        /// <summary>
+        /// Method gets the display string for an enum
+        /// </summary>
+        /// <param name="enumString"></param>
+        /// <returns></returns>
+        public static string GetDisplayName(this Enum enumString)
+        {
+            var returnvalue = enumString
+                .GetType()
+                .GetMember(enumString.ToString())
+                .First()
+                .GetCustomAttribute<DisplayAttribute>()
+                .GetName();
+
+            return returnvalue;
+        }
         /// <summary>
         /// Extension method reads a stream and saves content to a local file.
         /// </summary>
@@ -544,7 +562,7 @@ namespace Redcap.Utilities
         /// <param name="uri">URI of the api instance</param>
         /// <param name="isLargeDataset">Requests size > 32k chars </param>
         /// <returns></returns>
-        public static async Task<string> SendRequestAsync(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, bool isLargeDataset = false)
+        public static async Task<string> SendPostRequestAsync(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, bool isLargeDataset = false)
         {
             try
             {
@@ -552,6 +570,7 @@ namespace Redcap.Utilities
 
                 using (var client = new HttpClient())
                 {
+
                     // extract the filepath
                     var pathValue = payload.Where(x => x.Key == "filePath").FirstOrDefault().Value;
                     var pathkey = payload.Where(x => x.Key == "filePath").FirstOrDefault().Key;
@@ -685,7 +704,7 @@ namespace Redcap.Utilities
         /// <param name="payload">data </param>
         /// <param name="uri">URI of the api instance</param>
         /// <returns>string</returns>
-        public static async Task<string> SendRequest(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri)
+        public static async Task<string> SendPostRequest(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri)
         {
             string responseString;
             using (var client = new HttpClient())

@@ -2,9 +2,9 @@
 {
     /// <summary>
     /// The format that the response object should be if there are errors generated when executing the http request.
-    /// OnErrorFormat, 0 = JSON
-    /// OnErrorFormat, 1 = CSV
-    /// OnErrorFormat, 2 = XML
+    /// OnErrorFormat, 0 = json
+    /// OnErrorFormat, 1 = csv
+    /// OnErrorFormat, 2 = xml
     /// </summary>
     public enum OnErrorFormat
     {

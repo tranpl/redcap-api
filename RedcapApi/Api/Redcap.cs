@@ -88,7 +88,7 @@ namespace Redcap
         /// <param name="arms">an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
         /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Arms for the project in the format specified(only ones with Events available)</returns>
-        public async Task<string> ExportArmsAsync(string token, string content, ReturnFormat format = ReturnFormat.json, string[] arms = null, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        public async Task<string> ExportArmsAsync(string token, Content content = Content.Arm, ReturnFormat format = ReturnFormat.json, string[] arms = null, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
             try
             {
@@ -100,9 +100,9 @@ namespace Redcap
                  * Get the formats
                  */
                 var (_format, _onErrorFormat, _redcapDataType) = await this.HandleFormat(format, onErrorFormat);
-                if (IsNullOrEmpty(content))
+                if (IsNullOrEmpty(content.GetDisplayName()))
                 {
-                    content = "arm";
+                    content = Content.Arm;
                 }
                 /*
                  * Request payload
@@ -110,7 +110,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", content },
+                    { "content", content.GetDisplayName() },
                     { "format", _format }
                 };
                 // Optional
@@ -121,11 +121,11 @@ namespace Redcap
                 var _onErrorFormatValue = _onErrorFormat.ToString();
                 if (!IsNullOrEmpty(_onErrorFormatValue))
                 {
-                    // defaults to 'xml'
+                    // defaults to 'json'
                     payload.Add("returnFormat", _onErrorFormatValue);
                 }
                 // Execute send request
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -136,6 +136,74 @@ namespace Redcap
                 return Ex.Message;
             }
 
+        }
+        /// <summary>
+        /// API Version 1.0.0
+        /// From Redcap Version 6.11.0
+        /// 
+        /// Import Arms
+        /// This method allows you to import Arms into a project or to rename existing Arms in a project. 
+        /// You may use the parameter override=1 as a 'delete all + import' action in order to erase all existing Arms in the project while importing new Arms. 
+        /// Notice: Because of the 'override' parameter's destructive nature, this method may only use override=1 for projects in Development status.
+        /// NOTE: This only works for longitudinal projects. 
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges *and* Project Design/Setup privileges in the project.
+        /// </remarks>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="data">Contains the attributes 'arm_num' (referring to the arm number) and 'name' (referring to the arm's name) of each arm to be created/modified, in which they are provided in the specified format. 
+        /// <param name="overrideBhavior">0 - false [default], 1 - true — You may use override=1 as a 'delete all + import' action in order to erase all existing Arms in the project while importing new Arms. If override=0, then you can only add new Arms or rename existing ones. </param>
+        /// <param name="inputFormat">csv, json [default], xml</param>
+        /// [{"arm_num":"1","name":"Drug A"},
+        /// {"arm_num":"2","name":"Drug B"},
+        /// {"arm_num":"3","name":"Drug C"}]
+        /// </param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <returns>Number of Arms imported</returns>
+        public async Task<string> ImportArmsAsync<T>(string token, List<T> data, Override overrideBhavior = Override.False, ReturnFormat inputFormat = ReturnFormat.json, OnErrorFormat returnFormat = OnErrorFormat.json)
+        {
+            try
+            {
+                /*
+                 * Check for presence of token
+                 */
+                this.CheckToken(token);
+                /*
+                 * Set static context
+                 */ 
+                var action = RedcapAction.Import.GetDisplayName();
+                var content = Content.Arm.GetDisplayName();
+                var _redcapDataType = RedcapDataType.flat.GetDisplayName();
+
+                var _inputFormat = inputFormat.GetDisplayName();
+                var _returnFormat = returnFormat.GetDisplayName();
+                var _override = overrideBhavior.GetDisplayName();
+
+                var _serializedData = JsonConvert.SerializeObject(data);
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content },
+                    { "action", action },
+                    { "format", _inputFormat },
+                    { "type", _redcapDataType },
+                    { "override", _override },
+                    { "returnFormat", _returnFormat },
+                    { "data", _serializedData }
+                };
+                // Execute request
+                return await this.SendPostRequestAsync(payload, _uri);
+            }
+            catch (Exception Ex)
+            {
+                /*
+                 * We'll just log the error and return the error message.
+                 */
+                Log.Error($"{Ex.Message}");
+                return Ex.Message;
+            }
         }
 
         /// <summary>
@@ -165,7 +233,7 @@ namespace Redcap
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns>Number of Arms imported</returns>
-        public async Task<string> ImportArmsAsync<T>(string token, string content, Override overrideBhavior, string action, ReturnFormat inputFormat, List<T> data, OnErrorFormat returnFormat = OnErrorFormat.json)
+        public async Task<string> ImportArmsAsync<T>(string token, Content content, Override overrideBhavior, RedcapAction action, ReturnFormat inputFormat, List<T> data, OnErrorFormat returnFormat)
         {
             try
             {
@@ -175,20 +243,20 @@ namespace Redcap
                 this.CheckToken(token);
                 var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
                 var _override = overrideBhavior.ToString();
-                if (IsNullOrEmpty(content))
+                if (IsNullOrEmpty(content.GetDisplayName()))
                 {
-                    content = "arm";
+                    content = Content.Arm;
                 }
-                if (IsNullOrEmpty(action))
+                if (IsNullOrEmpty(action.GetDisplayName()))
                 {
-                    action = "import";
+                    action = RedcapAction.Import;
                 }
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                     {
                         { "token", token },
-                        { "content", content },
-                        { "action", action },
+                        { "content", content.GetDisplayName() },
+                        { "action", action.GetDisplayName() },
                         { "format", _inputFormat },
                         { "type", _redcapDataType },
                         { "override", _override },
@@ -196,7 +264,7 @@ namespace Redcap
                         { "data", _serializedData }
                     };
                 // Execute request
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -226,7 +294,7 @@ namespace Redcap
         /// <param name="action">delete</param>
         /// <param name="arms">an array of arm numbers that you wish to delete</param>
         /// <returns>Number of Arms deleted</returns>
-        public async Task<string> DeleteArmsAsync(string token, string content, string action, string[] arms)
+        public async Task<string> DeleteArmsAsync(string token, Content content, RedcapAction action, string[] arms)
         {
             try
             {
@@ -234,24 +302,20 @@ namespace Redcap
                  * Check for presence of token
                  */
                 this.CheckToken(token);
-                if (IsNullOrEmpty(content))
-                {
-                    content = "arm";
-                }
-                if (IsNullOrEmpty(action))
-                {
-                    action = "delete";
-                }
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", content },
-                    { "action", action }
+                    { "content", content.GetDisplayName() },
+                    { "action", action.GetDisplayName() }
                 };
                 // Required
-                payload.Add("arms[0]", await this.ConvertArraytoString(arms));
+                for(var i = 0; i < arms.Length; i++)
+                {
+                    payload.Add($"arms[{i}]", arms[i].ToString());
+
+                }
                 // Execute request
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -311,7 +375,7 @@ namespace Redcap
                     payload.Add("arms", await this.ConvertArraytoString(arms));
                 }
                 // Execute request
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -380,7 +444,7 @@ namespace Redcap
                     { "data", _serializedData }
                 };
                 // Execute request
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -440,7 +504,7 @@ namespace Redcap
                     payload.Add("events[0]", await this.ConvertArraytoString(events));
                 }
                 // Execute request
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -504,7 +568,7 @@ namespace Redcap
                     payload.Add("field", field);
                 }
                 // Execute request
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -569,7 +633,7 @@ namespace Redcap
                     { "repeat_instance", repeatInstance  }
                 };
                 // Execute request
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -647,7 +711,7 @@ namespace Redcap
                     payload.Add("repeat_instance", repeatInstance);
                 }
                 // Execute request
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -838,7 +902,7 @@ namespace Redcap
                     { "format", _format }
                 };
                 // Execute request
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -906,7 +970,7 @@ namespace Redcap
                     payload.Add("allRecords", allRecord.ToString());
                 }
                 // Execute request
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -984,7 +1048,7 @@ namespace Redcap
                     payload.Add("allRecords", allRecord.ToString());
                 }
                 // Execute request
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1040,7 +1104,7 @@ namespace Redcap
                     payload.Add("arms", await this.ConvertArraytoString(arms));
                 }
                 // Execute request
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1099,7 +1163,7 @@ namespace Redcap
                     { "data", _serializedData }
                 };
                 // Execute request
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1157,7 +1221,7 @@ namespace Redcap
                 {
                     payload.Add("forms", await this.ConvertArraytoString(forms));
                 }
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1210,7 +1274,7 @@ namespace Redcap
                     { "returnFormat", _onErrorFormat },
                     { "data", _serializedData }
                 };
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1278,7 +1342,7 @@ namespace Redcap
                 {
                     payload.Add("odm", odm);
                 }
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1330,7 +1394,7 @@ namespace Redcap
                     { "returnFormat", _onErrorFormat },
                     { "data", _serializedData }
                 };
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1381,7 +1445,7 @@ namespace Redcap
                     { "format", _format },
                     { "returnFormat", _onErrorFormat }
                 };
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1466,7 +1530,7 @@ namespace Redcap
                 {
                     payload.Add("exportFiles", exportFiles.ToString());
                 }
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1515,7 +1579,7 @@ namespace Redcap
                     { "token", token },
                     { "content", content },
                 };
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1624,7 +1688,7 @@ namespace Redcap
                 {
                     payload.Add("filterLogic", filterLogic);
                 }
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
 
             }
             catch (Exception Ex)
@@ -1706,7 +1770,7 @@ namespace Redcap
                 {
                     payload.Add("returnContent", returnContent.ToString());
                 }
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1769,7 +1833,7 @@ namespace Redcap
                 // Optional
                 payload.Add("arm", arm?.ToString());
 
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1818,7 +1882,7 @@ namespace Redcap
                     { "content", content },
                     { "format", _format }
                 };
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1892,7 +1956,7 @@ namespace Redcap
                     payload.Add("exportCheckboxLabel", exportCheckboxLabel.ToString());
                 }
 
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1943,7 +2007,7 @@ namespace Redcap
                     { "format", _format }
                 };
 
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -2003,7 +2067,7 @@ namespace Redcap
                     { "returnFormat", _onErrorFormat }
                 };
 
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -2059,7 +2123,7 @@ namespace Redcap
                     { "returnFormat", _onErrorFormat }
                 };
 
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -2112,7 +2176,7 @@ namespace Redcap
                     { "returnFormat", _onErrorFormat }
                 };
 
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -2168,7 +2232,7 @@ namespace Redcap
                     { "returnFormat", _onErrorFormat }
                 };
 
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -2228,7 +2292,7 @@ namespace Redcap
                     { "returnFormat", _onErrorFormat }
                 };
 
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -2310,7 +2374,7 @@ namespace Redcap
                     { "data", _serializedData }
                 };
 
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -2347,7 +2411,7 @@ namespace Redcap
                         { "arms", null}
                     };
                 // Execute send request
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -2376,7 +2440,7 @@ namespace Redcap
                     { "arms", _serializedData }
                 };
                 // Execute request
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -2406,7 +2470,7 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -2464,7 +2528,7 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -2516,7 +2580,7 @@ namespace Redcap
                     _records = await this.ConvertArraytoString(inputRecords);
                     payload.Add("records", _records);
                 }
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -2595,7 +2659,7 @@ namespace Redcap
                     payload.Add("events", await this.ConvertArraytoString(_events));
                 }
 
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -2625,7 +2689,7 @@ namespace Redcap
                     { "returnFormat", _returnFormat },
                     { "type", _redcapDataType }
                 };
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -2654,7 +2718,7 @@ namespace Redcap
                     { "type", _redcapDataType }
                 };
                 // Execute send request
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -2701,7 +2765,7 @@ namespace Redcap
                     };
 
                     // Execute send request
-                    _responseMessage = await this.SendRequestAsync(payload, _uri);
+                    _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                     return _responseMessage;
                 }
                 return null;
@@ -2762,7 +2826,7 @@ namespace Redcap
                     };
 
                     // Execute send request
-                    _responseMessage = await this.SendRequestAsync(payload, _uri);
+                    _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                     return _responseMessage;
                 }
                 return string.Empty;
@@ -2819,7 +2883,7 @@ namespace Redcap
                     };
 
                     // Execute send request
-                    _responseMessage = await this.SendRequestAsync(payload, _uri);
+                    _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                     return _responseMessage;
                 }
                 return string.Empty;
@@ -2879,7 +2943,7 @@ namespace Redcap
                     };
 
                     // Execute send request
-                    _responseMessage = await this.SendRequestAsync(payload, _uri);
+                    _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                     return _responseMessage;
                 }
                 return string.Empty;
@@ -2940,7 +3004,7 @@ namespace Redcap
                     };
 
                     // Execute send request
-                    _responseMessage = await this.SendRequestAsync(payload, _uri);
+                    _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                     return _responseMessage;
                 }
                 return string.Empty;
@@ -2971,7 +3035,7 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -3029,7 +3093,7 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -3066,7 +3130,7 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -3137,7 +3201,7 @@ namespace Redcap
                         { "data", _serializedData }
                     };
                 // Execute request
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -3215,7 +3279,7 @@ namespace Redcap
                     payload.Add("events", await this.ConvertArraytoString(_events));
                 }
 
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -3294,7 +3358,7 @@ namespace Redcap
                     payload.Add("events", await this.ConvertArraytoString(_events));
                 }
 
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -3360,7 +3424,7 @@ namespace Redcap
                     payload.Add("events", await this.ConvertArraytoString(_events));
                 }
 
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -3389,7 +3453,7 @@ namespace Redcap
                     { "type", _redcapDataType }
                 };
                 // Execute send request
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
 
                 return await Task.FromResult(_responseMessage);
             }
@@ -3421,7 +3485,7 @@ namespace Redcap
                 };
 
                 // Execute send request
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -3459,7 +3523,7 @@ namespace Redcap
                     { "returnFormat", _returnFormat },
                     { "type", _redcapDataType }
                 };
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -3497,7 +3561,7 @@ namespace Redcap
                     { "data", _serializedData }
                 };
                 // Execute request
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -3541,7 +3605,7 @@ namespace Redcap
                     payload.Add("repeat_instance", _repeatInstance);
                 }
                 // Execute request
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -3595,7 +3659,7 @@ namespace Redcap
                     payload.Add("repeat_instance", _repeatInstance);
                 }
                 // Execute request
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -3728,7 +3792,7 @@ namespace Redcap
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {

@@ -187,21 +187,21 @@ namespace RedcapApiDemo
             #region ExportArmsAsync()
             var arms = new string[] {};
             Console.WriteLine("Calling ExportArmsAsync()");
-            var ExportArmsAsyncResult = redcap_api_1_0_2.ExportArmsAsync(_token, "arm", ReturnFormat.json, arms, OnErrorFormat.json).Result;
+            var ExportArmsAsyncResult = redcap_api_1_0_2.ExportArmsAsync(_token, Content.Arm, ReturnFormat.json, arms, OnErrorFormat.json).Result;
             Console.WriteLine($"ExportArmsAsyncResult: {ExportArmsAsyncResult}");
             #endregion ExportArmsAsync()
 
             #region ImportArmsAsync()
             var ImportArmsAsyncData = new List<RedcapArm>{ new RedcapArm {arm_num = "1", name = "hooo" }, new RedcapArm { arm_num = "2", name = "heee" }, new RedcapArm { arm_num = "3", name = "hawww" } };
             Console.WriteLine("Calling ImportArmsAsync()");
-            var ImportArmsAsyncResult = redcap_api_1_0_2.ImportArmsAsync(_token, "arm", Override.False, null, ReturnFormat.json, ImportArmsAsyncData, OnErrorFormat.json).Result;
+            var ImportArmsAsyncResult = redcap_api_1_0_2.ImportArmsAsync(_token, ImportArmsAsyncData, Override.False, ReturnFormat.json).Result;
             Console.WriteLine($"ImportArmsAsyncResult: {ImportArmsAsyncResult}");
             #endregion ImportArmsAsync()
 
             #region DeleteArmsAsync()
             var DeleteArmsAsyncData = new string[] {"3"};            
             Console.WriteLine("Calling DeleteArmsAsync()");
-            var DeleteArmsAsyncResult = redcap_api_1_0_2.DeleteArmsAsync(_token, "arm", "delete", DeleteArmsAsyncData).Result;
+            var DeleteArmsAsyncResult = redcap_api_1_0_2.DeleteArmsAsync(_token, Content.Arm, RedcapAction.Delete, DeleteArmsAsyncData).Result;
             Console.WriteLine($"DeleteArmsAsyncResult: {DeleteArmsAsyncResult}");
             #endregion DeleteArmsAsync()
 

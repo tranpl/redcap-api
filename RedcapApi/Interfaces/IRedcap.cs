@@ -34,7 +34,7 @@ namespace Redcap.Interfaces
         /// <param name="arms">an array of arm numbers (integers) that you wish to pull events for (by default, all events are pulled)</param>
         /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Arms for the project in the format specified</returns>
-        Task<string> ExportArmsAsync(string token, string content, ReturnFormat format = ReturnFormat.json, string[] arms = null, OnErrorFormat onErrorFormat = OnErrorFormat.json);
+        Task<string> ExportArmsAsync(string token, Content content = Content.Arm, ReturnFormat format = ReturnFormat.json, string[] arms = null, OnErrorFormat onErrorFormat = OnErrorFormat.json);
 
         /// <summary>
         /// Import Arms
@@ -60,7 +60,7 @@ namespace Redcap.Interfaces
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns>Number of Arms imported</returns>
-        Task<string> ImportArmsAsync<T>(string token, string content, Override overrideBhavior, string action, ReturnFormat inputFormat, List<T> data, OnErrorFormat returnFormat = OnErrorFormat.json);
+        Task<string> ImportArmsAsync<T>(string token, Content content, Override overrideBhavior, RedcapAction action, ReturnFormat inputFormat, List<T> data, OnErrorFormat returnFormat);
 
         /// <summary>
         /// Delete Arms
@@ -76,7 +76,7 @@ namespace Redcap.Interfaces
         /// <param name="action">delete</param>
         /// <param name="arms">an array of arm numbers that you wish to delete</param>
         /// <returns>Number of Arms deleted</returns>
-        Task<string> DeleteArmsAsync(string token, string content, string action, string[] arms);
+        Task<string> DeleteArmsAsync(string token, Content content, RedcapAction action, string[] arms);
 
         /// <summary>
         /// Export Events
