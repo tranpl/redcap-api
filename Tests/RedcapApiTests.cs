@@ -634,7 +634,7 @@ namespace Tests
             var apiToken = _token;
             var apiEndpoint = _uri;
             var pathImport = "C:\\redcap_download_files";
-            string importFileName = "test2.java";
+            string importFileName = "test.txt";
             var record = "1";
             var fieldName = "protocol_upload";
             var eventName = "event_1_arm_1";
@@ -666,7 +666,7 @@ namespace Tests
             var data = JsonConvert.DeserializeObject(result).ToString();
 
             // Assert
-            var expectedString = "test2.java";
+            var expectedString = "test.txt";
             Assert.Contains(expectedString, data);
         }
         /// <summary>

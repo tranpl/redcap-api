@@ -126,13 +126,18 @@ namespace RedcapApiDemo
 
             var pathImport = "C:\\redcap_download_files";
             string importFileName = "test.txt";
+            var pathExport = "C:\\redcap_download_files";
+            var record = "1";
+            var fieldName = "protocol_upload";
+            var eventName = "event_1_arm_1";
+            var repeatingInstrument = "1";
+
             Console.WriteLine("Calling ImportFile() . . .");
-            var ImportFile = redcapApi.ImportFileAsync("1", "protocol_upload", "event_1_arm_1", "", importFileName, pathImport, OnErrorFormat.json).Result;
+            var ImportFile = redcapApi.ImportFileAsync(_uri, Content.File, RedcapAction.Import, record, fieldName, eventName, repeatingInstrument, importFileName, pathImport, OnErrorFormat.json).Result;
             Console.WriteLine($"File has been imported! To verify, field history!");
 
-            var pathExport = "C:\\redcap_download_files";
             Console.WriteLine("Calling ExportFile() . . .");
-            var ExportFile = redcapApi.ExportFileAsync("1", "protocol_upload", "event_1_arm_1", "", pathExport, OnErrorFormat.json).Result;
+            var ExportFile = redcapApi.ExportFileAsync(_uri, Content.File, RedcapAction.Import, record, fieldName, eventName, repeatingInstrument, OnErrorFormat.json, pathExport).Result;
             Console.WriteLine($"ExportFile Result: {ExportFile} to : {pathExport}");
 
             Console.WriteLine("Calling DeleteFile() . . .");
@@ -253,9 +258,7 @@ namespace RedcapApiDemo
 
             #region ImportFileAsync()
             var recordId = "1";
-            var fieldName = "protocol_upload";
             var fileName = "test.txt";
-            var eventName = "clinical_arm_1";
             var fileUploadPath = @"C:\redcap_upload_files";
             Console.WriteLine($"Calling ImportFileAsync(), {fileName}");
             var ImportFileAsyncResult = redcap_api_1_0_2.ImportFileAsync(_token, Content.File, RedcapAction.Import, recordId, fieldName, eventName, null, fileName, fileUploadPath, OnErrorFormat.json).Result;
