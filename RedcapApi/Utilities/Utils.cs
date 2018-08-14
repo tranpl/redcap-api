@@ -4,6 +4,7 @@ using Redcap.Models;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -11,15 +12,98 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit.Abstractions;
+using Xunit.Sdk;
 using static System.String;
 
 namespace Redcap.Utilities
 {
     /// <summary>
+    /// 
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    public class TestPriorityAttribute : Attribute
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="priority"></param>
+        public TestPriorityAttribute(int priority)
+        {
+            Priority = priority;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public int Priority { get; private set; }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public class PriorityOrderer : ITestCaseOrderer
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TTestCase"></typeparam>
+        /// <param name="testCases"></param>
+        /// <returns></returns>
+        public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
+        {
+            var sortedMethods = new SortedDictionary<int, List<TTestCase>>();
+
+            foreach (TTestCase testCase in testCases)
+            {
+                int priority = 0;
+
+                foreach (IAttributeInfo attr in testCase.TestMethod.Method.GetCustomAttributes((typeof(TestPriorityAttribute).AssemblyQualifiedName)))
+                    priority = attr.GetNamedArgument<int>("Priority");
+
+                GetOrCreate(sortedMethods, priority).Add(testCase);
+            }
+
+            foreach (var list in sortedMethods.Keys.Select(priority => sortedMethods[priority]))
+            {
+                list.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod.Method.Name, y.TestMethod.Method.Name));
+                foreach (TTestCase testCase in list)
+                    yield return testCase;
+            }
+        }
+
+        static TValue GetOrCreate<TKey, TValue>(IDictionary<TKey, TValue> dictionary, TKey key) where TValue : new()
+        {
+            TValue result;
+
+            if (dictionary.TryGetValue(key, out result)) return result;
+
+            result = new TValue();
+            dictionary[key] = result;
+
+            return result;
+        }
+    }
+    /// <summary>
     /// Utility class for extension methods
     /// </summary>
     public static class Utils
     {
+
+        /// <summary>
+        /// Method gets the display string for an enum
+        /// </summary>
+        /// <param name="enumString"></param>
+        /// <returns></returns>
+        public static string GetDisplayName(this Enum enumString)
+        {
+            var returnvalue = enumString
+                .GetType()
+                .GetMember(enumString.ToString())
+                .First()
+                .GetCustomAttribute<DisplayAttribute>()
+                .GetName();
+
+            return returnvalue;
+        }
         /// <summary>
         /// Extension method reads a stream and saves content to a local file.
         /// </summary>
@@ -544,7 +628,7 @@ namespace Redcap.Utilities
         /// <param name="uri">URI of the api instance</param>
         /// <param name="isLargeDataset">Requests size > 32k chars </param>
         /// <returns></returns>
-        public static async Task<string> SendRequestAsync(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, bool isLargeDataset = false)
+        public static async Task<string> SendPostRequestAsync(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, bool isLargeDataset = false)
         {
             try
             {
@@ -552,6 +636,7 @@ namespace Redcap.Utilities
 
                 using (var client = new HttpClient())
                 {
+
                     // extract the filepath
                     var pathValue = payload.Where(x => x.Key == "filePath").FirstOrDefault().Value;
                     var pathkey = payload.Where(x => x.Key == "filePath").FirstOrDefault().Key;
@@ -685,7 +770,7 @@ namespace Redcap.Utilities
         /// <param name="payload">data </param>
         /// <param name="uri">URI of the api instance</param>
         /// <returns>string</returns>
-        public static async Task<string> SendRequest(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri)
+        public static async Task<string> SendPostRequest(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri)
         {
             string responseString;
             using (var client = new HttpClient())
