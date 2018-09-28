@@ -101,20 +101,20 @@ namespace RedcapApiDemo
             Console.WriteLine($"SaveRecordsAsync Result: {SaveRecordsAsyncData}");
 
 
-            //Console.WriteLine("Calling ExportRecordsAsync() . . .");
-            //var ExportRecordsAsync = redcapApi.ExportRecordsAsync(ReturnFormat.json, RedcapDataType.flat).Result;
-            //var ExportRecordsAsyncData = JsonConvert.DeserializeObject(ExportRecordsAsync);
-            //Console.WriteLine($"ExportRecordsAsync Result: {ExportRecordsAsyncData}");
+            Console.WriteLine("Calling ExportRecordsAsync() . . .");
+            var ExportRecordsAsync = redcapApi.ExportRecordsAsync(_token).Result;
+            var ExportRecordsAsyncData = JsonConvert.DeserializeObject(ExportRecordsAsync);
+            Console.WriteLine($"ExportRecordsAsync Result: {ExportRecordsAsyncData}");
 
             Console.WriteLine("Calling ExportArmsAsync() . . .");
             var ExportArmsAsync = redcapApi.ExportArmsAsync(ReturnFormat.json, OnErrorFormat.json).Result;
             var ExportArmsAsyncData = JsonConvert.DeserializeObject(ExportArmsAsync);
             Console.WriteLine($"ExportArmsAsync Result: {ExportArmsAsyncData}");
 
-            //Console.WriteLine("Calling ExportRecordsAsync() . . .");
-            //var ExportRecordsAsync2 = redcapApi.ExportRecordsAsync(ReturnFormat.json, RedcapDataType.flat, OnErrorFormat.json, null, "research_opportunities", "event1_arm1", "cda_check,info_check,protocol_check,synopsis_check,feasquestion_check").Result;
-            //var ExportRecordsAsyncdata = JsonConvert.DeserializeObject(ExportRecordsAsync2);
-            //Console.WriteLine($"ExportRecordsAsync Result: {ExportRecordsAsyncdata}");
+            Console.WriteLine("Calling ExportRecordsAsync() . . .");
+            var ExportRecordsAsync2 = redcapApi.ExportRecordsAsync(_token, Content.Record).Result;
+            var ExportRecordsAsyncdata = JsonConvert.DeserializeObject(ExportRecordsAsync2);
+            Console.WriteLine($"ExportRecordsAsync Result: {ExportRecordsAsyncdata}");
 
             var listOfEvents = new List<RedcapEvent>() {
                 new RedcapEvent{arm_num = "1", custom_event_label = null, event_name = "Event 1", day_offset = "1", offset_min = "0", offset_max = "0", unique_event_name = "event_1_arm_1" }
