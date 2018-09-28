@@ -820,7 +820,7 @@ namespace Redcap.Utilities
 
         }
         /// <summary>
-        /// Checks where the string passed is null or empty.
+        /// Checks if the string passed is null or empty.
         /// </summary>
         /// <param name="redcapApi"></param>
         /// <param name="token"></param>

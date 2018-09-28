@@ -60,8 +60,11 @@ namespace Redcap
         /// <summary>
         /// Constructor requires a valid url.
         /// </summary>
+        /// <example>
+        /// https://localhost/redcap/api
+        /// </example>
         /// <remarks>
-        /// Overloaded constructor
+        /// This is the default constructor for version 1.0+
         /// </remarks>
         /// 
         /// <param name="redcapApiUrl">Redcap instance URI</param>
@@ -2820,7 +2823,6 @@ namespace Redcap
             }
         }
 
-
         /// <summary>
         /// API Version 1.0.0
         /// Import Records
@@ -3201,6 +3203,7 @@ namespace Redcap
         }
         #endregion Reports
         #region Redcap
+
         /// <summary>
         /// API Version 1.0.0
         /// Export REDCap Version
