@@ -10,7 +10,7 @@ Other Redcap-Tools: http://redcap-tools.github.io/projects/
 The REDCap Api Library for .NET provides the ability to interact with REDCap programmatically using various .NET languages(C#,F#,VB);
 
 __Prerequisites__
-1.  Local redcap instance instsalled (visit https://project-redcap.org) if you need to download files(assuming you have access)
+1.  Local redcap instance installed (visit https://project-redcap.org) if you need to download files(assuming you have access)
 2.  Create a new project with "Demographics" for the template; this gives you a basic project to work with.
 3.  Create an api token for yourself, replace that with the tokens you see on the "RedcapApiTests.cs" files, and others
 4.  You'll may need to add a field type of "file_upload" so that you can test the file upload interface of the API
@@ -55,9 +55,12 @@ namespace RedcapApiDemo
         {
             Console.WriteLine("Redcap Api Demo Started!");
             // Use your own API Token here...
-            var redcap_api = new RedcapApi("3D57A7FA57C8A43F6C8803A84BB3957B", "http://localhost/redcap/api/");
+            var apiToken = "3D57A7FA57C8A43F6C8803A84BB3957B";
+            var redcap_api = new RedcapApi("http://localhost/redcap/api/");
 
-            var result = redcap_api.GetRecordAsync("1", RedcapFormat.json, RedcapDataType.flat, ReturnFormat.json, null, null, null, null).Result;
+            Console.WriteLine("Exporting all records from project.");
+            var result = redcap_api.ExportRecordsAsync(apiToken).Result;
+
             var data = JsonConvert.DeserializeObject(result);
             Console.WriteLine(data);
             Console.ReadLine();
@@ -72,21 +75,21 @@ __Install directly in Package Manager Console or Command Line Interface__
 ```C#
 Package Manager
 
-Install-Package RedcapAPI -Version 1.0.1-beta
+Install-Package RedcapAPI -Version 1.0.3-beta
 
 ```
 
 ```C#
 .NET CLI
 
-dotnet add package RedcapAPI --version 1.0.1-beta
+dotnet add package RedcapAPI --version 1.0.3-beta
 
  ```
 
 ```C#
 Paket CLI
 
-paket add RedcapAPI --version 1.0.1-beta
+paket add RedcapAPI --version 1.0.3-beta
 
 ```
 
