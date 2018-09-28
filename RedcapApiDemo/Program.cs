@@ -301,7 +301,7 @@ namespace RedcapApiDemo
 
             #region ExportPDFInstrumentsAsync()
             Console.WriteLine($"Calling ExportPDFInstrumentsAsync(), saving pdf file to {filedDownloadPath}");
-            var ExportPDFInstrumentsAsyncResult2 = redcap_api_1_0_2.ExportPDFInstrumentsAsync(_token, Content.Pdf, recordId, eventName, "demographics", true, filedDownloadPath, OnErrorFormat.json).Result;
+            var ExportPDFInstrumentsAsyncResult2 = redcap_api_1_0_2.ExportPDFInstrumentsAsync(_token, recordId, eventName, "demographics", true, filedDownloadPath, OnErrorFormat.json).Result;
             Console.WriteLine($"ExportPDFInstrumentsAsyncResult2: {ExportPDFInstrumentsAsyncResult2}");
             #endregion ExportPDFInstrumentsAsync()
 

@@ -13,7 +13,10 @@
     <Version>1.0.3-beta</Version>
     <AssemblyVersion>1.0.3.0</AssemblyVersion>
     <PackageTags>redcap api library</PackageTags>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReleaseNotes>breaking changes
+bug fix
+add additional enums
+the method signature has changed to use the enums</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
