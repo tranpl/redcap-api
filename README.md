@@ -1,10 +1,7 @@
 [![Travis](https://img.shields.io/travis/cctrbic/redcap-api.svg?style=for-the-badge)](https://travis-ci.org/cctrbic/redcap-api) [![NuGet](https://img.shields.io/nuget/dt/RedcapApi.svg?style=for-the-badge)](https://www.nuget.org/packages/RedcapAPI/1.0.1-beta) [![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=for-the-badge)](https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md)
 
 
-
 Project Feedback, using REDCap of course: https://redcap.vcu.edu/surveys/?s=KJLHWRTJYA
-
-Other Redcap-Tools: http://redcap-tools.github.io/projects/
 
 # REDCap API Library for .NET
 The REDCap Api Library for .NET provides the ability to interact with REDCap programmatically using various .NET languages(C#,F#,VB);
