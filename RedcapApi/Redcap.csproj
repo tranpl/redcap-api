@@ -1,5 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>Michael Tran</Authors>
@@ -13,8 +13,8 @@
     <Version>1.0.4-beta</Version>
     <AssemblyVersion>1.0.4.0</AssemblyVersion>
     <PackageTags>redcap api library</PackageTags>
-    <PackageReleaseNotes>quality of life changes for methods
-updated documents
+    <PackageReleaseNotes>quality of life changes for methods
+updated documents
 bug fixes</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <ApplicationIcon />
@@ -22,7 +22,6 @@ bug fixes</PackageReleaseNotes>
     <StartupObject />
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>false</Optimize>
     <DocumentationFile>bin\Debug\netcoreapp2.0\Redcap.xml</DocumentationFile>
@@ -30,23 +29,21 @@ bug fixes</PackageReleaseNotes>
     <DebugSymbols>true</DebugSymbols>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>bin\Release\netcoreapp1.1\Redcap.xml</DocumentationFile>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="bin\**" />
     <EmbeddedResource Remove="bin\**" />
     <None Remove="bin\**" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="Serilog" Version="2.7.1" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="xunit.extensibility.core" Version="2.4.0" />
+    <Content Include="Models\RedcapMetaData.cs" />
+    <Content Include="Models\RecordStatus.cs" />
   </ItemGroup>
-
 </Project>
