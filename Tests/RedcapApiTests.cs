@@ -274,22 +274,19 @@ namespace Tests
             // Expecting "1", since we had 1 redcap events imported
             Assert.Contains("1", result);
         }
-
         [Fact]
         public void CanExportRecordAsync_SingleRecord_ShouldReturn_String_1()
         {
             // Arrange
-
+            var recordId = "1";
             // Act
-            var _redcapApi = new RedcapApi(_uri);
             /*
              * Just passing the required parameters
              */
-            var result = _redcapApi.ExportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat).Result;
-            var data = JsonConvert.DeserializeObject(result).ToString();
+            var result = _redcapApi.ExportRecordAsync(_token, Content.Record, recordId).Result;
 
             // Assert
-            Assert.Contains("1", data);
+            Assert.Contains("1", result);
 
         }
         /// <summary>
