@@ -52,6 +52,8 @@ namespace Redcap
         /// </remarks>
         /// <param name="apiToken">Redcap Api Token can be obtained from redcap project or redcap administrators</param>
         /// <param name="redcapApiUrl">Redcap instance URI</param>
+        /// 
+        [Obsolete("Use constructor without token.")]
         public RedcapApi(string apiToken, string redcapApiUrl)
         {
             _token = apiToken?.ToString();
@@ -1755,7 +1757,6 @@ namespace Redcap
                 return Ex.Message;
             }
         }
-
 
         /// <summary>
         /// API Version 1.0.0
@@ -3914,6 +3915,8 @@ namespace Redcap
         /// </summary>
         /// <param name="inputFormat">test</param>
         /// <param name="returnFormat">test</param>
+        /// 
+        [Obsolete("Please use ExportArmsAsync with token param")]
         public async Task<string> ExportArmsAsync(ReturnFormat inputFormat, OnErrorFormat returnFormat)
         {
             try
@@ -3945,6 +3948,8 @@ namespace Redcap
         /// <typeparam name="T"></typeparam>
         /// <param name="data"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use DeleteArmsAsync with token param")]
         public async Task<string> DeleteArmsAsync<T>(T data)
         {
             try
@@ -3975,6 +3980,8 @@ namespace Redcap
         /// <param name="inputFormat"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ExportMetaDataAsync with token param")]
         public async Task<string> GetMetaDataAsync(ReturnFormat? inputFormat, OnErrorFormat? returnFormat)
         {
             try
@@ -4007,6 +4014,8 @@ namespace Redcap
         /// <param name="fields"></param>
         /// <param name="forms"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ExportMetaDataAsync")]
         public async Task<string> GetMetaDataAsync(ReturnFormat? inputFormat, OnErrorFormat? returnFormat, char[] delimiters, string fields = "", string forms = "")
         {
             try
@@ -4065,6 +4074,8 @@ namespace Redcap
         /// <param name="redcapDataType"></param>
         /// <param name="delimiters"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ExportRecordsAsync with token param")]
         public async Task<string> GetRecordAsync(string record, ReturnFormat inputFormat, OnErrorFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
         {
             try
@@ -4120,6 +4131,8 @@ namespace Redcap
         /// <param name="events"></param>
         /// <param name="fields"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ExportRecordsAsync with token param")]
         public async Task<string> GetRecordAsync(string record, ReturnFormat inputFormat, RedcapDataType redcapDataType, OnErrorFormat returnFormat = OnErrorFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
         {
             try
@@ -4193,6 +4206,8 @@ namespace Redcap
         /// <param name="returnFormat"></param>
         /// <param name="redcapDataType"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ExportRecordsAsync with token param")]
         public async Task<string> GetRecordsAsync(ReturnFormat inputFormat, OnErrorFormat returnFormat, RedcapDataType redcapDataType)
         {
             string _responseMessage;
@@ -4223,6 +4238,8 @@ namespace Redcap
         /// <param name="inputFormat"></param>
         /// <param name="redcapDataType"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ExportRedcapVersionAsync with token param")]
         public async Task<string> GetRedcapVersionAsync(ReturnFormat inputFormat, RedcapDataType redcapDataType)
         {
             try
@@ -4256,6 +4273,8 @@ namespace Redcap
         /// <param name="redcapDataType"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ImportRecordsAsync with token param")]
         public async Task<string> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, ReturnFormat? inputFormat, RedcapDataType? redcapDataType, OnErrorFormat? returnFormat)
         {
             try
@@ -4308,6 +4327,8 @@ namespace Redcap
         /// <param name="returnFormat"></param>
         /// <param name="dateFormat"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ImportRecordsAsync with token param")]
         public async Task<string> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, ReturnFormat? inputFormat, RedcapDataType? redcapDataType, OnErrorFormat? returnFormat, string dateFormat = "MDY")
         {
             try
@@ -4368,6 +4389,8 @@ namespace Redcap
         /// <param name="returnFormat"></param>
         /// <param name="dateFormat"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ImportRecordsAsync with token param")]
         public async Task<string> SaveRecordsAsync(List<string> data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, ReturnFormat? inputFormat, RedcapDataType? redcapDataType, OnErrorFormat? returnFormat, string dateFormat = "MDY")
         {
             try
@@ -4425,6 +4448,8 @@ namespace Redcap
         /// <param name="returnFormat"></param>
         /// <param name="dateFormat"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ImportRecordsAsync with token param")]
         public async Task<string> ImportRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, ReturnFormat? inputFormat, RedcapDataType? redcapDataType, OnErrorFormat? returnFormat, string dateFormat = "MDY")
         {
             try
@@ -4485,6 +4510,8 @@ namespace Redcap
         /// <param name="apiToken"></param>
         /// <param name="dateFormat"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ImportRecordsAsync with token param")]
         public async Task<string> ImportRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, ReturnFormat? inputFormat, RedcapDataType? redcapDataType, OnErrorFormat? returnFormat, string apiToken, string dateFormat = "MDY")
         {
             try
@@ -4540,6 +4567,9 @@ namespace Redcap
         /// <param name="inputFormat"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ExportMetaDataAsync with token param")]
+
         public async Task<string> ExportMetaDataAsync(ReturnFormat? inputFormat, OnErrorFormat? returnFormat)
         {
             try
@@ -4573,6 +4603,8 @@ namespace Redcap
         /// <param name="fields"></param>
         /// <param name="forms"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ExportMetaDataAsync with token param")]
         public async Task<string> ExportMetaDataAsync(ReturnFormat? inputFormat, OnErrorFormat? returnFormat, char[] delimiters, string fields = "", string forms = "")
         {
             try
@@ -4628,6 +4660,8 @@ namespace Redcap
         /// <param name="returnFormat"></param>
         /// <param name="arms"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ExportEventsAsync with token param")]
         public async Task<string> ExportEventsAsync(ReturnFormat inputFormat, OnErrorFormat returnFormat = OnErrorFormat.json, int[] arms = null)
         {
             try
@@ -4700,6 +4734,8 @@ namespace Redcap
         /// <param name="inputFormat"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ImportArmsAsync with token param")]
         public async Task<string> ImportArmsAsync<T>(List<T> data, Override overRide, ReturnFormat inputFormat, OnErrorFormat returnFormat)
         {
             try
@@ -4964,6 +5000,8 @@ namespace Redcap
         /// <param name="inputFormat"></param>
         /// <param name="redcapDataType"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ExportRedcapVersionAsync with token param ")]
         public async Task<string> ExportRedcapVersionAsync(ReturnFormat inputFormat, RedcapDataType redcapDataType)
         {
             try
@@ -4994,6 +5032,8 @@ namespace Redcap
         /// <param name="inputFormat"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ExportUsersAsync with token param ")]
         public async Task<string> ExportUsersAsync(ReturnFormat inputFormat, OnErrorFormat returnFormat = OnErrorFormat.json)
         {
             try
@@ -5028,6 +5068,8 @@ namespace Redcap
         /// <param name="redcapDataType"></param>
         /// <param name="delimiters"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ExportRecordsAsync with token param ")]
         public async Task<string> GetRecordsAsync(ReturnFormat inputFormat, OnErrorFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
         {
             try
@@ -5066,6 +5108,8 @@ namespace Redcap
         /// <param name="inputFormat"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ImportEventsAsync with token param ")]
         public async Task<string> ImportEventsAsync<T>(List<T> data, Override overRide, ReturnFormat inputFormat, OnErrorFormat returnFormat = OnErrorFormat.json)
         {
             try
@@ -5105,6 +5149,8 @@ namespace Redcap
         /// <param name="repeatInstance"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ExportFileAsync with token param ")]
         public async Task<string> ExportFileAsync(string record, string field, string eventName, string repeatInstance, OnErrorFormat returnFormat = OnErrorFormat.json)
         {
             try
@@ -5268,6 +5314,8 @@ namespace Redcap
         /// <param name="repeatInstance"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use DeleteFileAsync with token param ")]
         public async Task<string> DeleteFileAsync(string record, string field, string eventName, string repeatInstance, OnErrorFormat returnFormat = OnErrorFormat.json)
         {
             try
@@ -5308,6 +5356,8 @@ namespace Redcap
         /// <param name="inputFormat"></param>
         /// <param name="returnFormat"></param>
         /// <returns></returns>
+        /// 
+        [Obsolete("Please use ExportEventsAsync with token param ")]
         public async Task<string> ExportEventsAsync(ReturnFormat inputFormat, OnErrorFormat returnFormat = OnErrorFormat.json)
         {
             try
