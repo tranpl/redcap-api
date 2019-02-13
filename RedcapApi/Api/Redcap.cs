@@ -75,11 +75,11 @@ namespace Redcap
             _uri = new Uri(redcapApiUrl);
         }
 
-        #region API Version 1.0.0 Begin
+        #region API Version 1.0.0+ Begin
 
         #region Arms
         /// <summary>
-        /// API Version 1.0.0 **
+        /// API Version 1.0.0+ **
         /// Export Arms
         /// This method allows you to export the Arms for a project
         /// NOTE: This only works for longitudinal projects.
@@ -135,7 +135,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0 **
+        /// API Version 1.0.0+ **
         /// Export Arms
         /// This method allows you to export the Arms for a project
         /// NOTE: This only works for longitudinal projects.
@@ -192,7 +192,7 @@ namespace Redcap
         }
         
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0
         /// 
         /// Import Arms
@@ -251,7 +251,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0
         /// 
         /// Import Arms
@@ -311,7 +311,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0
         /// 
         /// Delete Arms
@@ -364,7 +364,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0
         /// 
         /// Delete Arms
@@ -421,7 +421,7 @@ namespace Redcap
         #region Events
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0
         /// 
         /// Export Events
@@ -482,7 +482,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0
         /// 
         /// Export Events
@@ -544,7 +544,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0
         /// 
         /// Import Events
@@ -606,7 +606,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0
         /// 
         /// Import Events
@@ -670,7 +670,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0
         /// 
         /// Delete Events
@@ -728,7 +728,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0
         /// 
         /// Delete Events
@@ -906,7 +906,7 @@ namespace Redcap
         #region Files
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export a File
         /// This method allows you to download a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
         /// Note about export rights: Please be aware that Data Export user rights will be applied to this API request.For example, if you have 'No Access' data export rights in the project, then the API file export will fail and return an error. And if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then the API file export will fail and return an error *only if* the File Upload field has been tagged as an Identifier field.To make sure that your API request does not return an error, you should have 'Full Data Set' export rights in the project.
@@ -983,7 +983,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export a File
         /// **Allows for file download to a path.**
         /// This method allows you to download a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
@@ -1055,7 +1055,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Import a File
         /// This method allows you to upload a document that will be attached to an individual record for a File Upload field. Please note that this method may NOT be used for Signature fields (i.e. File Upload fields with 'signature' validation type) because a signature can only be captured and stored using the web interface. 
         /// </summary>
@@ -1131,7 +1131,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Import a File
         /// This method allows you to upload a document that will be attached to an individual record for a File Upload field. Please note that this method may NOT be used for Signature fields (i.e. File Upload fields with 'signature' validation type) because a signature can only be captured and stored using the web interface. 
         /// </summary>
@@ -1209,7 +1209,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Delete a File
         /// This method allows you to remove a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
         /// </summary>
@@ -1265,7 +1265,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Delete a File
         /// This method allows you to remove a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
         /// </summary>
@@ -1325,7 +1325,7 @@ namespace Redcap
         #region Instruments
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export Instruments (Data Entry Forms)
         /// This method allows you to export a list of the data collection instruments for a project. 
         /// This includes their unique instrument name as seen in the second column of the Data Dictionary, as well as each instrument's corresponding instrument label, which is seen on a project's left-hand menu when entering data. The instruments will be ordered according to their order in the project.
@@ -1364,7 +1364,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export Instruments (Data Entry Forms)
         /// This method allows you to export a list of the data collection instruments for a project. 
         /// This includes their unique instrument name as seen in the second column of the Data Dictionary, as well as each instrument's corresponding instrument label, which is seen on a project's left-hand menu when entering data. The instruments will be ordered according to their order in the project.
@@ -1404,7 +1404,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export PDF file of Data Collection Instruments (either as blank or with data)
         /// This method allows you to export a PDF file for any of the following: 1) a single data collection instrument (blank), 2) all instruments (blank), 3) a single instrument (with data from a single record), 4) all instruments (with data from a single record), or 5) all instruments (with data from ALL records). 
         /// This is the exact same PDF file that is downloadable from a project's data entry form in the web interface, and additionally, the user's privileges with regard to data exports will be applied here just like they are when downloading the PDF in the web interface (e.g., if they have de-identified data export rights, then it will remove data from certain fields in the PDF). 
@@ -1466,7 +1466,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export PDF file of Data Collection Instruments (either as blank or with data)
         /// This method allows you to export a PDF file for any of the following: 1) a single data collection instrument (blank), 2) all instruments (blank), 3) a single instrument (with data from a single record), 4) all instruments (with data from a single record), or 5) all instruments (with data from ALL records). 
         /// This is the exact same PDF file that is downloadable from a project's data entry form in the web interface, and additionally, the user's privileges with regard to data exports will be applied here just like they are when downloading the PDF in the web interface (e.g., if they have de-identified data export rights, then it will remove data from certain fields in the PDF). 
@@ -1529,7 +1529,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// **Allows for file download to a path.**
         /// Export PDF file of Data Collection Instruments (either as blank or with data)
         /// This method allows you to export a PDF file for any of the following: 1) a single data collection instrument (blank), 2) all instruments (blank), 3) a single instrument (with data from a single record), 4) all instruments (with data from a single record), or 5) all instruments (with data from ALL records). 
@@ -1601,7 +1601,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0
         /// 
         /// Export Instrument-Event Mappings
@@ -1653,7 +1653,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0
         /// 
         /// Export Instrument-Event Mappings
@@ -1706,7 +1706,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0 
         /// 
         /// Import Instrument-Event Mappings
@@ -1759,7 +1759,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0 
         /// 
         /// Import Instrument-Event Mappings
@@ -1814,7 +1814,7 @@ namespace Redcap
         #endregion Instruments
         #region Metadata
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export Metadata (Data Dictionary)
         /// This method allows you to export the metadata for a project
         /// </summary>
@@ -1870,7 +1870,7 @@ namespace Redcap
             }
         }
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export Metadata (Data Dictionary)
         /// This method allows you to export the metadata for a project
         /// </summary>
@@ -1925,7 +1925,7 @@ namespace Redcap
             }
         }
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0 
         /// 
         /// Import Metadata (Data Dictionary)
@@ -1971,7 +1971,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0 
         /// 
         /// Import Metadata (Data Dictionary)
@@ -2019,7 +2019,7 @@ namespace Redcap
         #endregion Metadata
         #region Projects
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0 
         /// 
         /// Create A New Project
@@ -2080,7 +2080,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0 
         /// 
         /// Create A New Project
@@ -2142,7 +2142,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Import Project Information
         /// This method allows you to update some of the basic attributes of a given REDCap project, such as the project's title, if it is longitudinal, if surveys are enabled, etc. Its data format corresponds to the format in the API method Export Project Information. 
         /// </summary>
@@ -2187,7 +2187,7 @@ namespace Redcap
 
         }
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Import Project Information
         /// This method allows you to update some of the basic attributes of a given REDCap project, such as the project's title, if it is longitudinal, if surveys are enabled, etc. Its data format corresponds to the format in the API method Export Project Information. 
         /// </summary>
@@ -2232,7 +2232,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export Project Information
         /// This method allows you to export some of the basic attributes of a given REDCap project, such as the project's title, if it is longitudinal, if surveys are enabled, the time the project was created and moved to production, etc.
         /// </summary>
@@ -2276,7 +2276,7 @@ namespace Redcap
             }
         }
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export Project Information
         /// This method allows you to export some of the basic attributes of a given REDCap project, such as the project's title, if it is longitudinal, if surveys are enabled, the time the project was created and moved to production, etc.
         /// </summary>
@@ -2320,7 +2320,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.12.0
         /// 
         /// Export Entire Project as REDCap XML File (containing metadata and data)
@@ -2400,7 +2400,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.12.0
         /// 
         /// Export Entire Project as REDCap XML File (containing metadata and data)
@@ -2481,7 +2481,7 @@ namespace Redcap
         #endregion Projects
         #region Records
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.18.0
         /// Generate Next Record Name
         /// To be used by projects with record auto-numbering enabled, this method exports the next potential record ID for a project. It generates the next record name by determining the current maximum numerical record ID and then incrementing it by one.
@@ -2521,7 +2521,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.18.0
         /// Generate Next Record Name
         /// To be used by projects with record auto-numbering enabled, this method exports the next potential record ID for a project. It generates the next record name by determining the current maximum numerical record ID and then incrementing it by one.
@@ -2562,7 +2562,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export Records
         /// This method allows you to export a set of records for a project.
         /// Note about export rights: Please be aware that Data Export user rights will be applied to this API request.For example, if you have 'No Access' data export rights in the project, then the API data export will fail and return an error. And if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then some data fields *might* be removed and filtered out of the data set returned from the API. To make sure that no data is unnecessarily filtered out of your API request, you should have 'Full Data Set' export rights in the project.
@@ -2658,9 +2658,8 @@ namespace Redcap
 
         }
 
-
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export Records
         /// This method allows you to export a set of records for a project.
         /// Note about export rights: Please be aware that Data Export user rights will be applied to this API request.For example, if you have 'No Access' data export rights in the project, then the API data export will fail and return an error. And if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then some data fields *might* be removed and filtered out of the data set returned from the API. To make sure that no data is unnecessarily filtered out of your API request, you should have 'Full Data Set' export rights in the project.
@@ -2758,7 +2757,103 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0++
+        /// Export Record
+        /// This method allows you to export a single record for a project.
+        /// Note about export rights: Please be aware that Data Export user rights will be applied to this API request.For example, if you have 'No Access' data export rights in the project, then the API data export will fail and return an error. And if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then some data fields *might* be removed and filtered out of the data set returned from the API. To make sure that no data is unnecessarily filtered out of your API request, you should have 'Full Data Set' export rights in the project.
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Export privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">record</param>
+        /// <param name="format">csv, json [default], xml, odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="redcapDataType">flat - output as one record per row [default], eav - output as one data point per row. Non-longitudinal: Will have the fields - record*, field_name, value. Longitudinal: Will have the fields - record*, field_name, value, redcap_event_name</param>
+        /// <param name="record">a single record specifying specific records you wish to pull (by default, all records are pulled)</param>
+        /// <param name="fields">an array of field names specifying specific fields you wish to pull (by default, all fields are pulled)</param>
+        /// <param name="forms">an array of form names you wish to pull records for. If the form name has a space in it, replace the space with an underscore (by default, all records are pulled)</param>
+        /// <param name="events">an array of unique event names that you wish to pull records for - only for longitudinal projects</param>
+        /// <param name="rawOrLabel">raw [default], label - export the raw coded values or labels for the options of multiple choice fields</param>
+        /// <param name="rawOrLabelHeaders">raw [default], label - (for 'csv' format 'flat' type only) for the CSV headers, export the variable/field names (raw) or the field labels (label)</param>
+        /// <param name="exportCheckboxLabel">true, false [default] - specifies the format of checkbox field values specifically when exporting the data as labels (i.e., when rawOrLabel=label) in flat format (i.e., when type=flat). When exporting labels, by default (without providing the exportCheckboxLabel flag or if exportCheckboxLabel=false), all checkboxes will either have a value 'Checked' if they are checked or 'Unchecked' if not checked. But if exportCheckboxLabel is set to true, it will instead export the checkbox value as the checkbox option's label (e.g., 'Choice 1') if checked or it will be blank/empty (no value) if not checked. If rawOrLabel=false or if type=eav, then the exportCheckboxLabel flag is ignored. (The exportCheckboxLabel parameter is ignored for type=eav because 'eav' type always exports checkboxes differently anyway, in which checkboxes are exported with their true variable name (whereas the 'flat' type exports them as variable___code format), and another difference is that 'eav' type *always* exports checkbox values as the choice label for labels export, or as 0 or 1 (if unchecked or checked, respectively) for raw export.)</param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="exportSurveyFields">true, false [default] - specifies whether or not to export the survey identifier field (e.g., 'redcap_survey_identifier') or survey timestamp fields (e.g., instrument+'_timestamp') when surveys are utilized in the project. If you do not pass in this flag, it will default to 'false'. If set to 'true', it will return the redcap_survey_identifier field and also the survey timestamp field for a particular survey when at least one field from that survey is being exported. NOTE: If the survey identifier field or survey timestamp fields are imported via API data import, they will simply be ignored since they are not real fields in the project but rather are pseudo-fields.</param>
+        /// <param name="exportDataAccessGroups">true, false [default] - specifies whether or not to export the 'redcap_data_access_group' field when data access groups are utilized in the project. If you do not pass in this flag, it will default to 'false'. NOTE: This flag is only viable if the user whose token is being used to make the API request is *not* in a data access group. If the user is in a group, then this flag will revert to its default value.</param>
+        /// <param name="filterLogic">String of logic text (e.g., [age] > 30) for filtering the data to be returned by this API method, in which the API will only return the records (or record-events, if a longitudinal project) where the logic evaluates as TRUE. This parameter is blank/null by default unless a value is supplied. Please note that if the filter logic contains any incorrect syntax, the API will respond with an error message. </param>
+        /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
+        public async Task<string> ExportRecordAsync(string token, Content content, string record, ReturnFormat format = ReturnFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat,  string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, OnErrorFormat onErrorFormat = OnErrorFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null)
+        {
+            try
+            {
+                this.CheckToken(token);
+
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "records", record },
+                    { "content", content.GetDisplayName() },
+                    { "format", format.GetDisplayName() },
+                    { "returnFormat", onErrorFormat.GetDisplayName() },
+                    { "type", redcapDataType.GetDisplayName() }
+                };
+
+                // Optional
+                if (fields?.Length > 0)
+                {
+                    payload.Add("fields", await this.ConvertArraytoString(fields));
+                }
+                if (forms?.Length > 0)
+                {
+                    payload.Add("forms", await this.ConvertArraytoString(forms));
+                }
+                if (events?.Length > 0)
+                {
+                    payload.Add("events", await this.ConvertArraytoString(events));
+                }
+                /*
+                 * Pertains to CSV data only
+                 */
+                var _rawOrLabelValue = rawOrLabelHeaders.ToString();
+                if (!IsNullOrEmpty(_rawOrLabelValue))
+                {
+                    payload.Add("rawOrLabel", _rawOrLabelValue);
+                }
+                // Optional (defaults to false)
+                if (exportCheckboxLabel)
+                {
+                    payload.Add("exportCheckboxLabel", exportCheckboxLabel.ToString());
+                }
+                // Optional (defaults to false)
+                if (exportSurveyFields)
+                {
+                    payload.Add("exportSurveyFields", exportSurveyFields.ToString());
+                }
+                // Optional (defaults to false)
+                if (exportDataAccessGroups)
+                {
+                    payload.Add("exportDataAccessGroups", exportDataAccessGroups.ToString());
+                }
+                if (!IsNullOrEmpty(filterLogic))
+                {
+                    payload.Add("filterLogic", filterLogic);
+                }
+                return await this.SendPostRequestAsync(payload, _uri);
+
+            }
+            catch (Exception Ex)
+            {
+                /*
+                 * We'll just log the error and return the error message.
+                 */
+                Log.Error($"{Ex.Message}");
+                return Ex.Message;
+            }
+
+        }
+
+
+        /// <summary>
+        /// API Version 1.0.0+
         /// Import Records
         /// This method allows you to import a set of records for a project
         /// </summary>
@@ -2825,7 +2920,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Import Records
         /// This method allows you to import a set of records for a project
         /// </summary>
@@ -2893,7 +2988,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Delete Records
         /// This method allows you to delete one or more records from a project in a single API request.
         /// </summary>
@@ -2946,7 +3041,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Delete Records
         /// This method allows you to delete one or more records from a project in a single API request.
         /// </summary>
@@ -3003,7 +3098,7 @@ namespace Redcap
         #region Repeating Instruments and Events
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 8.2.0
         /// 
         /// Export Repeating Instruments and Events
@@ -3040,7 +3135,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 8.2.0
         /// 
         /// Export Repeating Instruments and Events
@@ -3079,7 +3174,7 @@ namespace Redcap
         #endregion Repeating Instruments and Events
         #region Reports
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export Reports
         /// This method allows you to export the data set of a report created on a project's 'Data Exports, Reports, and Stats' page.
         /// Note about export rights: Please be aware that Data Export user rights will be applied to this API request.For example, if you have 'No Access' data export rights in the project, then the API report export will fail and return an error. And if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then some data fields *might* be removed and filtered out of the data set returned from the API. To make sure that no data is unnecessarily filtered out of your API request, you should have 'Full Data Set' export rights in the project.
@@ -3141,7 +3236,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export Reports
         /// This method allows you to export the data set of a report created on a project's 'Data Exports, Reports, and Stats' page.
         /// Note about export rights: Please be aware that Data Export user rights will be applied to this API request.For example, if you have 'No Access' data export rights in the project, then the API report export will fail and return an error. And if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then some data fields *might* be removed and filtered out of the data set returned from the API. To make sure that no data is unnecessarily filtered out of your API request, you should have 'Full Data Set' export rights in the project.
@@ -3206,7 +3301,7 @@ namespace Redcap
         #region Redcap
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export REDCap Version
         /// This method returns the current REDCap version number as plain text (e.g., 4.13.18, 5.12.2, 6.0.0).
         /// </summary>
@@ -3246,7 +3341,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export REDCap Version
         /// This method returns the current REDCap version number as plain text (e.g., 4.13.18, 5.12.2, 6.0.0).
         /// </summary>
@@ -3286,7 +3381,7 @@ namespace Redcap
         #endregion Reports
         #region Surveys
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export a Survey Link for a Participant
         /// This method returns a unique survey link (i.e., a URL) in plain text format for a specified record and data collection instrument (and event, if longitudinal) in a project. If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the specified data collection instrument has not been enabled as a survey in the project, an error will be returned.
         /// </summary>
@@ -3333,7 +3428,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export a Survey Link for a Participant
         /// This method returns a unique survey link (i.e., a URL) in plain text format for a specified record and data collection instrument (and event, if longitudinal) in a project. If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the specified data collection instrument has not been enabled as a survey in the project, an error will be returned.
         /// </summary>
@@ -3381,7 +3476,7 @@ namespace Redcap
         }
         
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export a Survey Participant List
         /// This method returns the list of all participants for a specific survey instrument (and for a specific event, if a longitudinal project). If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the specified data collection instrument has not been enabled as a survey in the project, an error will be returned.
         /// </summary>
@@ -3426,7 +3521,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// Export a Survey Participant List
         /// This method returns the list of all participants for a specific survey instrument (and for a specific event, if a longitudinal project). If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the specified data collection instrument has not been enabled as a survey in the project, an error will be returned.
         /// </summary>
@@ -3471,7 +3566,7 @@ namespace Redcap
             }
         }
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0 
         /// 
         /// Export a Survey Queue Link for a Participant
@@ -3513,7 +3608,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0 
         /// 
         /// Export a Survey Queue Link for a Participant
@@ -3653,7 +3748,7 @@ namespace Redcap
         #endregion Surveys
         #region Users & User Privileges
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0 
         /// 
         /// Export Users
@@ -3704,7 +3799,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0 
         /// 
         /// Export Users
@@ -3756,7 +3851,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0 
         /// 
         /// Import Users
@@ -3831,7 +3926,7 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 6.11.0 
         /// 
         /// Import Users
@@ -3907,7 +4002,7 @@ namespace Redcap
         }
         #endregion Users & User Privileges
 
-        #endregion API Version 1.0.0 End
+        #endregion API Version 1.0.0+ End
 
         #region deprecated methods < version 1.0.0
         /// <summary>
