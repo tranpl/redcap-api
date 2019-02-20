@@ -10,6 +10,6 @@ namespace Redcap.Models
         /// <summary>
         /// A record value contains a key and its associated value.
         /// </summary>
-        public KeyValuePair<string, string> Value { get; set; }
+        public Dictionary<string, string>[] Value { get; set; }
     }
 }

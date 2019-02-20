@@ -34,12 +34,33 @@ namespace Tests
         {
             _redcapApi = new RedcapApi(_uri);
         }
+        public void CanImportRecordsAsyncAsDictionary_ShouldReturn_CountString()
+        {
+            // Arrange
+            var data = new List<Dictionary<string, string>> { };
+            var keyValuePairs = new Dictionary<string, string> { };
+            keyValuePairs.Add("first_name", "Jon");
+            keyValuePairs.Add("last_name", "Doe");
+            keyValuePairs.Add("record_id", "8");
+            data.Add(keyValuePairs);
+            // Act
+            /*
+             * Using API Version 1.0.0+
+             */
+            // executing method using default options
+            var result = _redcapApi.ImportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, OverwriteBehavior.normal, false, data, "MDY", ReturnContent.count, OnErrorFormat.json).Result;
+
+            var res = JsonConvert.DeserializeObject(result).ToString();
+
+            // Assert 
+            // Expecting a string of 1 since we are importing one record
+            Assert.Contains("1", res);
+        }
         [Fact, TestPriority(0)]
         public void CanImportRecordsAsync_ShouldReturn_CountString()
         {
             // Arrange
             var data = new List<Demographic> { new Demographic { FirstName = "Jon", LastName = "Doe", RecordId = "1" } };
-
             // Act
             /*
              * Using API Version 1.0.0+
