@@ -32,69 +32,91 @@ namespace Redcap.Models
         /// </summary>
         /// 
         [JsonProperty("purpose")]
-        public ProjectPurpose purpose { get; set; }
+        public ProjectPurpose Purpose { get; set; }
         /// <summary>
         /// 
         /// </summary>
         /// 
         [JsonProperty("purpose_other")]
-        public string purpose_other { get; set; }
+        public string PurposeOther { get; set; }
         /// <summary>
         /// 
         /// </summary>
         /// 
         [JsonProperty("project_notes")]
-        public string project_notes { get; set; }
+        public string ProjectNotes { get; set; }
         /// <summary>
         /// 
         /// </summary>
         /// 
         [JsonProperty("project_language")]
-        public string project_language { get; set; }
+        public string ProjectLanguage { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        public string custom_record_label { get; set; }
+        /// 
+        [JsonProperty("custom_record_label")]
+        public string CustomRecordLabel { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        public string secondary_unique_field { get; set; }
+        /// 
+        [JsonProperty("secondary_unique_field")]
+        public string SecondaryUniqueField { get; set; }
         /// <summary>
         /// 1: True, 0: False
         /// </summary>
-        public int is_longitudinal { get; set; }
+        /// 
+        [JsonProperty("is_longitudinal")]
+        public int IsLongitudinal { get; set; }
         /// <summary>
         /// 1: True, 0: False
         /// </summary>
-        public int surveys_enabled { get; set; }
+        /// 
+        [JsonProperty("surveys_enabled")]
+        public int SurveysEnabled { get; set; }
         /// <summary>
         /// 1: True, 0: False
         /// </summary>
-        public int scheduling_enabled { get; set; }
+        /// 
+        [JsonProperty("scheduling_enabled")]
+        public int SchedulingEnabled { get; set; }
         /// <summary>
         /// 1: True, 0: False
         /// </summary>
-        public int record_autonumbering_enabled { get; set; }
+        /// 
+        [JsonProperty("record_autonumbering_enabled")]
+        public int RecordAutonumberingEnabled { get; set; }
         /// <summary>
         /// 1: True, 0: False
         /// </summary>
-        public int randomization_enabled { get; set; }
+        /// 
+        [JsonProperty("randomization_enabled")]
+        public int RandomizationEnabled { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        public string project_irb_number { get; set; }
+        /// 
+        [JsonProperty("project_irb_number")]
+        public string ProjectIrbNumber { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        public string project_grant_number { get; set; }
+        /// 
+        [JsonProperty("project_grant_number")]
+        public string ProjectGrantNumber { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        public string project_pi_firstname { get; set; }
+        /// 
+        [JsonProperty("project_pi_firstname")]
+        public string ProjectPiFirstName { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        public string project_pi_lastname { get; set; }
+        /// 
+        [JsonProperty("project_pi_lastname")]
+        public string ProjectPiLastName { get; set; }
         /// <summary>
         /// 
         /// </summary>

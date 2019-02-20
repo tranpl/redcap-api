@@ -404,7 +404,7 @@ namespace RedcapApiDemo
             Console.ReadLine();
 
             #region ImportProjectInfoAsync()
-            var projectInfo = new RedcapProjectInfo { project_title = "Updated Amazing Project ", purpose = ProjectPurpose.QualityImprovement, surveys_enabled = 1 };
+            var projectInfo = new RedcapProjectInfo { ProjectTitle = "Updated Amazing Project ", Purpose = ProjectPurpose.QualityImprovement, SurveysEnabled = 1 };
             Console.WriteLine($"Calling ImportProjectInfoAsync()");
             var ImportProjectInfoAsyncResult = redcap_api_1_0_5.ImportProjectInfoAsync(_token, Content.ProjectSettings, ReturnFormat.json, projectInfo).Result;
             Console.WriteLine($"ImportProjectInfoAsyncResult: {ImportProjectInfoAsyncResult}");
