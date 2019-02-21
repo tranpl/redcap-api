@@ -153,15 +153,15 @@ namespace Tests
         /// Using API version 1.0.0+
         /// </summary>
         [Fact, TestPriority(0)]
-        public void CanImportArmsAsync_SingleArm_ShouldReturn_number()
+        public async void CanImportArmsAsync_SingleArm_ShouldReturn_number()
         {
             // Arrange
             
             var armlist = new List<RedcapArm>
             {
-                new RedcapArm{arm_num = "3", name = "testarm3_this_will_be_deleted"},
-                new RedcapArm{arm_num = "2", name = "testarm2_this_will_be_deleted"},
-                new RedcapArm{arm_num = "4", name = "testarm4_this_will_be_deleted"},
+                new RedcapArm{ArmNumber = "3", Name = "testarm3_this_will_be_deleted"},
+                new RedcapArm{ArmNumber = "2", Name = "testarm2_this_will_be_deleted"},
+                new RedcapArm{ArmNumber = "4", Name = "testarm4_this_will_be_deleted"},
 
             };
 
@@ -169,23 +169,31 @@ namespace Tests
             /*
              * Using API Version 1.0.0+
              */
-            var result = _redcapApi.ImportArmsAsync(_token, Content.Arm, Override.False, RedcapAction.Import, ReturnFormat.json, armlist, OnErrorFormat.json).Result;
-            var data = JsonConvert.DeserializeObject(result).ToString();
-
+            var result = await _redcapApi.ImportArmsAsync(_token, Content.Arm, Override.False, RedcapAction.Import, ReturnFormat.json, armlist, OnErrorFormat.json);
+            
             // Assert 
             // Expecting "3", the number of arms imported, since we pass 3 arm to be imported
-            Assert.Contains("3", data);
+            Assert.Contains("3", result);
         }
         /// <summary>
         /// Can Delete Arms
         /// Using API version 1.0.0+
         /// </summary>
         [Fact, TestPriority(99)]
-        public void CanDeleteArmsAsync_SingleArm_ShouldReturn_number()
+        public async void CanDeleteArmsAsync_SingleArm_ShouldReturn_number()
         {
             // Arrange
-            
-            // arm 3 to be deleted
+            // Initially if we enable longitudinal project, there will be one arm.
+            // We are adding another arm => 2
+            var redcapArms = new List<RedcapArm> {
+                new RedcapArm { ArmNumber = "3", Name = "Placebo" },
+            };
+
+            // Make sure we have an arm with a few events before trying to delete one.
+            var importArmsResults = await _redcapApi.ImportArmsAsync(_token, Content.Arm, Override.True, RedcapAction.Import, ReturnFormat.json, redcapArms, OnErrorFormat.json);
+
+
+            // arms(#) to be deleted
             var armarray = new string[]
             {
                "3"
