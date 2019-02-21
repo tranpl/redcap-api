@@ -124,13 +124,13 @@ namespace RedcapApiDemo
             //var ImportEventsAsyncData = JsonConvert.DeserializeObject(ImportEventsAsync);
             //Console.WriteLine($"ImportEventsAsync Result: {ImportEventsAsyncData}");
 
-            var pathImport = "C:\\redcap_download_files";
-            string importFileName = "test.txt";
-            var pathExport = "C:\\redcap_download_files";
-            var record = "1";
+            //var pathImport = "C:\\redcap_download_files";
+            //string importFileName = "test.txt";
+            //var pathExport = "C:\\redcap_download_files";
+            //var record = "1";
             var fieldName = "protocol_upload";
             var eventName = "event_1_arm_1";
-            var repeatingInstrument = "1";
+            //var repeatingInstrument = "1";
 
             //Console.WriteLine("Calling ImportFile() . . .");
             //var ImportFile = redcapApi.ImportFileAsync(_uri, Content.File, RedcapAction.Import, record, fieldName, eventName, repeatingInstrument, importFileName, pathImport, OnErrorFormat.json).Result;
