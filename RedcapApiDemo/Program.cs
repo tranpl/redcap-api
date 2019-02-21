@@ -204,7 +204,7 @@ namespace RedcapApiDemo
             Console.ReadLine();
 
             #region ImportArmsAsync()
-            var ImportArmsAsyncData = new List<RedcapArm>{ new RedcapArm {arm_num = "1", name = "hooo" }, new RedcapArm { arm_num = "2", name = "heee" }, new RedcapArm { arm_num = "3", name = "hawww" } };
+            var ImportArmsAsyncData = new List<RedcapArm>{ new RedcapArm {ArmNumber = "1", Name = "hooo" }, new RedcapArm { ArmNumber = "2", Name = "heee" }, new RedcapArm { ArmNumber = "3", Name = "hawww" } };
             Console.WriteLine("Calling ImportArmsAsync()");
             var ImportArmsAsyncResult = redcap_api_1_0_5.ImportArmsAsync(_token, Content.Arm, Override.False, RedcapAction.Import, ReturnFormat.json, ImportArmsAsyncData, OnErrorFormat.json).Result;
             Console.WriteLine($"ImportArmsAsyncResult: {ImportArmsAsyncResult}");
