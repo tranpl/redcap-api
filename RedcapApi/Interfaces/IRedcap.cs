@@ -943,7 +943,7 @@ namespace Redcap.Interfaces
         Task<string> DeleteRecordsAsync(string token, string[] records, int? arm);
 
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 8.2.0
         /// 
         /// Export Repeating Instruments and Events
@@ -956,7 +956,7 @@ namespace Redcap.Interfaces
         /// <returns>Repeated instruments and events for the project in the format specified and will be ordered according to their order in the project.</returns>
         Task<string> ExportRepeatingInstrumentsAndEvents(string token, Content content = Content.RepeatingFormsEvents, ReturnFormat format = ReturnFormat.json);
         /// <summary>
-        /// API Version 1.0.0
+        /// API Version 1.0.0+
         /// From Redcap Version 8.2.0
         /// 
         /// Export Repeating Instruments and Events
@@ -967,7 +967,20 @@ namespace Redcap.Interfaces
         /// <param name="format">csv, json [default], xml odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
         /// <returns>Repeated instruments and events for the project in the format specified and will be ordered according to their order in the project.</returns>
         Task<string> ExportRepeatingInstrumentsAndEvents(string token, ReturnFormat format = ReturnFormat.json);
-
+        /// <summary>
+        /// API Version 1.0.0+
+        /// From Redcap Version 8.10.0
+        /// 
+        /// Import Repeating Instruments and Events
+        /// This method allows you to import a list of the repeated instruments and repeating events for a project. This includes their unique instrument name as seen in the second column of the Data Dictionary, as well as each repeating instrument's corresponding custom repeating instrument label. For longitudinal projects, the unique event name is also needed for each repeating instrument. Additionally, repeating events must be submitted as separate items, in which the instrument name will be blank/null to indicate that it is a repeating event (rather than a repeating instrument).
+        /// </summary>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="data">Note: Super API Tokens can also be utilized for this method instead of a project-level API token. Users can only be granted a super token by a REDCap administrator (using the API Tokens page in the REDCap Control Center).</param>
+        /// <param name="content">repeatingFormsEvents</param>
+        /// <param name="returnFormat">csv, json [default], xml</param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns></returns>
+        Task<string> ImportRepeatingInstrumentsAndEvents<T>(string token, List<T> data, Content content = Content.RepeatingFormsEvents, ReturnFormat returnFormat = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json);
         /// <summary>
         /// Export Reports
         /// This method allows you to export the data set of a report created on a project's 'Data Exports, Reports, and Stats' page.
