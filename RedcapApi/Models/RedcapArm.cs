@@ -1,4 +1,6 @@
-﻿namespace Redcap.Models
+﻿using Newtonsoft.Json;
+
+namespace Redcap.Models
 {
     /// <summary>
     /// Arms are only available for longitudinal projects.
@@ -8,10 +10,14 @@
         /// <summary>
         /// Number associated with the event, e.g "1"
         /// </summary>
-        public string arm_num { get; set; }
+        /// 
+        [JsonProperty("arm_num")]
+        public string ArmNumber { get; set; }
         /// <summary>
         /// Name of the event. e.g "event1_arm_1"
         /// </summary>
-        public string name { get; set; }
+        /// 
+        [JsonProperty("name")]
+        public string Name { get; set; }
     }
 }
