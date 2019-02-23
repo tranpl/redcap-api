@@ -133,7 +133,6 @@ namespace Redcap
             }
 
         }
-
         /// <summary>
         /// API Version 1.0.0+ **
         /// Export Arms
@@ -146,7 +145,7 @@ namespace Redcap
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">arm</param>
         /// <param name="returnFormat">csv, json [default], xml</param>
-        /// <param name="arms">an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
+        /// <param name="arms">e.g. ["1","2"] an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
         /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Arms for the project in the format specified(only ones with Events available)</returns>
         public async Task<string> ExportArmsAsync(string token, Content content, ReturnFormat returnFormat = ReturnFormat.json, string[] arms = null, OnErrorFormat onErrorFormat = OnErrorFormat.json)
