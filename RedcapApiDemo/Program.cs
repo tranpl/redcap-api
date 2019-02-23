@@ -237,22 +237,22 @@ namespace RedcapApiDemo
             Console.WriteLine("Calling ExportEventsAsync()");
             var eventList = new List<RedcapEvent> {
                 new RedcapEvent {
-                    event_name = "baseline",
-                    arm_num = "1",
-                    day_offset = "1",
-                    offset_min = "0",
-                    offset_max = "0",
-                    unique_event_name = "baseline_arm_1",
-                    custom_event_label = "hello baseline"
+                    EventName = "baseline",
+                    ArmNumber = "1",
+                    DayOffset = "1",
+                    MinimumOffset = "0",
+                    MaximumOffset = "0",
+                    UniqueEventName = "baseline_arm_1",
+                    CustomEventLabel = "hello baseline"
                 },
                 new RedcapEvent {
-                    event_name = "clinical",
-                    arm_num = "1",
-                    day_offset = "1",
-                    offset_min = "0",
-                    offset_max = "0",
-                    unique_event_name = "clinical_arm_1",
-                    custom_event_label = "hello clinical"
+                    EventName = "clinical",
+                    ArmNumber = "1",
+                    DayOffset = "1",
+                    MinimumOffset = "0",
+                    MaximumOffset = "0",
+                    UniqueEventName = "clinical_arm_1",
+                    CustomEventLabel = "hello clinical"
                 }
             };
             var ImportEventsAsyncResult = redcap_api_1_0_5.ImportEventsAsync(_token, Content.Event, RedcapAction.Import, Override.False, ReturnFormat.json, eventList, OnErrorFormat.json).Result;
