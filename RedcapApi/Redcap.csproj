@@ -10,17 +10,21 @@
     <Description>This library allows applications on the .NET platform to make http calls to REDCap instances.</Description>
     <Product>Redcap Api Library</Product>
     <PackageId>RedcapAPI</PackageId>
-    <Version>1.0.6</Version>
-    <AssemblyVersion>1.0.6.0</AssemblyVersion>
+    <Version>1.0.7</Version>
+    <AssemblyVersion>1.0.7.0</AssemblyVersion>
     <PackageTags>redcap api library</PackageTags>
-    <PackageReleaseNotes>quality of life changes for methods
-updated documents
-bug fixes</PackageReleaseNotes>
+    <PackageReleaseNotes>Additional tests for latest release.
+Additional methods include: ImportRepeatingInstrumentsAndEvents
+Older APIs have been deprecated(you can still use them but they'll generate warnings).
+Bug fixes</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />
     <NeutralLanguage>en</NeutralLanguage>
+    <FileVersion>1.0.7.0</FileVersion>
+    <PackageLicenseUrl>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</PackageLicenseUrl>
+    <Copyright>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</Copyright>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>false</Optimize>
