@@ -34,9 +34,11 @@ __Usage__:
 2. Add reference to the library in your project, or download from nuget into project
 3. Add "using Redcap" namespace
 4. Add "using Redcap.Models" for convenience
-5. Replace the demo api token with your test project
+5. Replace the demo api token with your test project or you can import the data dictionary in \Docs
+thats provided for convenience.
+6. Feel free to contribute 
 
-__Example__
+__Sample / Example__
 ```C# 
 
 using System;
@@ -72,21 +74,21 @@ __Install directly in Package Manager Console or Command Line Interface__
 ```C#
 Package Manager
 
-Install-Package RedcapAPI -Version 1.0.6
+Install-Package RedcapAPI -Version 1.0.7
 
 ```
 
 ```C#
 .NET CLI
 
-dotnet add package RedcapAPI --version 1.0.6
+dotnet add package RedcapAPI --version 1.0.7
 
  ```
 
 ```C#
 Paket CLI
 
-paket add RedcapAPI --version 1.0.6
+paket add RedcapAPI --version 1.0.7
 
 ```
 
