@@ -8,6 +8,9 @@ using Xunit;
 
 namespace Tests
 {
+    /// <summary>
+    /// Simplified demographics instrument that we can test with.
+    /// </summary>
     public class Demographic
     {
         [JsonRequired]
@@ -38,7 +41,7 @@ namespace Tests
         }
 
         [Fact]
-        public void CanImportRecordsAsyncAsDictionary_ShouldReturn_CountString()
+        public async void CanImportRecordsAsyncAsDictionary_ShouldReturn_CountString()
         {
             // Arrange
             var data = new List<Dictionary<string, string>> { };
@@ -46,15 +49,14 @@ namespace Tests
             keyValues.Add("first_name", "Jon");
             keyValues.Add("last_name", "Doe");
             keyValues.Add("record_id", "8");
+            keyValues.Add("redcap_repeat_instrument", "demographics");
             data.Add(keyValues);
             // Act
-            var result = _redcapApi.ImportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, OverwriteBehavior.normal, false, data, "MDY", ReturnContent.count, OnErrorFormat.json).Result;
-
-            var res = JsonConvert.DeserializeObject(result).ToString();
+            var result = await _redcapApi.ImportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, OverwriteBehavior.normal, false, data, "MDY", ReturnContent.count, OnErrorFormat.json);
 
             // Assert 
             // Expecting a string of 1 since we are importing one record
-            Assert.Contains("1", res);
+            Assert.Contains("1", result);
         }
         [Fact, TestPriority(0)]
         public void CanImportRecordsAsync_ShouldReturn_CountString()
@@ -270,31 +272,31 @@ namespace Tests
             var apiEndpoint = _uri;
             var eventList = new List<RedcapEvent> {
                 new RedcapEvent {
-                    EventName = "baseline",
+                    EventName = "Event 1",
                     ArmNumber = "1",
                     DayOffset = "1",
                     MinimumOffset = "0",
                     MaximumOffset = "0",
-                    UniqueEventName = "baseline_arm_1",
-                    CustomEventLabel = "hello baseline"
+                    UniqueEventName = "event_1_arm_1",
+                    CustomEventLabel = "Baseline"
                 },
                 new RedcapEvent {
-                    EventName = "clinical",
+                    EventName = "Event 2",
                     ArmNumber = "1",
                     DayOffset = "1",
                     MinimumOffset = "0",
                     MaximumOffset = "0",
-                    UniqueEventName = "clinical_arm_2",
-                    CustomEventLabel = "hello clinical 2"
+                    UniqueEventName = "event_2_arm_1",
+                    CustomEventLabel = "First Visit"
                 },
                 new RedcapEvent {
-                    EventName = "clinical",
-                    ArmNumber = "3",
+                    EventName = "Event 3",
+                    ArmNumber = "1",
                     DayOffset = "1",
                     MinimumOffset = "0",
                     MaximumOffset = "0",
-                    UniqueEventName = "clinical_arm_3",
-                    CustomEventLabel = "hello clinical 3"
+                    UniqueEventName = "event_3_arm_1",
+                    CustomEventLabel = "Clinical"
                 }
             };
 
@@ -319,9 +321,12 @@ namespace Tests
         {
             // Arrange
             var events = new List<RedcapEvent> {
-                new RedcapEvent { ArmNumber = "1", EventName = "Clinical Event 1", UniqueEventName = "clinical_arm_1"}
+                new RedcapEvent {
+                    ArmNumber = "1",
+                    EventName = "Clinical Event 1",
+                    UniqueEventName = "clinical_arm_1"}
             };
-            var importResult = _redcapApi.ImportEventsAsync(_token, Content.Event, RedcapAction.Import, Override.True, ReturnFormat.json, events);
+            await _redcapApi.ImportEventsAsync(_token, Content.Event, RedcapAction.Import, Override.True, ReturnFormat.json, events);
             // the event above, redcap appends _arm_1 when you add an arm_#
             var DeleteEventsAsyncData = new string[] { "clinical_event_1_arm_1" };
 
@@ -354,7 +359,7 @@ namespace Tests
         /// Export / Get single record
         /// </summary>
         [Fact]
-        public void CanExportRecordsAsync_SingleRecord_ShouldContain_string_1()
+        public async void CanExportRecordsAsync_SingleRecord_FromRepeatingInstrument_ShouldContain_string_1()
         {
             // Arrange
             var record = new string[]
@@ -363,256 +368,236 @@ namespace Tests
             };
             var redcapEvent = new string[] { "event_1_arm_1" };
             // Act
-            var _redcapApi = new RedcapApi(_uri);
-            var result = _redcapApi.ExportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, record, null, null, redcapEvent).Result;
-            var data = JsonConvert.DeserializeObject(result).ToString();
+            var result = await _redcapApi.ExportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, record, null, null, redcapEvent);
 
             // Assert
-            Assert.Contains("1", data);
+            Assert.Contains("1", result);
         }
         /// <summary>
         /// Can export multiple records
         /// </summary>
         [Fact]
-        public void CanExportRecordsAsync_MultipleRecord_ShouldContain_string_1_2()
+        public async void CanExportRecordsAsync_MultipleRecord_ShouldContain_string_1_2()
         {
             // Arrange
-
-            var apiEndpoint = _uri;
             var records = new string[] { "1, 2" };
 
             // Act
-            var _redcapApi = new RedcapApi(apiEndpoint);
-            var result = _redcapApi.ExportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, records).Result;
-            var data = JsonConvert.DeserializeObject(result).ToString();
+            var result = await _redcapApi.ExportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, records);
 
             // Assert
-            Assert.Contains("1", data);
-            Assert.Contains("2", data);
+            Assert.Contains("1", result);
+            Assert.Contains("2", result);
         }
         /// <summary>
         /// Can export single record
         /// </summary>
         [Fact]
-        public void CanExportRecordAsync_SingleRecord_ShouldContain_string_1()
+        public async void CanExportRecordAsync_SingleRecord_ShouldContain_string_1()
         {
             // Arrange
-
-            var apiEndpoint = _uri;
             var records = new string[] { "1" };
 
             // Act
-            var _redcapApi = new RedcapApi(apiEndpoint);
-            var result = _redcapApi.ExportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, records).Result;
-            var data = JsonConvert.DeserializeObject(result).ToString();
+            var result = await _redcapApi.ExportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, records);
 
             // Assert
-            Assert.Contains("1", data);
+            Assert.Contains("1", result);
         }
-        /// <summary>
-        /// Can export events
-        /// </summary>
-        [Fact]
-        public void CanExportAsync_AllEvents_ShouldContain_event_name()
-        {
-            // Arrange
 
-            var apiEndpoint = _uri;
-
-            // Act
-            var _redcapApi = new RedcapApi(apiEndpoint);
-            var result = _redcapApi.ExportEventsAsync(ReturnFormat.json, OnErrorFormat.json).Result;
-            var data = JsonConvert.DeserializeObject(result).ToString();
-
-            // Assert
-            Assert.Contains("event_name", data);
-
-        }
-        /// <summary>
-        /// Can get all records
-        /// </summary>
-        [Fact]
-        public void CanGetRecordsAsync1_AllRecords_ShouldContain_string_record_id()
-        {
-            // Arrange
-
-            var apiEndpoint = _uri;
-
-            // Act
-            var _redcapApi = new RedcapApi(apiEndpoint);
-            var result = _redcapApi.ExportRecordsAsync(_token, ReturnFormat.json).Result;
-            var data = JsonConvert.DeserializeObject(result).ToString();
-
-            // Assert
-            Assert.Contains("record_id", data);
-
-        }
-        /// <summary>
-        /// Can get all records
-        /// </summary>
-        [Fact]
-        public void CanGetRecordsAsync2_AllRecords_ShouldContain_string_record_id()
-        {
-            // Arrange
-
-            var apiEndpoint = _uri;
-            char[] delimiters = new char[] { ';', ',' };
-
-            // Act
-            var _redcapApi = new RedcapApi(apiEndpoint);
-            var result = _redcapApi.ExportRecordsAsync(_token, ReturnFormat.json).Result;
-            var data = JsonConvert.DeserializeObject(result).ToString();
-
-            // Assert
-            Assert.Contains("record_id", data);
-
-        }
-        /// <summary>
-        /// Can get redcap version
-        /// </summary>
-        [Fact]
-        public void CanGetRedcapVersion_VersionNumber_Shouldontain_Number()
-        {
-            // Arrange
-            // Assume current redcap version is 8.11.4
-            var currentRedcapVersion = "8.11.4";
-
-            var apiEndpoint = _uri;
-
-            // Act
-            var _redcapApi = new RedcapApi(apiEndpoint);
-            var result = _redcapApi.ExportRedcapVersionAsync(_token, Content.Version).Result;
-            var data = result;
-
-            // Assert
-            Assert.Equal(currentRedcapVersion, data);
-
-        }
         /// <summary>
         /// Can export redcap version
+        /// API Version 1.0.0+
         /// </summary>
         [Fact]
-        public void CanExportRedcapVersion_VersionNumber_Shouldontain_Number()
+        public async void CanExportRedcapVersion_VersionNumber_Shouldontain_Number()
         {
             // Arrange
-            // Assume current redcap version is 8.5.5
-            var currentRedcapVersion = "8.5.5";
-
-            var apiEndpoint = _uri;
+            // Assume current redcap version is 8+
+            var currentRedcapVersion = "8";
 
             // Act
-            var _redcapApi = new RedcapApi(apiEndpoint);
-            var result = _redcapApi.ExportRedcapVersionAsync(_token, Content.Version).Result;
-            var data = result;
-
+            var result = await _redcapApi.ExportRedcapVersionAsync(_token, Content.Version);
+            
             // Assert
-            Assert.Equal(currentRedcapVersion, data);
+            // Any version 8.XX will do
+            Assert.Contains(currentRedcapVersion, result);
 
         }
         /// <summary>
         /// Can export users
+        /// API Version 1.0.0+
         /// </summary>
         [Fact]
-        public void CanExportUsers_AllUsers_ShouldReturn_username()
+        public async void CanExportUsers_AllUsers_ShouldReturn_username()
         {
             // Arrange
-
             var username = "tranpl";
-            // Act
-            var result = _redcapApi.ExportUsersAsync(_token, ReturnFormat.json).Result;
-            var data = result;
-
-            // Assert
-            Assert.Contains(username, data);
-
-        }
-        /// <summary>
-        /// Can save record
-        /// </summary>
-        [Fact]
-        public void CanSaveRecord1_SingleRecord_ShouldReturn_Ids()
-        {
-            // Arrange
-
-            var apiEndpoint = _uri;
-
-            var record = new
-            {
-                record_id = "1",
-                redcap_event_name = "event1_arm_1",
-                first_name = "John",
-                last_name = "Doe"
-            };
-            var data = new List<object> { record };
-            // Act
-            var _redcapApi = new RedcapApi(apiEndpoint);
-            var result = _redcapApi.ImportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, OverwriteBehavior.overwrite, false, data, "MDY").Result;
-            var deSerializedData = JsonConvert.DeserializeObject(result).ToString();
-
-            // Assert
-            Assert.Contains("1", deSerializedData);
-
-        }
-        /// <summary>
-        /// Can save record
-        /// </summary>
-        [Fact]
-        public void CanSaveRecord2_SingleRecord_ShouldReturn_Ids()
-        {
-            // Arrange
-
-            var apiEndpoint = _uri;
-            var dateFormat = "YMD";
-            var record = new
-            {
-                record_id = "1",
-                redcap_event_name = "event1_arm_1",
-                first_name = "John",
-                last_name = "Doe"
-            };
 
             // Act
-            var _redcapApi = new RedcapApi(_token, apiEndpoint);
-            var result = _redcapApi.SaveRecordsAsync(record, ReturnContent.ids, OverwriteBehavior.overwrite, ReturnFormat.json, RedcapDataType.flat, OnErrorFormat.json, dateFormat).Result;
-            var data = JsonConvert.DeserializeObject(result).ToString();
-
+            var result = await _redcapApi.ExportUsersAsync(_token, ReturnFormat.json);
             // Assert
-            Assert.Contains("1", data);
+            Assert.Contains(username, result);
 
         }
+
         /// <summary>
         /// Can export records
         /// </summary>
         [Fact]
-        public void CanExportRecordsAsync_AllRecords_ShouldReturn_string_record_id()
+        public async void CanExportRecordsAsync_AllRecords_ShouldReturn_String()
         {
             // Arrange
 
             // Act
-            var _redcapApi = new RedcapApi(_uri);
-            var result = _redcapApi.ExportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat).Result;
-            /*
-             * We are using a default project with demographic form.
-             * Just binding it to a simplified model so we can more easily work with it
-             */
+            var result = await _redcapApi.ExportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat);
             var data = JsonConvert.DeserializeObject<List<Demographic>>(result);
 
             // Assert
+            // expecting a list of 
             Assert.True(data.Count > 1);
+        }
+        /// <summary>
+        /// Can import meta data
+        /// This method allows you to import metadata (i.e., Data Dictionary) into a project. 
+        /// Notice: Because of this method's destructive nature, it is only available for use for projects in Development status.
+        /// API Version 1.0.0+
+        /// </summary>
+        [Fact]
+        public async void CanImportMetaDataAsync_Metadata_ShouldReturn_string_record_id()
+        {
+            // Arrange
+            // This will wipe out the current data dictionary and update with the below meta.
+            var metata = new List<RedcapMetaData> {
+                new RedcapMetaData{
+                    field_name ="record_id",
+                    form_name = "demographics",
+                    field_label ="Study Id",
+                    field_type ="text",
+                    section_header = "",
+                },
+                new RedcapMetaData{
+                    field_name ="first_name",
+                    form_name = "demographics",
+                    field_label ="First Name",
+                    field_type ="text",
+                    section_header = "Contact Information",
+                    identifier = "y"
+                },
+                new RedcapMetaData{
+                    field_name ="last_name",
+                    form_name = "demographics",
+                    field_label ="Last Name",
+                    field_type ="text",
+                    identifier = "y"
+                },
+                new RedcapMetaData{
+                    field_name ="address",
+                    form_name = "demographics",
+                    field_label ="Street, City, State, ZIP",
+                    field_type ="notes",
+                    identifier = "y"
+                },
+                new RedcapMetaData{
+                    field_name ="email",
+                    form_name = "demographics",
+                    field_label ="E-mail",
+                    field_type ="text",
+                    identifier = "y",
+                    text_validation_type_or_show_slider_number = "email"
+                },
+                new RedcapMetaData{
+                    field_name ="dob",
+                    form_name = "demographics",
+                    field_label ="Date of Birth",
+                    field_type ="text",
+                    identifier = "y",
+                    text_validation_type_or_show_slider_number = "date_ymd"
+                },
+                new RedcapMetaData{
+                    field_name ="file_upload",
+                    form_name = "demographics",
+                    field_label ="File Upload",
+                    field_type ="file"
+                }
+            };
+            // Act
+            var result = await _redcapApi.ImportMetaDataAsync(_token, Content.MetaData, ReturnFormat.json, metata);
+
+            // Assert
+            // Expecting 7 metada objects imported
+            Assert.Contains("7", result);
         }
         /// <summary>
         /// Can export meta data
         /// </summary>
         [Fact]
-        public async void CanExportMetaDataAsync_Metadata_ShouldReturn_string_record_id()
+        public async void CanExportMetaDataAsync_Metadata_ShouldReturn_NumberMetadataFields()
         {
-            // Arrange
+            // This will wipe out the current data dictionary and update with the below meta.
+            var metata = new List<RedcapMetaData> {
+                new RedcapMetaData{
+                    field_name ="record_id",
+                    form_name = "demographics",
+                    field_label ="Study Id",
+                    field_type ="text",
+                    section_header = "",
+                },
+                new RedcapMetaData{
+                    field_name ="first_name",
+                    form_name = "demographics",
+                    field_label ="First Name",
+                    field_type ="text",
+                    section_header = "Contact Information",
+                    identifier = "y"
+                },
+                new RedcapMetaData{
+                    field_name ="last_name",
+                    form_name = "demographics",
+                    field_label ="Last Name",
+                    field_type ="text",
+                    identifier = "y"
+                },
+                new RedcapMetaData{
+                    field_name ="address",
+                    form_name = "demographics",
+                    field_label ="Street, City, State, ZIP",
+                    field_type ="notes",
+                    identifier = "y"
+                },
+                new RedcapMetaData{
+                    field_name ="email",
+                    form_name = "demographics",
+                    field_label ="E-mail",
+                    field_type ="text",
+                    identifier = "y",
+                    text_validation_type_or_show_slider_number = "email"
+                },
+                new RedcapMetaData{
+                    field_name ="dob",
+                    form_name = "demographics",
+                    field_label ="Date of Birth",
+                    field_type ="text",
+                    identifier = "y",
+                    text_validation_type_or_show_slider_number = "date_ymd"
+                },
+                new RedcapMetaData{
+                    field_name ="file_upload",
+                    form_name = "demographics",
+                    field_label ="File Upload",
+                    field_type ="file"
+                }
+            };
+            // import 7 metadata fields into the project
+            // this creates an instrument named demographics with 7 fields
+            await _redcapApi.ImportMetaDataAsync(_token, Content.MetaData, ReturnFormat.json, metata);
 
             // Act
             var result = await _redcapApi.ExportMetaDataAsync(_token, ReturnFormat.json);
-
+            var data = JsonConvert.DeserializeObject<List<RedcapMetaData>>(result);
             // Assert
-            Assert.Contains("record_id", result);
+            // expecting 7 metadata to be exported
+            Assert.True(data.Count >= 7);
         }
         /// <summary>
         /// Can export arms
@@ -665,7 +650,7 @@ namespace Tests
             var exportArms = new string[] { "1", "2" };
             // Act
             var result = await _redcapApi.ExportArmsAsync(_token, Content.Arm, ReturnFormat.json, exportArms);
-            
+
             // Assert
             // In order for the arms array to be returned, events for the specific arm
             // needs to be present. An arm without any events will not be returned.
@@ -731,9 +716,10 @@ namespace Tests
             var pathImport = "C:\\redcap_download_files";
             string importFileName = "test.txt";
             var record = "1";
-            var fieldName = "protocol_upload";
+            var fieldName = "file_upload";
             var eventName = "event_1_arm_1";
             var repeatingInstrument = "1";
+
             // Act
             var result = await _redcapApi.ImportFileAsync(_token, Content.File, RedcapAction.Import, record, fieldName, eventName, repeatingInstrument, importFileName, pathImport, OnErrorFormat.json);
 
@@ -750,10 +736,15 @@ namespace Tests
             // Arrange
             var pathExport = "C:\\redcap_download_files";
             var record = "1";
-            var fieldName = "protocol_upload";
+            var fieldName = "file_upload";
             var eventName = "event_1_arm_1";
             var repeatingInstrument = "1";
             var expectedString = "test.txt";
+            var pathImport = "C:\\redcap_download_files";
+            string importFileName = "test.txt";
+            // we need to import a file first so we can test the export api
+            await _redcapApi.ImportFileAsync(_token, Content.File, RedcapAction.Import, record, fieldName, eventName, repeatingInstrument, importFileName, pathImport, OnErrorFormat.json);
+
             // Act
             var result = await _redcapApi.ExportFileAsync(_token, Content.File, RedcapAction.Export, record, fieldName, eventName, repeatingInstrument, OnErrorFormat.json, pathExport);
 
@@ -767,7 +758,7 @@ namespace Tests
         public async void CanDeleteFileAsync_File_ShouldReturn_Empty_string()
         {
             // Arrange
-            
+
             var pathImport = "C:\\redcap_download_files";
             string importFileName = "test.txt";
             var record = "1";
@@ -826,6 +817,7 @@ namespace Tests
                     CustomFormLabel = "TestTestTest"
                 }
             };
+
             // We import a repeating instrument to 'turn on' repeating instruments feature
             // as well as setting an initial repeating instrument 
             await _redcapApi.ImportRepeatingInstrumentsAndEvents(_token, repeatingInstruments);
