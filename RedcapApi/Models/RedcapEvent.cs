@@ -1,38 +1,55 @@
-﻿namespace Redcap.Models
+﻿using Newtonsoft.Json;
+
+namespace Redcap.Models
 {
     /// <summary>
-    /// Event for redcap longitudinal projects.
+    /// Event for redcap longitudinal projects and repeating instruments/forms.
     /// </summary>
     public class RedcapEvent
     {
+        /// Name of the Event
+        /// This is required.
+        /// The unique name of the redcap event, usually appended with arm_1 after event name.
+        /// e.g "event_1_arm_1"
+        [JsonProperty("event_name")]
+        [JsonRequired]
+        public string EventName { get; set; }
         /// <summary>
-        /// Name of the event
+        /// Arm the event belongs to, if any
         /// </summary>
-        public string event_name { get; set; }
+        /// 
+        [JsonProperty("arm_num")]
+        public string ArmNumber { get; set; }
         /// <summary>
-        /// Arm the event belongs to
+        /// Days of offset, if any
         /// </summary>
-        public string arm_num { get; set; }
+        /// 
+        [JsonProperty("day_offset")]
+        public string DayOffset { get; set; }
         /// <summary>
-        /// Days of offset
+        /// Minimum(floor) of offset, if any
         /// </summary>
-        public string day_offset { get; set; }
+        /// 
+        [JsonProperty("offset_min")]
+        public string MinimumOffset { get; set; }
         /// <summary>
-        /// Minimum(floor) of offset
+        /// Max(ceiling) of offset, if any
         /// </summary>
-        public string offset_min { get; set; }
+        /// 
+        [JsonProperty("offset_max")]
+        public string MaximumOffset { get; set; }
         /// <summary>
-        /// Max(ceiling) of offset
+        /// Unique event name used to identify this event, if any
         /// </summary>
-        public string offset_max { get; set; }
+        /// 
+        [JsonProperty("unique_event_name")]
+        public string UniqueEventName { get; set; }
         /// <summary>
-        /// Unique event name used to identify this event
+        /// Label displayed for this event, if any
         /// </summary>
-        public string unique_event_name { get; set; }
-        /// <summary>
-        /// Label displayed for this event
-        /// </summary>
-        public object custom_event_label { get; set; }
+        /// 
+        [JsonProperty("custom_event_label")]
+        public object CustomEventLabel { get; set; }
     }
 
 }

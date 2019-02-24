@@ -1,5 +1,5 @@
 [![Travis](https://img.shields.io/travis/cctrbic/redcap-api.svg?style=for-the-badge)](https://travis-ci.org/cctrbic/redcap-api) [![NuGet](https://img.shields.io/nuget/dt/RedcapApi.svg?style=for-the-badge)](https://www.nuget.org/packages/RedcapAPI/1.0.1-beta) [![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=for-the-badge)](https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md)
-
+[![Build status](https://dev.azure.com/cctrbic/redcap-api-library/_apis/build/status/redcap-api-library-ASP.NET%20Core-CI)](https://dev.azure.com/cctrbic/redcap-api-library/_build/latest?definitionId=15)
 
 Project Feedback, using REDCap of course: https://redcap.vcu.edu/surveys/?s=KJLHWRTJYA
 
