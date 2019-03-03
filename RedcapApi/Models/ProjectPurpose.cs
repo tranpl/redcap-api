@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace Redcap.Models
@@ -13,30 +14,40 @@ namespace Redcap.Models
         /// <summary>
         /// Pratice 
         /// </summary>
+        /// 
+        [Display(Name = "Pratice or For Fun")]
         [Description("Pratice or For Fun")]
         Pratice_ForFun = 0,
 
         /// <summary>
         /// Other
         /// </summary>
+        /// 
+        [Display(Name = "Other")]
         [Description("Other")]
         Other = 1,
 
         /// <summary>
         /// Research
         /// </summary>
+        /// 
+        [Display(Name = "Research")]
         [Description("Research")]
         Research = 2,
 
         /// <summary>
         /// Quality Improvement
         /// </summary>
+        /// 
+        [Display(Name = "Quality Improvement")]
         [Description("Quality Improvement")]
         QualityImprovement = 3,
 
         /// <summary>
         /// Other
         /// </summary>
+        /// 
+        [Display(Name = "Operational Support")]
         [Description("Operational Support")]
         OperationalSupport = 4
     }
