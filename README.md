@@ -4,7 +4,7 @@
 Project Feedback, using REDCap of course: https://redcap.vcu.edu/surveys/?s=KJLHWRTJYA
 
 # REDCap API Library for .NET
-The REDCap Api Library for .NET provides the ability to interact with REDCap programmatically using various .NET languages(C#,F#,VB);
+The REDCap Api Library for .NET provides the ability to interact with REDCap programmatically using various .NET languages(C#,F#,VB.NET);
 
 __Prerequisites__
 1.  Local redcap instance installed (visit https://project-redcap.org) if you need to download files(assuming you have access)
