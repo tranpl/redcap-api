@@ -80,6 +80,7 @@ namespace Redcap
         #region Arms
         /// <summary>
         /// API Version 1.0.0+ **
+        /// From Redcap Version 4.7.0
         /// Export Arms
         /// This method allows you to export the Arms for a project
         /// NOTE: This only works for longitudinal projects.
@@ -133,8 +134,10 @@ namespace Redcap
             }
 
         }
+
         /// <summary>
         /// API Version 1.0.0+ **
+        /// From Redcap Version 4.7.0
         /// Export Arms
         /// This method allows you to export the Arms for a project
         /// NOTE: This only works for longitudinal projects.
@@ -192,7 +195,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
-        /// From Redcap Version 6.11.0
+        /// From Redcap Version 4.7.0
         /// 
         /// Import Arms
         /// This method allows you to import Arms into a project or to rename existing Arms in a project. 
@@ -251,7 +254,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
-        /// From Redcap Version 6.11.0
+        /// From Redcap Version 4.7.0
         /// 
         /// Import Arms
         /// This method allows you to import Arms into a project or to rename existing Arms in a project. 
@@ -311,7 +314,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
-        /// From Redcap Version 6.11.0
+        /// From Redcap Version 4.7.0
         /// 
         /// Delete Arms
         /// This method allows you to delete Arms from a project.
@@ -364,7 +367,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
-        /// From Redcap Version 6.11.0
+        /// From Redcap Version 4.7.0
         /// 
         /// Delete Arms
         /// This method allows you to delete Arms from a project.
@@ -421,7 +424,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
-        /// From Redcap Version 6.11.0
+        /// From Redcap Version 4.7.0
         /// 
         /// Export Events
         /// This method allows you to export the events for a project
@@ -1404,6 +1407,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
+        /// From Redcap Version 6.4.0
         /// Export PDF file of Data Collection Instruments (either as blank or with data)
         /// This method allows you to export a PDF file for any of the following: 1) a single data collection instrument (blank), 2) all instruments (blank), 3) a single instrument (with data from a single record), 4) all instruments (with data from a single record), or 5) all instruments (with data from ALL records). 
         /// This is the exact same PDF file that is downloadable from a project's data entry form in the web interface, and additionally, the user's privileges with regard to data exports will be applied here just like they are when downloading the PDF in the web interface (e.g., if they have de-identified data export rights, then it will remove data from certain fields in the PDF). 
@@ -1466,6 +1470,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
+        /// From Redcap Version 6.4.0
         /// Export PDF file of Data Collection Instruments (either as blank or with data)
         /// This method allows you to export a PDF file for any of the following: 1) a single data collection instrument (blank), 2) all instruments (blank), 3) a single instrument (with data from a single record), 4) all instruments (with data from a single record), or 5) all instruments (with data from ALL records). 
         /// This is the exact same PDF file that is downloadable from a project's data entry form in the web interface, and additionally, the user's privileges with regard to data exports will be applied here just like they are when downloading the PDF in the web interface (e.g., if they have de-identified data export rights, then it will remove data from certain fields in the PDF). 
@@ -1529,6 +1534,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
+        /// From Redcap Version 6.4.0
         /// **Allows for file download to a path.**
         /// Export PDF file of Data Collection Instruments (either as blank or with data)
         /// This method allows you to export a PDF file for any of the following: 1) a single data collection instrument (blank), 2) all instruments (blank), 3) a single instrument (with data from a single record), 4) all instruments (with data from a single record), or 5) all instruments (with data from ALL records). 
@@ -1601,7 +1607,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
-        /// From Redcap Version 6.11.0
+        /// From Redcap Version 4.7.0
         /// 
         /// Export Instrument-Event Mappings
         /// This method allows you to export the instrument-event mappings for a project (i.e., how the data collection instruments are designated for certain events in a longitudinal project).
@@ -1653,7 +1659,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
-        /// From Redcap Version 6.11.0
+        /// From Redcap Version 4.7.0
         /// 
         /// Export Instrument-Event Mappings
         /// This method allows you to export the instrument-event mappings for a project (i.e., how the data collection instruments are designated for certain events in a longitudinal project).
@@ -1706,7 +1712,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
-        /// From Redcap Version 6.11.0 
+        /// FFrom Redcap Version 4.7.0
         /// 
         /// Import Instrument-Event Mappings
         /// This method allows you to import Instrument-Event Mappings into a project (this corresponds to the 'Designate Instruments for My Events' page in the project). 
@@ -1759,7 +1765,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
-        /// From Redcap Version 6.11.0 
+        /// From Redcap Version 4.7.0 
         /// 
         /// Import Instrument-Event Mappings
         /// This method allows you to import Instrument-Event Mappings into a project (this corresponds to the 'Designate Instruments for My Events' page in the project). 
@@ -1814,6 +1820,7 @@ namespace Redcap
         #region Metadata
         /// <summary>
         /// API Version 1.0.0+
+        /// From Redcap Version 3.4.0+
         /// Export Metadata (Data Dictionary)
         /// This method allows you to export the metadata for a project
         /// </summary>
@@ -1870,6 +1877,7 @@ namespace Redcap
         }
         /// <summary>
         /// API Version 1.0.0+
+        /// From Redcap Version 3.4.0+
         /// Export Metadata (Data Dictionary)
         /// This method allows you to export the metadata for a project
         /// </summary>
@@ -3427,6 +3435,7 @@ namespace Redcap
         #region Surveys
         /// <summary>
         /// API Version 1.0.0+
+        /// From Redcap Version 6.4.0
         /// Export a Survey Link for a Participant
         /// This method returns a unique survey link (i.e., a URL) in plain text format for a specified record and data collection instrument (and event, if longitudinal) in a project. If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the specified data collection instrument has not been enabled as a survey in the project, an error will be returned.
         /// </summary>
@@ -3474,6 +3483,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
+        /// From Redcap Version 6.4.0
         /// Export a Survey Link for a Participant
         /// This method returns a unique survey link (i.e., a URL) in plain text format for a specified record and data collection instrument (and event, if longitudinal) in a project. If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the specified data collection instrument has not been enabled as a survey in the project, an error will be returned.
         /// </summary>
@@ -3610,9 +3620,10 @@ namespace Redcap
                 return Ex.Message;
             }
         }
+        
         /// <summary>
         /// API Version 1.0.0+
-        /// From Redcap Version 6.11.0 
+        /// From Redcap Version 6.4.0
         /// 
         /// Export a Survey Queue Link for a Participant
         /// This method returns a unique Survey Queue link (i.e., a URL) in plain text format for the specified record in a project that is utilizing the Survey Queue feature. If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the Survey Queue feature has not been enabled in the project, an error will be
@@ -3654,7 +3665,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
-        /// From Redcap Version 6.11.0 
+        /// From Redcap Version 6.4.0 
         /// 
         /// Export a Survey Queue Link for a Participant
         /// This method returns a unique Survey Queue link (i.e., a URL) in plain text format for the specified record in a project that is utilizing the Survey Queue feature. If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the Survey Queue feature has not been enabled in the project, an error will be
@@ -3694,7 +3705,10 @@ namespace Redcap
                 return Ex.Message;
             }
         }
+        
         /// <summary>
+        /// API Version 1.0.0+
+        /// From Redcap Version 6.4.0
         /// Export a Survey Return Code for a Participant
         /// This method returns a unique Return Code in plain text format for a specified record and data collection instrument (and event, if longitudinal) in a project. If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the specified data collection instrument has not been enabled as a survey in the project or does not have the 'Save and Return Later' feature enabled, an error will be returned.
         /// </summary>
@@ -3743,6 +3757,8 @@ namespace Redcap
         }
 
         /// <summary>
+        /// API Version 1.0.0+
+        /// From Redcap Version 6.4.0
         /// Export a Survey Return Code for a Participant
         /// This method returns a unique Return Code in plain text format for a specified record and data collection instrument (and event, if longitudinal) in a project. If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the specified data collection instrument has not been enabled as a survey in the project or does not have the 'Save and Return Later' feature enabled, an error will be returned.
         /// </summary>
@@ -3794,7 +3810,7 @@ namespace Redcap
         #region Users & User Privileges
         /// <summary>
         /// API Version 1.0.0+
-        /// From Redcap Version 6.11.0 
+        /// From Redcap Version 4.7.0
         /// 
         /// Export Users
         /// This method allows you to export the list of users for a project, including their user privileges and also email address, first name, and last name. Note: If the user has been assigned to a user role, it will return the user with the role's defined privileges. 
@@ -3845,7 +3861,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
-        /// From Redcap Version 6.11.0 
+        /// From Redcap Version 4.7.0
         /// 
         /// Export Users
         /// This method allows you to export the list of users for a project, including their user privileges and also email address, first name, and last name. Note: If the user has been assigned to a user role, it will return the user with the role's defined privileges. 
@@ -3897,7 +3913,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
-        /// From Redcap Version 6.11.0 
+        /// From Redcap Version 4.7.0 
         /// 
         /// Import Users
         /// This method allows you to import new users into a project while setting their user privileges, or update the privileges of existing users in the project. 
@@ -3972,7 +3988,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
-        /// From Redcap Version 6.11.0 
+        /// From Redcap Version 4.7.0
         /// 
         /// Import Users
         /// This method allows you to import new users into a project while setting their user privileges, or update the privileges of existing users in the project. 
