@@ -1116,7 +1116,7 @@ namespace Redcap
                     _fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
                     payload.Add(_fileContent, "file", _fileName);
                 }
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1194,7 +1194,7 @@ namespace Redcap
                     _fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
                     payload.Add(_fileContent, "file", _fileName);
                 }
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1251,7 +1251,7 @@ namespace Redcap
                     payload.Add(new StringContent(repeatInstance), "repeat_instance");
 
                 }
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -1309,7 +1309,7 @@ namespace Redcap
                     payload.Add(new StringContent(repeatInstance), "repeat_instance");
 
                 }
-                return await this.SendRequestAsync(payload, _uri);
+                return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
@@ -5436,7 +5436,7 @@ namespace Redcap
                     _fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
                     payload.Add(_fileContent, "file", _fileName);
                 }
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)
@@ -5481,7 +5481,7 @@ namespace Redcap
                     // add repeat instrument params if available
                     payload.Add(new StringContent(_repeatInstance), "repeat_instance");
                 }
-                _responseMessage = await this.SendRequestAsync(payload, _uri);
+                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
             }
             catch (Exception Ex)

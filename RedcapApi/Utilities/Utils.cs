@@ -209,10 +209,10 @@ namespace Redcap.Utilities
             try
             {
                 StringBuilder builder = new StringBuilder();
-                foreach (var v in inputArray)
+                foreach (var intValue in inputArray)
                 {
 
-                    builder.Append(v);
+                    builder.Append(intValue);
                     // We do not need to append the , if less than or equal to a single string
                     if (inputArray.Length <= 1)
                     {
@@ -597,7 +597,7 @@ namespace Redcap.Utilities
         /// <param name="payload">data</param>
         /// <param name="uri">URI of the api instance</param>
         /// <returns>string</returns>
-        public static async Task<string> SendRequestAsync(this RedcapApi redcapApi, MultipartFormDataContent payload, Uri uri)
+        public static async Task<string> SendPostRequestAsync(this RedcapApi redcapApi, MultipartFormDataContent payload, Uri uri)
         {
             try
             {
