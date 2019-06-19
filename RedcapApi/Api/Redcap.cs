@@ -70,9 +70,11 @@ namespace Redcap
         /// </remarks>
         /// 
         /// <param name="redcapApiUrl">Redcap instance URI</param>
-        public RedcapApi(string redcapApiUrl)
+        /// <param name="useInsecureCertificates">Allows use of insecure certificates in HttpClient</param>
+        public RedcapApi(string redcapApiUrl, bool useInsecureCertificates=false)
         {
             _uri = new Uri(redcapApiUrl);
+            Utils.UseInsecureCertificate = useInsecureCertificates;
         }
 
         #region API Version 1.0.0+ Begin
