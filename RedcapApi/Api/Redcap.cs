@@ -2595,7 +2595,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.Record.ToString() },
+                    { "content", Content.Record.GetDisplayName() },
                     { "format", format.GetDisplayName() },
                     { "returnFormat", onErrorFormat.GetDisplayName() },
                     { "type", redcapDataType.GetDisplayName() }
@@ -4434,7 +4434,7 @@ namespace Redcap
                     var payload = new Dictionary<string, string>
                     {
                         { "token", _token },
-                        { "content", "record" },
+                        { "content", Content.Record.GetDisplayName() },
                         { "format", _inputFormat },
                         { "type", _redcapDataType },
                         { "overwriteBehavior", _overWriteBehavior },
@@ -4497,7 +4497,7 @@ namespace Redcap
                     var payload = new Dictionary<string, string>
                     {
                         { "token", _token },
-                        { "content", "record" },
+                        { "content", Content.Record.GetDisplayName() },
                         { "format", _inputFormat },
                         { "type", _redcapDataType },
                         { "overwriteBehavior", _overWriteBehavior },
@@ -4556,7 +4556,7 @@ namespace Redcap
                     var payload = new Dictionary<string, string>
                     {
                         { "token", _token },
-                        { "content", "record" },
+                        { "content",  Content.Record.GetDisplayName() },
                         { "format", _inputFormat },
                         { "type", _redcapDataType },
                         { "overwriteBehavior", _overWriteBehavior },
@@ -4618,7 +4618,7 @@ namespace Redcap
                     var payload = new Dictionary<string, string>
                     {
                         { "token", _token },
-                        { "content", "record" },
+                        { "content",  Content.Record.GetDisplayName() },
                         { "format", _inputFormat },
                         { "type", _redcapDataType },
                         { "overwriteBehavior", _overWriteBehavior },
@@ -4681,7 +4681,7 @@ namespace Redcap
                     var payload = new Dictionary<string, string>
                     {
                         { "token", _apiToken },
-                        { "content", "record" },
+                        { "content",  Content.Record.GetDisplayName()},
                         { "format", _inputFormat },
                         { "type", _redcapDataType },
                         { "overwriteBehavior", _overWriteBehavior },
@@ -4722,7 +4722,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", _token },
-                    { "content", "metadata" },
+                    { "content",  Content.MetaData.GetDisplayName() },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
@@ -4782,7 +4782,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", _token },
-                    { "content", "metadata" },
+                    { "content", Content.MetaData.GetDisplayName()  },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
@@ -4821,7 +4821,7 @@ namespace Redcap
                 {
                     {"arms", _arms },
                     { "token", _token },
-                    { "content", "event" },
+                    { "content", Content.Event.GetDisplayName()  },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
@@ -4889,7 +4889,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                     {
                         { "token", _token },
-                        { "content", "arm" },
+                        { "content", Content.Arm.GetDisplayName() },
                         { "action", "import" },
                         { "format", _inputFormat },
                         { "type", _redcapDataType },
@@ -4940,7 +4940,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", _token },
-                    { "content", "record" },
+                    { "content", Content.Record.GetDisplayName()  },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat },
                     { "type", _redcapDataType }
@@ -5021,7 +5021,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", _token },
-                    { "content", "record" },
+                    { "content", Content.Record.GetDisplayName()  },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat },
                     { "type", _redcapDataType }
@@ -5101,7 +5101,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", _token },
-                    { "content", "record" },
+                    { "content", Content.Record.GetDisplayName()  },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat },
                     { "type", _redcapDataType }
@@ -5153,7 +5153,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", _token },
-                    { "content", "version" },
+                    { "content", Content.Version.GetDisplayName() },
                     { "format", _inputFormat },
                     { "type", _redcapDataType }
                 };
@@ -5186,7 +5186,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", _token },
-                    { "content", "user" },
+                    { "content", Content.User.GetDisplayName()  },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
@@ -5227,7 +5227,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", _token },
-                    { "content", "record" },
+                    { "content", Content.Record.GetDisplayName() },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat },
                     { "type", _redcapDataType }
@@ -5263,7 +5263,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", _token },
-                    { "content", "event" },
+                    { "content", Content.Event.GetDisplayName() },
                     { "action", "import" },
                     { "format", _inputFormat },
                     { "type", _redcapDataType },
@@ -5306,7 +5306,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", _token },
-                    { "content", "file" },
+                    { "content", Content.File.GetDisplayName() },
                     { "action", "export" },
                     { "record", _record },
                     { "field", _field },
@@ -5361,7 +5361,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", _token },
-                    { "content", "file" },
+                    { "content", Content.File.GetDisplayName() },
                     { "action", "export" },
                     { "record", _record },
                     { "field", _field },
@@ -5509,7 +5509,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", _token },
-                    { "content", "event" },
+                    { "content", Content.Event.GetDisplayName() },
                     { "format", _inputFormat },
                     { "returnFormat", _returnFormat }
                 };
@@ -5523,4 +5523,3 @@ namespace Redcap
         }
         #endregion deprecated
     }
-}
