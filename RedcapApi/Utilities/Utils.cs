@@ -1,5 +1,4 @@
-﻿
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Redcap.Models;
 using Serilog;
 using System;
@@ -87,6 +86,11 @@ namespace Redcap.Utilities
     /// </summary>
     public static class Utils
     {
+
+        /// <summary>
+        /// Controls how strictly a certificate's credentials are observed, for example over ssh tunnels.
+        /// </summary>
+        internal static bool UseInsecureCertificate = false;
 
         /// <summary>
         /// Method gets the display string for an enum
@@ -556,6 +560,18 @@ namespace Redcap.Utilities
             return await Task.FromResult(new List<string> { });
         }
         /// <summary>
+        /// Returns a HttpClientHandler dependent on the value of the UseInsecureCertificate boolean
+        /// </summary>
+        /// <returns>HttpClientHandler</returns>
+        public static HttpClientHandler GetHttpHandler()
+        {
+            return UseInsecureCertificate ? new HttpClientHandler()
+            {
+                UseProxy = false,
+                ServerCertificateCustomValidationCallback = BrokenCertificate.DangerousAcceptAnyServerCertificateValidator
+            } : new HttpClientHandler();
+        }
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="redcapApi"></param>
@@ -567,7 +583,8 @@ namespace Redcap.Utilities
             try
             {
                 Stream stream = null;
-                using (var client = new HttpClient())
+                using(var handler = GetHttpHandler())
+                using (var client = new HttpClient(handler))
                 {
                     // Encode the values for payload
                     var content = new FormUrlEncodedContent(payload);
@@ -601,7 +618,8 @@ namespace Redcap.Utilities
         {
             try
             {
-                using (var client = new HttpClient())
+                using (var handler = GetHttpHandler())
+                using (var client = new HttpClient(handler))
                 {
                     using (var response = await client.PostAsync(uri, payload))
                     {
@@ -634,7 +652,8 @@ namespace Redcap.Utilities
             {
                 string _responseMessage = Empty;
 
-                using (var client = new HttpClient())
+                using (var handler = GetHttpHandler())
+                using (var client = new HttpClient(handler))
                 {
 
                     // extract the filepath
@@ -657,7 +676,7 @@ namespace Redcap.Utilities
                     {
                         /*
                          * Send request with large data set
-                         */ 
+                         */
 
                         var serializedPayload = JsonConvert.SerializeObject(payload);
                         using (var content = new StringContent(serializedPayload, Encoding.UTF8, "application/json"))
@@ -773,7 +792,8 @@ namespace Redcap.Utilities
         public static async Task<string> SendPostRequest(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri)
         {
             string responseString;
-            using (var client = new HttpClient())
+            using (var handler = GetHttpHandler())
+            using (var client = new HttpClient(handler))
             {
                 // Encode the values for payload
                 using (var content = new FormUrlEncodedContent(payload))
