@@ -25,6 +25,7 @@ Bug fixes</PackageReleaseNotes>
     <FileVersion>1.0.7.0</FileVersion>
     <PackageLicenseUrl>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</PackageLicenseUrl>
     <Copyright>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</Copyright>
+    <PackageIconUrl>https://vortex.cctr.vcu.edu/images/ram_crest_160.png</PackageIconUrl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>false</Optimize>
