@@ -1,7 +1,8 @@
-﻿using Newtonsoft.Json;
-using Redcap.Http;
+﻿using Redcap.Http;
 using Redcap.Models;
+
 using Serilog;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -12,8 +13,10 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+
 using Xunit.Abstractions;
 using Xunit.Sdk;
+
 using static System.String;
 
 namespace Redcap.Utilities
@@ -83,7 +86,7 @@ namespace Redcap.Utilities
         }
     }
     /// <summary>
-    /// Utility class for extension methods
+    /// Utilities
     /// </summary>
     public static class Utils
     {
@@ -131,7 +134,7 @@ namespace Redcap.Utilities
                 fileName = fileName.Replace("\"", "");
                 /*
                  * Add extension
-                 */ 
+                 */
                 if (!string.IsNullOrEmpty(fileExtension))
                 {
                     fileName = fileName + "." + fileExtension;
@@ -145,10 +148,10 @@ namespace Redcap.Utilities
                     }
                 );
             }
-            catch(Exception Ex)
+            catch (Exception Ex)
             {
                 Log.Error(Ex.Message);
-                if(filestream != null)
+                if (filestream != null)
                 {
                     filestream.Flush();
                 }
@@ -584,7 +587,7 @@ namespace Redcap.Utilities
             try
             {
                 Stream stream = null;
-                using(var handler = GetHttpHandler())
+                using (var handler = GetHttpHandler())
                 using (var client = new HttpClient(handler))
                 {
                     // Encode the values for payload
@@ -722,13 +725,14 @@ namespace Redcap.Utilities
                 Log.Error($"{Ex.Message}");
                 return Empty;
             }
-        }        /// <summary>
-                 /// Sends http request to api
-                 /// </summary>
-                 /// <param name="redcapApi"></param>
-                 /// <param name="payload">data </param>
-                 /// <param name="uri">URI of the api instance</param>
-                 /// <returns>string</returns>
+        }
+        /// <summary>
+        /// Sends http request to api
+        /// </summary>
+        /// <param name="redcapApi"></param>
+        /// <param name="payload">data </param>
+        /// <param name="uri">URI of the api instance</param>
+        /// <returns>string</returns>
         public static async Task<string> SendPostRequest(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri)
         {
             string responseString;
