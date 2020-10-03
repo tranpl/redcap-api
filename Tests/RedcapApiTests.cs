@@ -52,7 +52,7 @@ namespace Tests
             keyValues.Add("redcap_repeat_instrument", "demographics");
             data.Add(keyValues);
             // Act
-            var result = await _redcapApi.ImportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, OverwriteBehavior.normal, false, data, "MDY", ReturnContent.count, OnErrorFormat.json);
+            var result = await _redcapApi.ImportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, OverwriteBehavior.normal, false, data, "MDY", CsvDelimiter.comma, ReturnContent.count, OnErrorFormat.json);
 
             // Assert 
             // Expecting a string of 1 since we are importing one record
@@ -68,7 +68,7 @@ namespace Tests
              * Using API Version 1.0.0+
              */
             // executing method using default options
-            var result = _redcapApi.ImportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, OverwriteBehavior.normal, false, data, "MDY", ReturnContent.count, OnErrorFormat.json).Result;
+            var result = _redcapApi.ImportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, OverwriteBehavior.normal, false, data, "MDY", CsvDelimiter.comma, ReturnContent.count, OnErrorFormat.json).Result;
 
             var res = JsonConvert.DeserializeObject(result).ToString();
 
@@ -87,7 +87,7 @@ namespace Tests
             keyValues.Add("record_id", "8");
             record.Add(keyValues);
             // import records so we can delete it for this test
-            await _redcapApi.ImportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, OverwriteBehavior.normal, true, record, "MDY", ReturnContent.count, OnErrorFormat.json);
+            await _redcapApi.ImportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, OverwriteBehavior.normal, true, record, "MDY", CsvDelimiter.comma, ReturnContent.count, OnErrorFormat.json);
 
             var records = new string[]
             {
@@ -792,7 +792,7 @@ namespace Tests
             keyValues.Add("record_id", "8");
             data.Add(keyValues);
             // import a record so we can test
-            await _redcapApi.ImportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, OverwriteBehavior.normal, false, data, "MDY", ReturnContent.count, OnErrorFormat.json);
+            await _redcapApi.ImportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, OverwriteBehavior.normal, false, data, "MDY", CsvDelimiter.comma, ReturnContent.count, OnErrorFormat.json);
 
             var records = new string[] { "8" };
 
@@ -833,7 +833,7 @@ namespace Tests
             keyValues.Add("redcap_repeat_instrument", redcapEvent.FormName);
             data.Add(keyValues);
             // import a record so we can test
-            await _redcapApi.ImportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, OverwriteBehavior.normal, false, data, "MDY", ReturnContent.count, OnErrorFormat.json);
+            await _redcapApi.ImportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, OverwriteBehavior.normal, false, data, "MDY", CsvDelimiter.comma, ReturnContent.count, OnErrorFormat.json);
             var records = new string[] { "8" };
 
             // Act
