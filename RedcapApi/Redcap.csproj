@@ -44,7 +44,7 @@
     <Compile Remove="bin\**" />
     <EmbeddedResource Remove="bin\**" />
     <None Remove="bin\**" />
-    <None Include="C:\Users\tranp\Pictures\ram_crest_160.png">
+    <None Include="..\ram_crest_160.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
