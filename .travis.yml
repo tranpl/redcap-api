@@ -1,7 +1,6 @@
 language: csharp
-solution: RedcapApi.sln
 mono: none
-dotnet: 3.1.8
+dotnet: 2.0.0
 script:
   - dotnet restore
   - dotnet build ./RedcapApi/
