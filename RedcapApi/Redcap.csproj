@@ -24,9 +24,11 @@
     <StartupObject />
     <NeutralLanguage>en</NeutralLanguage>
     <FileVersion>1.0.9.0</FileVersion>
-    <PackageLicenseUrl>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</PackageLicenseUrl>
+    <license>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</license>
     <Copyright>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</Copyright>
-    <PackageIconUrl>https://vortex.cctr.vcu.edu/images/ram_crest_160.png</PackageIconUrl>
+    <icon>https://vortex.cctr.vcu.edu/images/ram_crest_160.png</icon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>ram_crest_160.png</PackageIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>false</Optimize>
@@ -36,12 +38,16 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\netcoreapp1.1\Redcap.xml</DocumentationFile>
+    <DocumentationFile>D:\Github\redcap-api\RedcapApi\Redcap.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="bin\**" />
     <EmbeddedResource Remove="bin\**" />
     <None Remove="bin\**" />
+    <None Include="C:\Users\tranp\Pictures\ram_crest_160.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
