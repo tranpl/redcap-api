@@ -2863,6 +2863,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
+        /// Updated with version 10.3.0 improvements
         /// Import Records
         /// This method allows you to import a set of records for a project
         /// </summary>
@@ -2880,16 +2881,19 @@ namespace Redcap
         /// <param name="overwriteBehavior">
         /// normal - blank/empty values will be ignored [default]
         /// overwrite - blank/empty values are valid and will overwrite data</param>
-        /// <param name="forceAutoNumber">If record auto-numbering has been enabled in the project, it may be desirable to import records where each record's record name is automatically determined by REDCap (just as it does in the user interface). If this parameter is set to 'true', the record names provided in the request will not be used (although they are still required in order to associate multiple rows of data to an individual record in the request), but instead those records in the request will receive new record names during the import process. NOTE: To see how the provided record names get translated into new auto record names, the returnContent parameter should be set to 'auto_ids', which will return a record list similar to 'ids' value, but it will have the new record name followed by the provided record name in the request, in which the two are comma-delimited. For example, if 
+        /// <param name="forceAutoNumber">If record auto-numbering has been enabled in the project, it may be desirable to import records where each record's record name is automatically determined by REDCap (just as it does in the user interface). 
+        /// If this parameter is set to 'true', the record names provided in the request will not be used (although they are still required in order to associate multiple rows of data to an individual record in the request), but instead those records in the request will receive new record names during the import process. 
+        /// NOTE: To see how the provided record names get translated into new auto record names, the returnContent parameter should be set to 'auto_ids', which will return a record list similar to 'ids' value, but it will have the new record name followed by the provided record name in the request, in which the two are comma-delimited. For example, if 
         /// false (or 'false') - The record names provided in the request will be used. [default]
         /// true (or 'true') - New record names will be automatically determined.</param>
         /// <param name="data">The formatted data to be imported. The data should be a List of Dictionary(string,string) or object that contains the fields and values.
         /// NOTE: When importing data in EAV type format, please be aware that checkbox fields must have their field_name listed as variable+'___'+optionCode and its value as either '0' or '1' (unchecked or checked, respectively). For example, for a checkbox field with variable name 'icecream', it would be imported as EAV with the field_name as 'icecream___4' having a value of '1' in order to set the option coded with '4' (which might be 'Chocolate') as 'checked'.</param>
         /// <param name="dateFormat">MDY, DMY, YMD [default] - the format of values being imported for dates or datetime fields (understood with M representing 'month', D as 'day', and Y as 'year') - NOTE: The default format is Y-M-D (with dashes), while MDY and DMY values should always be formatted as M/D/Y or D/M/Y (with slashes), respectively.</param>
+        /// <param name="csvDelimiter">Set the delimiter used to separate values in the CSV data file (for CSV format only). Options include: comma ',' (default), 'tab', semi-colon ';', pipe '|', or caret '^'. Simply provide the value in quotes for this parameter.</param>
         /// <param name="returnContent">count [default] - the number of records imported, ids - a list of all record IDs that were imported, auto_ids = (used only when forceAutoNumber=true) a list of pairs of all record IDs that were imported, includes the new ID created and the ID value that was sent in the API request (e.g., 323,10). </param>
         /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>the content specified by returnContent</returns>
-        public async Task<string> ImportRecordsAsync<T>(string token, ReturnFormat format, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, List<T> data, string dateFormat, ReturnContent returnContent = ReturnContent.count, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        public async Task<string> ImportRecordsAsync<T>(string token, ReturnFormat format, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, List<T> data, string dateFormat = "", CsvDelimiter csvDelimiter = CsvDelimiter.tab, ReturnContent returnContent = ReturnContent.count, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
             try
             {
@@ -2904,6 +2908,7 @@ namespace Redcap
                     { "type", redcapDataType.GetDisplayName() },
                     { "overwriteBehavior", overwriteBehavior.ToString() },
                     { "forceAutoNumber", forceAutoNumber.ToString() },
+                    { "csvDelimiter", csvDelimiter.ToString() },
                     { "data", _serializedData },
                     { "returnFormat", onErrorFormat.GetDisplayName() }
                 };
@@ -2930,6 +2935,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
+        /// Updated with version 10.3.0 improvements
         /// Import Records
         /// This method allows you to import a set of records for a project
         /// </summary>
@@ -2954,16 +2960,15 @@ namespace Redcap
         /// <param name="data">The formatted data to be imported. The data should be a List of Dictionary(string,string) or object that contains the fields and values.
         /// NOTE: When importing data in EAV type format, please be aware that checkbox fields must have their field_name listed as variable+'___'+optionCode and its value as either '0' or '1' (unchecked or checked, respectively). For example, for a checkbox field with variable name 'icecream', it would be imported as EAV with the field_name as 'icecream___4' having a value of '1' in order to set the option coded with '4' (which might be 'Chocolate') as 'checked'.</param>
         /// <param name="dateFormat">MDY, DMY, YMD [default] - the format of values being imported for dates or datetime fields (understood with M representing 'month', D as 'day', and Y as 'year') - NOTE: The default format is Y-M-D (with dashes), while MDY and DMY values should always be formatted as M/D/Y or D/M/Y (with slashes), respectively.</param>
+        /// <param name="csvDelimiter">Set the delimiter used to separate values in the CSV data file (for CSV format only). Options include: comma ',' (default), 'tab', semi-colon ';', pipe '|', or caret '^'. Simply provide the value in quotes for this parameter.</param>
         /// <param name="returnContent">count [default] - the number of records imported, ids - a list of all record IDs that were imported, auto_ids = (used only when forceAutoNumber=true) a list of pairs of all record IDs that were imported, includes the new ID created and the ID value that was sent in the API request (e.g., 323,10). </param>
         /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>the content specified by returnContent</returns>
-        public async Task<string> ImportRecordsAsync<T>(string token, Content content, ReturnFormat format, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, List<T> data, string dateFormat, ReturnContent returnContent = ReturnContent.count, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        public async Task<string> ImportRecordsAsync<T>(string token, Content content, ReturnFormat format, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, List<T> data, string dateFormat = "", CsvDelimiter csvDelimiter = CsvDelimiter.tab, ReturnContent returnContent = ReturnContent.count, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
             try
             {
                 this.CheckToken(token);
-
-
                 var _serializedData = JsonConvert.SerializeObject(data);
 
                 var payload = new Dictionary<string, string>
@@ -2974,6 +2979,7 @@ namespace Redcap
                     { "type", redcapDataType.GetDisplayName() },
                     { "overwriteBehavior", overwriteBehavior.ToString() },
                     { "forceAutoNumber", forceAutoNumber.ToString() },
+                    { "csvDelimiter", csvDelimiter.ToString() },
                     { "data", _serializedData },
                     { "returnFormat", onErrorFormat.GetDisplayName() }
                 };
