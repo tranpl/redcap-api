@@ -1,14 +1,18 @@
-﻿using Newtonsoft.Json;
-using Redcap.Interfaces;
-using Redcap.Models;
-using Redcap.Utilities;
-using Serilog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+
+using Newtonsoft.Json;
+
+using Redcap.Interfaces;
+using Redcap.Models;
+using Redcap.Utilities;
+
+using Serilog;
+
 using static System.String;
 
 namespace Redcap
@@ -78,7 +82,246 @@ namespace Redcap
         }
 
         #region API Version 1.0.0+ Begin
+        #region Data Access Groups
+        /// <summary>
+        /// POST
+        /// Export DAGs
+        /// This method allows you to export the Data Access Groups for a project
+        /// <remarks>
+        /// To use this method, you must have API Export privileges in the project.
+        /// </remarks>
+        /// </summary>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">dag</param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>DAGs for the project in the format specified</returns>
+        public async Task<string> ExportDagsAsync(string token, Content content, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        {
+            var exportDagsResults = string.Empty;
+            try
+            {
+                // Check for presence of token
+                this.CheckToken(token);
 
+                // Request payload
+                var payload = new Dictionary<string, string>
+                    {
+                        { "token", token },
+                        { "content", Content.Dag.GetDisplayName() },
+                        { "format", format.GetDisplayName() },
+                        { "returnFormat", onErrorFormat.GetDisplayName() }
+                    };
+                exportDagsResults = await this.SendPostRequestAsync(payload, _uri);
+                return exportDagsResults;
+
+            }
+            catch (Exception Ex)
+            {
+                /*
+                 * We'll just log the error and return the error message.
+                 */
+                Log.Error($"{Ex.Message}");
+                return exportDagsResults;
+            }
+        }
+        /// <summary>
+        /// POST
+        /// Import DAGs
+        /// This method allows you to import new DAGs (Data Access Groups) into a project or update the group name of any existing DAGs.
+        /// NOTE: DAGs can be renamed by simply changing the group name(data_access_group_name). DAG can be created by providing group name value while unique group name should be set to blank.
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">dags</param>
+        /// <param name="action">import</param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="data">Contains the attributes 'data_access_group_name' (referring to the group name) and 'unique_group_name' (referring to the auto-generated unique group name) of each DAG to be created/modified, in which they are provided in the specified format.
+        /// Refer to the API documenations for additional examples.
+        /// JSON Example:
+        /// [{"data_access_group_name":"CA Site","unique_group_name":"ca_site"}
+        /// {"data_access_group_name":"FL Site","unique_group_name":"fl_site"},
+        /// { "data_access_group_name":"New Site","unique_group_name":""}]
+        /// CSV Example:
+        /// data_access_group_name,unique_group_name
+        /// "CA Site",ca_site
+        /// "FL Site",fl_site
+        /// "New Site",
+        /// </param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>Number of DAGs added or updated</returns>
+        public async Task<string> ImportDagsAsync<T>(string token, Content content, RedcapAction action, ReturnFormat format, List<T> data, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        {
+            var importDagsResults = string.Empty;
+            try
+            {
+                // Check for presence of token
+                this.CheckToken(token);
+
+                var _serializedData = JsonConvert.SerializeObject(data);
+                var payload = new Dictionary<string, string>
+                    {
+                        { "token", token },
+                        { "content", content.GetDisplayName() },
+                        { "action", action.GetDisplayName() },
+                        { "format", format.GetDisplayName() },
+                        { "returnFormat", onErrorFormat.GetDisplayName() },
+                        { "data", _serializedData }
+                    };
+                // Execute request
+                return await this.SendPostRequestAsync(payload, _uri);
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return importDagsResults;
+            }
+        }
+        /// <summary>
+        /// POST
+        /// Delete DAGs
+        /// This method allows you to delete DAGs from a project.
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges in the project.
+        /// </remarks>
+        /// </summary>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">dag</param>
+        /// <param name="action">delete</param>
+        /// <param name="dags">an array of unique group names that you wish to delete</param>
+        /// <returns>Number of DAGs deleted</returns>
+        public async Task<string> DeleteDagsAsync(string token, Content content, RedcapAction action, string[] dags)
+        {
+            var deleteDagsResult = string.Empty;
+            try
+            {
+                // Check for presence of token
+                this.CheckToken(token);
+
+                // Check for any dags
+                if (dags.Length < 1)
+                {
+                    throw new InvalidOperationException($"No dags to delete.");
+                }
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "action", action.GetDisplayName() }
+                };
+                // Required
+                for (var i = 0; i < dags.Length; i++)
+                {
+                    payload.Add($"dags[{i}]", dags[i].ToString());
+                }
+                // Execute request
+                deleteDagsResult = await this.SendPostRequestAsync(payload, _uri);
+                return deleteDagsResult;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return deleteDagsResult;
+            }
+        }
+        /// <summary>
+        /// POST
+        /// Export User-DAG Assignments
+        /// This method allows you to export existing User-DAG assignments for a project
+        /// <remarks>
+        /// To use this method, you must have API Export privileges in the project.
+        /// </remarks>
+        /// </summary>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">userDagMapping</param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>User-DAG assignments for the project in the format specified</returns>
+        public async Task<string> ExportUserDagAssignmentAsync(string token, Content content, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        {
+            var exportUserDagAssignmentResult = string.Empty;
+            try
+            {
+                // Check for presence of token
+                this.CheckToken(token);
+
+                // Request payload
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "format", format.GetDisplayName() },
+                    { "returnFormat", onErrorFormat.GetDisplayName() }
+                };
+                exportUserDagAssignmentResult = await this.SendPostRequestAsync(payload, _uri);
+                return exportUserDagAssignmentResult;
+
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return exportUserDagAssignmentResult;
+            }
+        }
+        /// <summary>
+        /// POST
+        /// Import User-DAG Assignments
+        /// This method allows you to assign users to any data access group.
+        /// NOTE: If you wish to modify an existing mapping, you *must* provide its unique username and group name.If the 'redcap_data_access_group' column is not provided, user will not assigned to any group.There should be only one record per username.
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges in the project.
+        /// </remarks>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">userDagMapping</param>
+        /// <param name="action">import</param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="data">
+        /// Contains the attributes 'username' (referring to the existing unique username) and 'redcap_data_access_group' (referring to existing unique group name) of each User-DAG assignments to be modified, in which they are provided in the specified format.
+        /// JSON Example:
+        /// [{"username":"ca_dt_person","redcap_data_access_group":"ca_site"},
+        /// {"username":"fl_dt_person","redcap_data_access_group":"fl_site"},
+        /// { "username":"global_user","redcap_data_access_group":""}]
+        /// CSV Example:
+        /// username,redcap_data_access_group
+        /// ca_dt_person, ca_site
+        /// fl_dt_person, fl_site
+        /// global_user,
+        /// </param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>Number of User-DAG assignments added or updated</returns>
+        public async Task<string> ImportUserDagAssignmentAsync<T>(string token, Content content, RedcapAction action, ReturnFormat format, List<T> data, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        {
+            var ImportUserDagAssignmentResults = string.Empty;
+            try
+            {
+                // Check for presence of token
+                this.CheckToken(token);
+
+                var _serializedData = JsonConvert.SerializeObject(data);
+                var payload = new Dictionary<string, string>
+                    {
+                        { "token", token },
+                        { "content", content.GetDisplayName() },
+                        { "action", action.GetDisplayName() },
+                        { "format", format.GetDisplayName() },
+                        { "returnFormat", onErrorFormat.GetDisplayName() },
+                        { "data", _serializedData }
+                    };
+                // Execute request
+                return await this.SendPostRequestAsync(payload, _uri);
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return ImportUserDagAssignmentResults;
+            }
+        }
+
+        #endregion
         #region Arms
         /// <summary>
         /// API Version 1.0.0+ **
@@ -221,7 +464,7 @@ namespace Redcap
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns>Number of Arms imported</returns>
-        public async Task<string> ImportArmsAsync<T>(string token, Override overrideBhavior, RedcapAction action, ReturnFormat format, List<T> data, OnErrorFormat returnFormat)
+        public async Task<string> ImportArmsAsync<T>(string token, Override overrideBhavior, RedcapAction action, ReturnFormat format, List<T> data, OnErrorFormat returnFormat = OnErrorFormat.json)
         {
             try
             {
@@ -3628,7 +3871,7 @@ namespace Redcap
                 return Ex.Message;
             }
         }
-        
+
         /// <summary>
         /// API Version 1.0.0+
         /// From Redcap Version 6.4.0
@@ -3713,7 +3956,7 @@ namespace Redcap
                 return Ex.Message;
             }
         }
-        
+
         /// <summary>
         /// API Version 1.0.0+
         /// From Redcap Version 6.4.0

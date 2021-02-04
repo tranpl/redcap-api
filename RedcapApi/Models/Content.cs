@@ -8,6 +8,8 @@ namespace Redcap.Models
     /// </summary>
     public enum Content
     {
+        [Display(Name = "userDagMapping")]
+        UserDagMapping,
         /// <summary>
         /// Dag Content
         /// </summary>
