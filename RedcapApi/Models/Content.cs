@@ -9,6 +9,11 @@ namespace Redcap.Models
     public enum Content
     {
         /// <summary>
+        /// Dag Content
+        /// </summary>
+        [Display(Name = "dag")]
+        Dag,
+        /// <summary>
         /// Arm Content
         /// </summary>
         /// 
