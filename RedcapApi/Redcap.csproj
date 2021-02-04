@@ -10,20 +10,24 @@
     <Description>This library allows applications on the .NET platform to make http calls to REDCap instances.</Description>
     <Product>Redcap Api Library</Product>
     <PackageId>RedcapAPI</PackageId>
-    <Version>1.0.9</Version>
-    <AssemblyVersion>1.0.9.0</AssemblyVersion>
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <PackageTags>redcap api library vcu</PackageTags>
-    <PackageReleaseNotes>- add improvements to 'ImportRecordsAsync'
-  Add ability to declare csv delimiter to match REDCap's API paramters
-- minor update documentation
-- Minor version bump
-</PackageReleaseNotes>
+    <PackageReleaseNotes>New APIs have been added!
+-ExportLoggingAsync
+-ExportDagsAsync
+-ImportDagsAsync
+-DeleteDagsAsync
+-ExportUserDagAssignmentAsync
+-ImportUserDagAssignmentAsync
+Minor bugs fixes to existing APIs regarding optional parameters.
+Version bump</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />
     <NeutralLanguage>en</NeutralLanguage>
-    <FileVersion>1.0.9.0</FileVersion>
+    <FileVersion>1.1.0.0</FileVersion>
     <license>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</license>
     <Copyright>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</Copyright>
     <icon>https://vortex.cctr.vcu.edu/images/ram_crest_160.png</icon>
@@ -32,7 +36,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>false</Optimize>
-    <DocumentationFile>bin\Debug\netcoreapp2.0\Redcap.xml</DocumentationFile>
+    <DocumentationFile></DocumentationFile>
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <PlatformTarget>AnyCPU</PlatformTarget>
