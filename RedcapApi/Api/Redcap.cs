@@ -82,6 +82,75 @@ namespace Redcap
         }
 
         #region API Version 1.0.0+ Begin
+        #region Logging
+        /// <summary>
+        /// API @Version 10.8
+        /// POST
+        /// Export Logging
+        /// This method allows you to export the logging (audit trail) of all changes made to this project, including data exports, data changes, project metadata changes, modification of user rights, etc.
+        /// <remarks>
+        /// To use this method, you must have API Export privileges in the project.
+        /// </remarks>
+        /// </summary>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">log</param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="logType">You may choose event type to fetch result for specific event type</param>
+        /// <param name="user">To return only the events belong to specific user (referring to existing username), provide a user. If not specified, it will assume all users</param>
+        /// <param name="record">To return only the events belong to specific record (referring to existing record name), provide a record. If not specified, it will assume all records. This parameter is available only when event is related to record.</param>
+        /// <param name="dag">To return only the events belong to specific DAG (referring to group_id), provide a dag. If not specified, it will assume all dags.</param>
+        /// <param name="beginTime">To return only the events that have been logged *after* a given date/time, provide a timestamp in the format YYYY-MM-DD HH:MM (e.g., '2017-01-01 17:00' for January 1, 2017 at 5:00 PM server time). If not specified, it will assume no begin time.</param>
+        /// <param name="endTime">To return only records that have been logged *before* a given date/time, provide a timestamp in the format YYYY-MM-DD HH:MM (e.g., '2017-01-01 17:00' for January 1, 2017 at 5:00 PM server time). If not specified, it will use the current server time.</param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>List of all changes made to this project, including data exports, data changes, and the creation or deletion of users.</returns>
+        public async Task<string> ExportLoggingAsync(string token, Content content, ReturnFormat format = ReturnFormat.json, LogType logType = LogType.All, string user = null, string record = null, string dag = null, string beginTime = null, string endTime = null, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        {
+            var exportLoggingResults = string.Empty;
+            try
+            {
+                // Check for presence of token
+                this.CheckToken(token);
+
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "format", format.GetDisplayName() },
+                    { "returnFormat", onErrorFormat.GetDisplayName() },
+                    { "logtype", logType.GetDisplayName() }
+                };
+
+                // Optional
+                if (!string.IsNullOrEmpty(user))
+                {
+                    payload.Add("user", user);
+                }
+                if (!string.IsNullOrEmpty(record))
+                {
+                    payload.Add("record", record);
+                }
+                if (!string.IsNullOrEmpty(dag))
+                {
+                    payload.Add("dag", dag);
+                }
+                if (!string.IsNullOrEmpty(beginTime))
+                {
+                    payload.Add("beginTime", beginTime);
+                }
+                if (!string.IsNullOrEmpty(endTime))
+                {
+                    payload.Add("endTime", endTime);
+                }
+                exportLoggingResults = await this.SendPostRequestAsync(payload, _uri);
+                return exportLoggingResults;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return exportLoggingResults;
+            }
+        }
+        #endregion
         #region Data Access Groups
         /// <summary>
         /// POST
@@ -108,7 +177,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                     {
                         { "token", token },
-                        { "content", Content.Dag.GetDisplayName() },
+                        { "content", content.GetDisplayName() },
                         { "format", format.GetDisplayName() },
                         { "returnFormat", onErrorFormat.GetDisplayName() }
                     };
@@ -118,9 +187,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return exportDagsResults;
             }
