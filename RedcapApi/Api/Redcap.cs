@@ -195,7 +195,8 @@ namespace Redcap
         /// POST
         /// Import DAGs
         /// This method allows you to import new DAGs (Data Access Groups) into a project or update the group name of any existing DAGs.
-        /// NOTE: DAGs can be renamed by simply changing the group name(data_access_group_name). DAG can be created by providing group name value while unique group name should be set to blank.
+        /// NOTE: DAGs can be renamed by simply changing the group name(data_access_group_name). 
+        /// DAG can be created by providing group name value while unique group name should be set to blank.
         /// </summary>
         /// <remarks>
         /// To use this method, you must have API Import/Update privileges in the project.
@@ -237,7 +238,8 @@ namespace Redcap
                         { "data", _serializedData }
                     };
                 // Execute request
-                return await this.SendPostRequestAsync(payload, _uri);
+                importDagsResults =  await this.SendPostRequestAsync(payload, _uri);
+                return importDagsResults;
             }
             catch (Exception Ex)
             {
@@ -3275,6 +3277,7 @@ namespace Redcap
         /// <returns>the content specified by returnContent</returns>
         public async Task<string> ImportRecordsAsync<T>(string token, Content content, ReturnFormat format, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, List<T> data, string dateFormat = "", CsvDelimiter csvDelimiter = CsvDelimiter.tab, ReturnContent returnContent = ReturnContent.count, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
+            var importRecordsResults = string.Empty;
             try
             {
                 this.CheckToken(token);
@@ -3301,15 +3304,13 @@ namespace Redcap
                 {
                     payload.Add("returnContent", returnContent.ToString());
                 }
-                return await this.SendPostRequestAsync(payload, _uri);
+                importRecordsResults = await this.SendPostRequestAsync(payload, _uri);
+                return importRecordsResults;
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
-                return Ex.Message;
+                return importRecordsResults;
             }
         }
 
