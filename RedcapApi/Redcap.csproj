@@ -20,8 +20,8 @@
 -DeleteDagsAsync
 -ExportUserDagAssignmentAsync
 -ImportUserDagAssignmentAsync
-Minor bugs fixes to existing APIs regarding optional parameters.
-Version bump</PackageReleaseNotes>
+-Added models to support new APIs
+Minor bugs fixes to existing APIs regarding optional parameters.</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
