@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <Authors>Michael Tran</Authors>
     <Company>Virginia Commonwealth University</Company>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -10,51 +10,57 @@
     <Description>This library allows applications on the .NET platform to make http calls to REDCap instances.</Description>
     <Product>Redcap Api Library</Product>
     <PackageId>RedcapAPI</PackageId>
-    <Version>1.0.9</Version>
-    <AssemblyVersion>1.0.9.0</AssemblyVersion>
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <PackageTags>redcap api library vcu</PackageTags>
-    <PackageReleaseNotes>- add improvements to 'ImportRecordsAsync'
-  Add ability to declare csv delimiter to match REDCap's API paramters
-- minor update documentation
-- Minor version bump
-</PackageReleaseNotes>
+    <PackageReleaseNotes>New APIs have been added!
+-ExportLoggingAsync
+-ExportDagsAsync
+-ImportDagsAsync
+-DeleteDagsAsync
+-ExportUserDagAssignmentAsync
+-ImportUserDagAssignmentAsync
+-Added models to support new APIs
+Minor bugs fixes to existing APIs regarding optional parameters.</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />
     <NeutralLanguage>en</NeutralLanguage>
-    <FileVersion>1.0.9.0</FileVersion>
+    <FileVersion>1.1.0.0</FileVersion>
     <license>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</license>
     <Copyright>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</Copyright>
     <icon>https://vortex.cctr.vcu.edu/images/ram_crest_160.png</icon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageIcon>ram_crest_160.png</PackageIcon>
+    <PackageIcon>vcu.png</PackageIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>false</Optimize>
-    <DocumentationFile>bin\Debug\netcoreapp2.0\Redcap.xml</DocumentationFile>
+    <DocumentationFile></DocumentationFile>
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>D:\Github\redcap-api\RedcapApi\Redcap.xml</DocumentationFile>
+    <DocumentationFile></DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="bin\**" />
     <EmbeddedResource Remove="bin\**" />
     <None Remove="bin\**" />
-    <None Include="..\ram_crest_160.png">
+    <None Include="..\vcu.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="Serilog" Version="2.7.1" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="RestSharp" Version="106.11.7" />
+    <PackageReference Include="Serilog" Version="2.10.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageReference Include="System.Text.Json" Version="5.0.1" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Include="xunit.extensibility.core" Version="2.4.0" />
+    <PackageReference Include="xunit.extensibility.core" Version="2.4.1" />
     <Content Include="Models\RedcapMetaData.cs" />
     <Content Include="Models\RecordStatus.cs" />
   </ItemGroup>

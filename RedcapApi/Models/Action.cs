@@ -7,7 +7,7 @@ using System.Text;
 namespace Redcap.Models
 {
     /// <summary>
-    /// API Action 
+    /// API Action => Export, Import, Delete 
     /// </summary>
     public enum RedcapAction
     {

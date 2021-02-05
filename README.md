@@ -13,6 +13,10 @@ __Prerequisites__
 5.  Build the solution, then run the tests
 
 __API METHODS SUPPORTED (Not all listed)__
+* ExportLoggingAsync
+* ExportDagsAsync
+* ImportDagsAsync
+* DeleteDagsAsync
 * ExportArmsAsync
 * ImportArmsAsync
 * DeleteArmsAsync
@@ -54,7 +58,7 @@ namespace RedcapApiDemo
             Console.WriteLine("Redcap Api Demo Started!");
             // Use your own API Token here...
             var apiToken = "3D57A7FA57C8A43F6C8803A84BB3957B";
-            var redcap_api = new RedcapApi("http://localhost/redcap/api/");
+            var redcap_api = new RedcapApi("https://localhost/redcap/api/");
 
             Console.WriteLine("Exporting all records from project.");
             var result = redcap_api.ExportRecordsAsync(apiToken).Result;
@@ -73,21 +77,21 @@ __Install directly in Package Manager Console or Command Line Interface__
 ```C#
 Package Manager
 
-Install-Package RedcapAPI -Version 1.0.9
+Install-Package RedcapAPI -Version 1.1.0
 
 ```
 
 ```C#
 .NET CLI
 
-dotnet add package RedcapAPI --version 1.0.9
+dotnet add package RedcapAPI --version 1.1.0
 
  ```
 
 ```C#
 Paket CLI
 
-paket add RedcapAPI --version 1.0.9
+paket add RedcapAPI --version 1.1.0
 
 ```
 

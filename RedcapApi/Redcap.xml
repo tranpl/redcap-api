@@ -3626,6 +3626,26 @@
             </summary>
             
         </member>
+        <member name="T:Redcap.Models.Demographic">
+            <summary>
+            Simplified demographics instrument that we can test with.
+            </summary>
+        </member>
+        <member name="P:Redcap.Models.Demographic.RecordId">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Redcap.Models.Demographic.FirstName">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Redcap.Models.Demographic.LastName">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="T:Redcap.Models.ReturnFormat">
             <summary>
             The format that the response object should be when returned from the http request.
