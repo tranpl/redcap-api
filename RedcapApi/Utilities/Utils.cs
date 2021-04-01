@@ -677,7 +677,7 @@ namespace Redcap.Utilities
                             {
                                 // Get the filename so we can save with the name
                                 var headers = response.Content.Headers;
-                                var fileName = headers.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
+                                var fileName = headers.ContentType?.Parameters.Select(x => x.Value).FirstOrDefault();
                                 if (!string.IsNullOrEmpty(fileName))
                                 {
                                     var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
