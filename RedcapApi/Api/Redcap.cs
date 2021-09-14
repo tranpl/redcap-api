@@ -18,6 +18,8 @@ using Redcap.Utilities;
 using Serilog;
 
 using static System.String;
+using Xunit;
+using static System.Collections.Specialized.BitVector32;
 
 namespace Redcap
 {
@@ -301,6 +303,7 @@ namespace Redcap
         }
         /// <summary>
         /// From Redcap Version 11.3.1
+        /// 
         /// Switch DAG
         /// This method allows the current API user to switch (assign/reassign/unassign) their current Data Access Group assignment if they have been assigned to multiple DAGs via the DAG Switcher page in the project.
         /// <remarks>
@@ -315,9 +318,31 @@ namespace Redcap
 
         public async Task<string> SwitchDagAsync(string token, RedcapDag dag, Content content = Content.Dag, RedcapAction action = RedcapAction.Switch)
         {
-            throw new NotImplementedException();
+            var switchDagResult = string.Empty;
+            try
+            {
+                // Check for presence of token
+                this.CheckToken(token);
+
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "dag", dag.UniqueGroupName },
+                    { "content", content.GetDisplayName() },
+                    { "action", action.GetDisplayName() }
+                };
+                // Execute request
+                switchDagResult = await this.SendPostRequestAsync(payload, _uri);
+                return switchDagResult;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return switchDagResult;
+            }
+
         }
-        
+
         public async Task<string> ExportUserDagAssignmentAsync(string token, Content content, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
             var exportUserDagAssignmentResult = string.Empty;
@@ -4462,13 +4487,44 @@ namespace Redcap
         /// To use this method, you must have API Import/Update privileges *and* User Rights privileges in the project.
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="users">an array of unique usernames that you wish to delete</param>
         /// <param name="content">user</param>
         /// <param name="action">delete</param>
-        /// <param name="dags">an array of unique usernames that you wish to delete</param>
         /// <returns>Number of Users deleted</returns>
-        public async Task<string> DeleteUsersAsync(string token, Content content = Content.User, RedcapAction action = RedcapAction.Delete, List<string> users = null)
+        public async Task<string> DeleteUsersAsync(string token, List<string> users, Content content = Content.User, RedcapAction action = RedcapAction.Delete)
         {
-            throw new NotImplementedException();
+            try
+            {
+                /*
+                 * Check the required parameters for empty or null
+                 */
+                if (IsNullOrEmpty(token))
+                {
+                    throw new ArgumentNullException("Please provide a valid Redcap token.");
+                }
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "action",  action.GetDisplayName() }
+                };
+                // Required
+                for (var i = 0; i < users.Count; i++)
+                {
+                    payload.Add($"users[{i}]", users[i]);
+                }
+
+                return await this.SendPostRequestAsync(payload, _uri);
+            }
+            catch (Exception Ex)
+            {
+                /*
+                 * We'll just log the error and return the error message.
+                 */
+                Log.Error($"{Ex.Message}");
+                return Ex.Message;
+            }
+
         }
 
         #endregion Users & User Privileges
@@ -4497,7 +4553,34 @@ namespace Redcap
         /// </returns>
         public async Task<string> ExportUserRolesAsync(string token, Content content = Content.UserRole, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
-            throw new NotImplementedException();    
+            try
+            {
+                /*
+                 * Check the required parameters for empty or null
+                 */
+                if (IsNullOrEmpty(token))
+                {
+                    throw new ArgumentNullException("Please provide a valid Redcap token.");
+                }
+
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "format",  format.GetDisplayName() },
+                    { "returnFormat",  onErrorFormat.GetDisplayName() }
+                };
+
+                return await this.SendPostRequestAsync(payload, _uri);
+            }
+            catch (Exception Ex)
+            {
+                /*
+                 * We'll just log the error and return the error message.
+                 */
+                Log.Error($"{Ex.Message}");
+                return Ex.Message;
+            }
         }
 
 
@@ -4522,9 +4605,30 @@ namespace Redcap
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Number of user roles added or updated</returns>
-        public async Task<string> ImportUserRolesAsync<T>(string token, List<T> data, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        public async Task<string> ImportUserRolesAsync<T>(string token, List<T> data, Content content = Content.UserRole,  ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
-            throw new NotImplementedException();
+            var importUserRolesResult = string.Empty;
+            try
+            {
+                var _serializedData = JsonConvert.SerializeObject(data);
+                var payload = new Dictionary<string, string>
+                    {
+                        { "token", _token },
+                        { "content", content.ToString() },
+                        { "format", format.ToString() },
+                        { "returnFormat", onErrorFormat.ToString() },
+                        { "data", _serializedData }
+                    };
+                // Execute request
+                importUserRolesResult = await this.SendPostRequestAsync(payload, _uri);
+                return importUserRolesResult;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return importUserRolesResult;
+            }
+
         }
 
         /// <summary>
@@ -4543,7 +4647,39 @@ namespace Redcap
         /// <returns>Number of User Roles deleted</returns>
         public async Task<string> DeleteUserRolesAsync(string token, List<string> roles, Content content = Content.UserRole, RedcapAction action = RedcapAction.Delete)
         {
-            throw new NotImplementedException();
+            var deleteUserRolesResult = string.Empty;
+            try
+            {
+                /*
+                 * Check the required parameters for empty or null
+                 */
+                if (IsNullOrEmpty(token))
+                {
+                    throw new ArgumentNullException("Please provide a valid Redcap token.");
+                }
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "action",  action.GetDisplayName() }
+                };
+                // Required
+                for (var i = 0; i < roles.Count; i++)
+                {
+                    payload.Add($"roles[{i}]", roles[i]);
+                }
+
+                deleteUserRolesResult = await this.SendPostRequestAsync(payload, _uri);
+                return deleteUserRolesResult;
+            }
+            catch (Exception Ex)
+            {
+                /*
+                 * We'll just log the error and return the error message.
+                 */
+                Log.Error($"{Ex.Message}");
+                return deleteUserRolesResult;
+            }
         }
 
         /// <summary>
@@ -4562,7 +4698,36 @@ namespace Redcap
         /// <returns>User-Role assignments for the project in the format specified</returns>
         public async Task<string> ExportUserRoleAssignmentAsync(string token, Content content = Content.UserRoleMapping, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
-            throw new NotImplementedException();
+            var exportUserRolesAssignmentResult = string.Empty;
+            try
+            {
+                /*
+                 * Check the required parameters for empty or null
+                 */
+                if (IsNullOrEmpty(token))
+                {
+                    throw new ArgumentNullException("Please provide a valid Redcap token.");
+                }
+
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "format",  format.GetDisplayName() },
+                    { "returnFormat",  onErrorFormat.GetDisplayName() }
+                };
+
+                exportUserRolesAssignmentResult = await this.SendPostRequestAsync(payload, _uri);
+                return exportUserRolesAssignmentResult;
+            }
+            catch (Exception Ex)
+            {
+                /*
+                 * We'll just log the error and return the error message.
+                 */
+                Log.Error($"{Ex.Message}");
+                return exportUserRolesAssignmentResult;
+            }
         }
 
         /// <summary>
@@ -4589,7 +4754,27 @@ namespace Redcap
         /// <returns>Number of User-Role assignments added or updated</returns>
         public async Task<string> ImportUserRoleAssignmentAsync<T>(string token, List<T> data, Content content = Content.UserRoleMapping, RedcapAction action = RedcapAction.Import, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
-            throw new NotImplementedException();
+            var importUserRoleAssignmentResult = string.Empty;
+            try
+            {
+                var _serializedData = JsonConvert.SerializeObject(data);
+                var payload = new Dictionary<string, string>
+                    {
+                        { "token", token },
+                        { "content", content.ToString() },
+                        { "format", format.ToString() },
+                        { "returnFormat", onErrorFormat.ToString() },
+                        { "data", _serializedData }
+                    };
+                // Execute request
+                importUserRoleAssignmentResult = await this.SendPostRequestAsync(payload, _uri);
+                return importUserRoleAssignmentResult;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return importUserRoleAssignmentResult;
+            }
         }
         #endregion User Roles
         #endregion API Version 1.0.0+ End
