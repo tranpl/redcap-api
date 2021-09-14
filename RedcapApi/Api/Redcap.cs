@@ -4759,13 +4759,13 @@ namespace Redcap
             {
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
-                    {
-                        { "token", token },
-                        { "content", content.ToString() },
-                        { "format", format.ToString() },
-                        { "returnFormat", onErrorFormat.ToString() },
-                        { "data", _serializedData }
-                    };
+                {
+                    { "token", token },
+                    { "content", content.ToString() },
+                    { "format", format.ToString() },
+                    { "returnFormat", onErrorFormat.ToString() },
+                    { "data", _serializedData }
+                };
                 // Execute request
                 importUserRoleAssignmentResult = await this.SendPostRequestAsync(payload, _uri);
                 return importUserRoleAssignmentResult;
@@ -4795,13 +4795,13 @@ namespace Redcap
                 var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
 
                 var payload = new Dictionary<string, string>
-                    {
-                        { "token", _token },
-                        { "content", "arm" },
-                        { "format", _inputFormat },
-                        { "returnFormat", _returnFormat },
-                        { "arms", null}
-                    };
+                {
+                    { "token", _token },
+                    { "content", "arm" },
+                    { "format", _inputFormat },
+                    { "returnFormat", _returnFormat },
+                    { "arms", null}
+                };
                 // Execute send request
                 _responseMessage = await this.SendPostRequestAsync(payload, _uri);
                 return _responseMessage;
