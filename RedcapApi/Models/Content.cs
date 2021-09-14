@@ -148,7 +148,19 @@ namespace Redcap.Models
         /// </summary>
         /// 
         [Display(Name = "user")]
-        User
+        User,
+
+        /// <summary>
+        /// User Role
+        /// </summary>
+        [Display(Name ="userRole")]
+        UserRole,
+        /// <summary>
+        /// User Role Mapping
+        /// </summary>
+        [Display(Name = "userRoleMapping")]
+        UserRoleMapping
+
 
     }
 }

@@ -30,5 +30,10 @@ namespace Redcap.Models
         /// 
         [Display(Name = "delete")]
         Delete,
+        /// <summary>
+        /// Switch
+        /// </summary>
+        [Display(Name = "switch")]
+        Switch,
     }
 }
