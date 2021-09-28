@@ -135,7 +135,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
              * This allows the upload file method to upload files
              * 
              */
-            InitializeDemo();
+            await InitializeDemo();
 
             /*
              * Start a new instance of Redcap APi
@@ -358,6 +358,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();
             #endregion DeleteRecordsAsync()
+
             #region RenameRecordAsync()
             Console.WriteLine("Calling RenameRecordAsync() . . .");
             var recordToRename = importDemographicsData.Select(x => x.RecordId).SingleOrDefault();
@@ -369,7 +370,6 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
 
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();
-
             #endregion RenameRecordAsync()
 
             #region ExportArmsAsync()
