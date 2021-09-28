@@ -290,11 +290,10 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             var redcapUsers = new List<RedcapUser>();
             redcapUsers.Add(redcapUser1);
             redcapUsers.Add(redcapUser2);
-            Console.WriteLine($"Importing user . . .");
+            Console.WriteLine($"Importing  {redcapUsers.Count} user. . .");
             var ImportUsersAsyncResult = await redcap_api_1_2_0.ImportUsersAsync(_token, redcapUsers, ReturnFormat.json, OnErrorFormat.json);
             var ImportUsersAsyncData = JsonConvert.DeserializeObject(ImportUsersAsyncResult);
             Console.WriteLine($"ImportUsersAsync Result: {ImportUsersAsyncData}");
-
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();
             #endregion  Users & User Priveleges
