@@ -3535,7 +3535,7 @@ namespace Redcap
         /// <param name="action"></param>
         /// <param name="arm"></param>
         /// <returns>Returns "1" if record is renamed or error message if any.</returns>
-        public async Task<string> RenameRecordAsync(string token, string record, string newRecordName, int? arm, Content content = Content.Record, RedcapAction action = RedcapAction.Rename)
+        public async Task<string> RenameRecordAsync(string token, string record, string newRecordName, Content content, RedcapAction action, int? arm)
         {
             try
             {
