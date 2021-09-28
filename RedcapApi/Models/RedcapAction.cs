@@ -35,5 +35,10 @@ namespace Redcap.Models
         /// </summary>
         [Display(Name = "switch")]
         Switch,
+        /// <summary>
+        /// Rename
+        /// </summary>
+        [Display(Name = "rename")]
+        Rename
     }
 }

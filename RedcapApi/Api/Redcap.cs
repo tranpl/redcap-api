@@ -3518,6 +3518,55 @@ namespace Redcap
             }
         }
 
+        /// <summary>
+        /// From Redcap Version 11.3.3
+        /// 
+        /// Rename Record
+        /// This method allows you to rename a record from a project in a single API request.
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have 'Rename Record' user privileges in the project.
+        /// </remarks>
+        /// <param name="token"></param>
+        /// <param name="record"></param>
+        /// <param name="newRecordName"></param>
+        /// <param name="content"></param>
+        /// <param name="action"></param>
+        /// <param name="arm"></param>
+        /// <returns>Returns "1" if record is renamed or error message if any.</returns>
+        public async Task<string> RenameRecordAsync(string token, string record, string newRecordName, int? arm, Content content = Content.Record, RedcapAction action = RedcapAction.Rename)
+        {
+            try
+            {
+                /*
+                 * Check the required parameters for empty or null
+                 */
+                if (IsNullOrEmpty(token))
+                {
+                    throw new ArgumentNullException("Please provide a valid Redcap token.");
+                }
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "action",  action.GetDisplayName() }
+                };
+
+                // Optional
+                payload.Add("arm", arm?.ToString());
+
+                return await this.SendPostRequestAsync(payload, _uri);
+            }
+            catch (Exception Ex)
+            {
+                /*
+                 * We'll just log the error and return the error message.
+                 */
+                Log.Error($"{Ex.Message}");
+                return Ex.Message;
+            }
+        }
         #endregion Records
         #region Repeating Instruments and Events
 
