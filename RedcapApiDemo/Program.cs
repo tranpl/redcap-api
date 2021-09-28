@@ -285,12 +285,15 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
 
             #region Users & User Priveleges
             Console.WriteLine("Calling ImportUsersAsync() . . .");
-            var recordToRename = importDemographicsData.Select(x => x.RecordId).SingleOrDefault();
-            Console.WriteLine($"Renaming record {recordToRename} . . .");
-            var newRecordName = "2";
-            var RenameRecordAsyncResult = await redcap_api_1_2_0.RenameRecordAsync(_token, recordToRename, newRecordName, Content.Record, RedcapAction.Rename, 1);
-            var RenameRecordAsyncData = JsonConvert.DeserializeObject(RenameRecordAsyncResult);
-            Console.WriteLine($"RenameRecordAsync Result: {DeleteRecordsAsyncData}");
+            var redcapUser1 = CreateRedcapUser("test1");
+            var redcapUser2 = CreateRedcapUser("test2");
+            var redcapUsers = new List<RedcapUser>();
+            redcapUsers.Add(redcapUser1);
+            redcapUsers.Add(redcapUser2);
+            Console.WriteLine($"Importing user . . .");
+            var ImportUsersAsyncResult = await redcap_api_1_2_0.ImportUsersAsync(_token, redcapUsers, ReturnFormat.json, OnErrorFormat.json);
+            var ImportUsersAsyncData = JsonConvert.DeserializeObject(ImportUsersAsyncResult);
+            Console.WriteLine($"ImportUsersAsync Result: {ImportUsersAsyncData}");
 
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();
@@ -596,6 +599,36 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
                 dags.Add(_dag);
             }
             return dags;
+        }
+        public static RedcapUser CreateRedcapUser(string username)
+        {
+            return new RedcapUser
+            {
+                Username = username,
+                Expiration = "",
+                DataAccessGroup = "",
+                Design = "1",
+                UserRights = "1",
+                DataAccessGroups = "1",
+                DataExport = "1",
+                Reports = "1",
+                StatsAndCharts = "1",
+                ManageSurveyParticipants = "1",
+                Calendar = "1",
+                DataImportTool = "1",
+                DataComparisonTool = "1",
+                Logging = "1",
+                FileRepository = "1",
+                DataQualityCreate = "1",
+                DataQualityExecute = "1",
+                ApiExport = "1",
+                ApiImport = "1",
+                MobileApp = "1",
+                MobileAppDownloadData = "1",
+                RecordCreate = "1",
+                LockRecordsCustomization = "1"
+
+            };
         }
 
     }
