@@ -16,13 +16,15 @@ namespace Tests
 {
     public partial class RedcapApiTests
     {
-        private readonly IApiService apiService;
+        private readonly IApiService sut;
         private readonly Mock<IApiBroker> apiBrokerMock;
-        private string apiUri = "http://localhost:8080/redcap";
+        private string apiUri = "http://localhost/redcap";
         public RedcapApiTests()
         {
             apiBrokerMock = new Mock<IApiBroker>();
-            apiService = new ApiService(apiBroker: apiBrokerMock.Object);
+            sut = new ApiService(apiBroker: apiBrokerMock.Object);
+
+
         }
         private static Demographic CreateDemographicsInstrument()
         {

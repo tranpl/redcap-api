@@ -21,7 +21,7 @@ namespace Tests
     public partial class RedcapApiTests
     {
         [Fact]
-        public async Task ShouldExportRecordAsync()
+        public async Task ExportRecordAsync_ShouldReturnSingleRecord_GivenSingleRecordId()
         {
             // arrange
             Demographic demographicInstrument = CreateDemographicsInstrument();
@@ -32,7 +32,7 @@ namespace Tests
             apiBrokerMock.Setup(broker => broker.ExecuteAsync<Demographic>(request))
                 .ReturnsAsync(retrievedDemographicInstrument);
             // act
-            Demographic actualDemographicInstrument = await apiService.ExportRecordAsync<Demographic>();
+            Demographic actualDemographicInstrument = await sut.ExportRecordAsync<Demographic>();
 
             // assert
             actualDemographicInstrument.Should().BeEquivalentTo(expectedDemographicInstrument);
