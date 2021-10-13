@@ -6,12 +6,12 @@
     <Company>Virginia Commonwealth University</Company>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/cctrbic/redcap-api</RepositoryUrl>
-    <PackageProjectUrl></PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/cctrbic/redcap-api/</PackageProjectUrl>
     <Description>This library allows applications on the .NET platform to make http calls to REDCap instances.</Description>
     <Product>Redcap Api Library</Product>
     <PackageId>RedcapAPI</PackageId>
     <Version>1.2.0</Version>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <AssemblyVersion>1.2.0</AssemblyVersion>
     <PackageTags>redcap api library vcu</PackageTags>
     <PackageReleaseNotes>New APIs have been added!
 -ExportLoggingAsync
@@ -27,7 +27,7 @@ Minor bugs fixes to existing APIs regarding optional parameters.</PackageRelease
     <OutputType>Library</OutputType>
     <StartupObject />
     <NeutralLanguage>en</NeutralLanguage>
-    <FileVersion>1.1.0.0</FileVersion>
+    <FileVersion>1.2.0</FileVersion>
     <license>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</license>
     <Copyright>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</Copyright>
     <icon>https://vortex.cctr.vcu.edu/images/ram_crest_160.png</icon>
