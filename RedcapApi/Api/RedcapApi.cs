@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.NetworkInformation;
-using System.Reflection.Emit;
-using System.Reflection;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
@@ -18,8 +14,6 @@ using Redcap.Utilities;
 using Serilog;
 
 using static System.String;
-using Xunit;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Redcap
 {
@@ -1819,7 +1813,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
-        /// From Redcap Version 6.4.0
+        /// From Redcap Version 11.4.4
         /// Export PDF file of Data Collection Instruments (either as blank or with data)
         /// This method allows you to export a PDF file for any of the following: 1) a single data collection instrument (blank), 2) all instruments (blank), 3) a single instrument (with data from a single record), 4) all instruments (with data from a single record), or 5) all instruments (with data from ALL records). 
         /// This is the exact same PDF file that is downloadable from a project's data entry form in the web interface, and additionally, the user's privileges with regard to data exports will be applied here just like they are when downloading the PDF in the web interface (e.g., if they have de-identified data export rights, then it will remove data from certain fields in the PDF). 
@@ -1833,10 +1827,11 @@ namespace Redcap
         /// <param name="recordId">the record ID. The value is blank by default. If record is blank, it will return the PDF as blank (i.e. with no data). If record is provided, it will return a single instrument or all instruments containing data from that record only.</param>
         /// <param name="eventName">the unique event name - only for longitudinal projects. For a longitudinal project, if record is not blank and event is blank, it will return data for all events from that record. If record is not blank and event is not blank, it will return data only for the specified event from that record.</param>
         /// <param name="instrument">the unique instrument name as seen in the second column of the Data Dictionary. The value is blank by default, which returns all instruments. If record is not blank and instrument is blank, it will return all instruments for that record.</param>
-        /// <param name="allRecord">[The value of this parameter does not matter and is ignored.] If this parameter is passed with any value, it will export all instruments (and all events, if longitudinal) with data from all records. Note: If this parameter is passed, the parameters record, event, and instrument will be ignored.</param>
-        /// <param name="onErrorFormat">csv, json [default] , xml- The returnFormat is only used with regard to the format of any error messages that might be returned.</param>
+        /// <param name="allRecords">[The value of this parameter does not matter and is ignored.] If this parameter is passed with any value, it will export all instruments (and all events, if longitudinal) with data from all records. Note: If this parameter is passed, the parameters record, event, and instrument will be ignored.</param>
+        /// <param name="compactDisplay">Set to TRUE to return a compact-formatted PDF that excludes fields that have no data saved and excludes unselected multiple choice options, thus producing a smaller PDF file. If set to FALSE, all fields will be displayed normally.</param>
+        /// <param name="returnFormat">csv, json [default] , xml- The returnFormat is only used with regard to the format of any error messages that might be returned.</param>
         /// <returns>A PDF file containing one or all data collection instruments from the project, in which the instruments will be blank (no data), contain data from a single record, or contain data from all records in the project, depending on the parameters passed in the API request.</returns>
-        public async Task<string> ExportPDFInstrumentsAsync(string token, Content content = Content.Pdf, string recordId = null, string eventName = null, string instrument = null, bool allRecord = false, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        public async Task<string> ExportPDFInstrumentsAsync(string token, Content content = Content.Pdf, string recordId = null, string eventName = null, string instrument = null, bool allRecords = false, bool compactDisplay = false, OnErrorFormat returnFormat = OnErrorFormat.json)
         {
             try
             {
@@ -1849,7 +1844,7 @@ namespace Redcap
                 {
                     { "token", token },
                     { "content", content.GetDisplayName() },
-                    { "returnFormat", onErrorFormat.GetDisplayName() }
+                    { "returnFormat", returnFormat.GetDisplayName() }
                 };
                 // Add all optional parameters
                 if (!IsNullOrEmpty(recordId))
@@ -1864,9 +1859,13 @@ namespace Redcap
                 {
                     payload.Add("instrument", instrument);
                 }
-                if (allRecord)
+                if (allRecords)
                 {
-                    payload.Add("allRecords", allRecord.ToString());
+                    payload.Add("allRecords", allRecords.ToString());
+                }
+                if (compactDisplay)
+                {
+                    payload.Add("compactDisplay", compactDisplay.ToString());
                 }
                 // Execute request
                 return await this.SendPostRequestAsync(payload, _uri);
