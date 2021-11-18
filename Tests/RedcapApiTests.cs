@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 using Moq;
 
 using Redcap.Broker;
@@ -23,8 +18,6 @@ namespace Tests
         {
             apiBrokerMock = new Mock<IApiBroker>();
             sut = new ApiService(apiBroker: apiBrokerMock.Object);
-
-
         }
         private static Demographic CreateDemographicsInstrument()
         {

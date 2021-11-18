@@ -13,15 +13,6 @@
     <Version>1.2.0</Version>
     <AssemblyVersion>1.2.0</AssemblyVersion>
     <PackageTags>redcap api library vcu</PackageTags>
-    <PackageReleaseNotes>New APIs have been added!
--ExportLoggingAsync
--ExportDagsAsync
--ImportDagsAsync
--DeleteDagsAsync
--ExportUserDagAssignmentAsync
--ImportUserDagAssignmentAsync
--Added models to support new APIs
-Minor bugs fixes to existing APIs regarding optional parameters.</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
@@ -33,16 +24,6 @@ Minor bugs fixes to existing APIs regarding optional parameters.</PackageRelease
     <icon>https://vortex.cctr.vcu.edu/images/ram_crest_160.png</icon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>vcu.png</PackageIcon>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <Optimize>false</Optimize>
-    <DocumentationFile></DocumentationFile>
-    <DebugType>portable</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile></DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="bin\**" />
@@ -61,7 +42,5 @@ Minor bugs fixes to existing APIs regarding optional parameters.</PackageRelease
     <PackageReference Include="System.Text.Json" Version="6.0.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="xunit.extensibility.core" Version="2.4.1" />
-    <Content Include="Models\RedcapMetaData.cs" />
-    <Content Include="Models\RecordStatus.cs" />
   </ItemGroup>
 </Project>
