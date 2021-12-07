@@ -982,6 +982,8 @@ namespace Redcap.Interfaces
         /// <returns>the number of records deleted.</returns>
         Task<string> DeleteRecordsAsync(string token, string[] records, int? arm);
 
+
+
         /// <summary>
         /// API Version 1.0.0+
         /// From Redcap Version 8.2.0
@@ -1021,6 +1023,7 @@ namespace Redcap.Interfaces
         /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns></returns>
         Task<string> ImportRepeatingInstrumentsAndEvents<T>(string token, List<T> data, Content content = Content.RepeatingFormsEvents, ReturnFormat returnFormat = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json);
+        
         /// <summary>
         /// Export Reports
         /// This method allows you to export the data set of a report created on a project's 'Data Exports, Reports, and Stats' page.
@@ -1040,6 +1043,7 @@ namespace Redcap.Interfaces
         /// <param name="exportCheckboxLabel">true, false [default] - specifies the format of checkbox field values specifically when exporting the data as labels (i.e., when rawOrLabel=label). When exporting labels, by default (without providing the exportCheckboxLabel flag or if exportCheckboxLabel=false), all checkboxes will either have a value 'Checked' if they are checked or 'Unchecked' if not checked. But if exportCheckboxLabel is set to true, it will instead export the checkbox value as the checkbox option's label (e.g., 'Choice 1') if checked or it will be blank/empty (no value) if not checked. If rawOrLabel=false, then the exportCheckboxLabel flag is ignored.</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
         Task<string> ExportReportsAsync(string token, Content content, int reportId, ReturnFormat inputFormat = ReturnFormat.json, OnErrorFormat returnFormat = OnErrorFormat.json, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false);
+        
         /// <summary>
         /// Export Reports
         /// This method allows you to export the data set of a report created on a project's 'Data Exports, Reports, and Stats' page.

@@ -48,22 +48,6 @@ namespace Redcap
         public static string Version;
 
         /// <summary>
-        /// Constructor requires an api token and a valid url.
-        /// </summary>
-        /// <remarks>
-        /// Token is required only for older APIs. As of version 1.0.0, token is required for each
-        /// method used.
-        /// </remarks>
-        /// <param name="apiToken">Redcap Api Token can be obtained from redcap project or redcap administrators</param>
-        /// <param name="redcapApiUrl">Redcap instance URI</param>
-        /// 
-        [Obsolete("Use constructor without token.")]
-        public RedcapApi(string apiToken, string redcapApiUrl)
-        {
-            _token = apiToken?.ToString();
-            _uri = new Uri(redcapApiUrl);
-        }
-        /// <summary>
         /// Constructor requires a valid url.
         /// </summary>
         /// <example>
@@ -80,8 +64,6 @@ namespace Redcap
             _uri = new Uri(redcapApiUrl);
             Utils.UseInsecureCertificate = useInsecureCertificates;
         }
-
-        #region API Version 1.0.0+ Begin
 
         #region Logging
         /// <summary>
@@ -153,6 +135,7 @@ namespace Redcap
         }
         #endregion
         #region Data Access Groups
+        
         /// <summary>
         /// POST
         /// Export DAGs
@@ -192,6 +175,7 @@ namespace Redcap
                 return exportDagsResults;
             }
         }
+        
         /// <summary>
         /// POST
         /// Import DAGs
@@ -248,6 +232,7 @@ namespace Redcap
                 return importDagsResults;
             }
         }
+        
         /// <summary>
         /// POST
         /// Delete DAGs
@@ -295,6 +280,7 @@ namespace Redcap
                 return deleteDagsResult;
             }
         }
+        
         /// <summary>
         /// From Redcap Version 11.3.1
         /// 
@@ -309,7 +295,6 @@ namespace Redcap
         /// <param name="action">switch</param>
         /// <param name="dag">The unique group name of the Data Access Group to which you wish to switch.</param>
         /// <returns>Returns "1" when the current API user is switched to the specified Data Access Group, otherwise it returns an error message.</returns>
-
         public async Task<string> SwitchDagAsync(string token, RedcapDag dag, Content content = Content.Dag, RedcapAction action = RedcapAction.Switch)
         {
             var switchDagResult = string.Empty;
@@ -337,6 +322,19 @@ namespace Redcap
 
         }
 
+        /// <summary>
+        /// Export User-DAG Assignments
+        /// This method allows you to export existing User-DAG assignments for a project.
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Export privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">userDagMapping</param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>User-DAG assignments for the project in the format specified</returns>
         public async Task<string> ExportUserDagAssignmentAsync(string token, Content content, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
             var exportUserDagAssignmentResult = string.Empty;
@@ -4851,7 +4849,6 @@ namespace Redcap
             }
         }
         #endregion User Roles
-        #endregion API Version 1.0.0+ End
 
         #region deprecated methods < version 1.0.0
         /// <summary>
