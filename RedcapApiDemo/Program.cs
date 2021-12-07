@@ -453,7 +453,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
 
             #region ExportPDFInstrumentsAsync()
             Console.WriteLine($"Calling ExportPDFInstrumentsAsync(), returns raw");
-            var ExportPDFInstrumentsAsyncResult = await redcap_api_1_2_0.ExportPDFInstrumentsAsync(_token, Content.Pdf, recordId, eventName, "demographics", true, OnErrorFormat.json);
+            var ExportPDFInstrumentsAsyncResult = await redcap_api_1_2_0.ExportPDFInstrumentsAsync(_token, Content.Pdf, recordId, eventName, "demographics", true);
             Console.WriteLine($"ExportInstrumentsAsyncResult: {JsonConvert.SerializeObject(ExportPDFInstrumentsAsyncResult)}");
             #endregion ExportPDFInstrumentsAsync()
 
