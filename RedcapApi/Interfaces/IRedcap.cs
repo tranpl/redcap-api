@@ -6,13 +6,9 @@ using Redcap.Models;
 namespace Redcap.Interfaces
 {
     /// <summary>
-    /// The REDCap API is an interface that allows external applications 
-    /// to connect to REDCap remotely, and is used for programmatically 
-    /// retrieving or modifying data or settings within REDCap, such as performing 
-    /// automated data imports/exports for a specified REDCap project. 
-    /// Programmers can use the REDCap API to make applications, websites, apps, widgets, 
-    /// and other projects that interact with REDCap. Programs talk to the REDCap API 
-    /// over HTTP, the same protocol that your browser uses to visit and interact with web pages.
+    /// The REDCap API is a set of interfaces that allows applications 
+    /// to connect to REDCap. Please read the provided documentations from REDCap for more details
+    /// on what specific set of API are allowed to be executed.
     /// 
     /// Virginia Commonwealth University
     /// Author: Michael Tran tranpl@outlook.com, tranpl@vcu.edu

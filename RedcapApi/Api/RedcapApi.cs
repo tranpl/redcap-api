@@ -46,7 +46,10 @@ namespace Redcap
         /// The version of redcap that the api is currently interacting with.
         /// </summary>
         public static string Version;
-
+        public RedcapApi(string redcapApiUrl)
+        {
+            _uri = new Uri(redcapApiUrl);
+        }
         /// <summary>
         /// Constructor requires a valid url.
         /// </summary>
@@ -407,7 +410,6 @@ namespace Redcap
             }
         }
         #endregion Arms
-
         #region Data Access Groups
         
         /// <summary>
