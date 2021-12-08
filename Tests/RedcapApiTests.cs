@@ -1,7 +1,11 @@
 ﻿
+using System.Net;
+
 using Moq;
 
+using Redcap;
 using Redcap.Broker;
+using Redcap.Interfaces;
 using Redcap.Models;
 using Redcap.Services;
 
@@ -11,13 +15,13 @@ namespace Tests
 {
     public partial class RedcapApiTests
     {
-        private readonly IApiService sut;
-        private readonly Mock<IApiBroker> apiBrokerMock;
+        private readonly RedcapApi _sut;
+        private readonly Mock<IRedcap> _redcapApiMock = new Mock<IRedcap>();
+        private readonly static string _apiToken = "SOME_TOKEN";
         private string apiUri = "http://localhost/redcap";
         public RedcapApiTests()
         {
-            apiBrokerMock = new Mock<IApiBroker>();
-            sut = new ApiService(apiBroker: apiBrokerMock.Object);
+            _sut = new RedcapApi(apiUri);
         }
         private static Demographic CreateDemographicsInstrument()
         {
