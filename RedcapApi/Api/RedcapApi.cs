@@ -46,21 +46,8 @@ namespace Redcap
         /// The version of redcap that the api is currently interacting with.
         /// </summary>
         public static string Version;
-
-        /// <summary>
-        /// Constructor requires an api token and a valid url.
-        /// </summary>
-        /// <remarks>
-        /// Token is required only for older APIs. As of version 1.0.0, token is required for each
-        /// method used.
-        /// </remarks>
-        /// <param name="apiToken">Redcap Api Token can be obtained from redcap project or redcap administrators</param>
-        /// <param name="redcapApiUrl">Redcap instance URI</param>
-        /// 
-        [Obsolete("Use constructor without token.")]
-        public RedcapApi(string apiToken, string redcapApiUrl)
+        public RedcapApi(string redcapApiUrl)
         {
-            _token = apiToken?.ToString();
             _uri = new Uri(redcapApiUrl);
         }
         /// <summary>
@@ -80,316 +67,6 @@ namespace Redcap
             _uri = new Uri(redcapApiUrl);
             Utils.UseInsecureCertificate = useInsecureCertificates;
         }
-
-        #region API Version 1.0.0+ Begin
-        #region Logging
-        /// <summary>
-        /// API @Version 10.8
-        /// POST
-        /// Export Logging
-        /// This method allows you to export the logging (audit trail) of all changes made to this project, including data exports, data changes, project metadata changes, modification of user rights, etc.
-        /// <remarks>
-        /// To use this method, you must have API Export privileges in the project.
-        /// </remarks>
-        /// </summary>
-        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
-        /// <param name="content">log</param>
-        /// <param name="format">csv, json [default], xml</param>
-        /// <param name="logType">You may choose event type to fetch result for specific event type</param>
-        /// <param name="user">To return only the events belong to specific user (referring to existing username), provide a user. If not specified, it will assume all users</param>
-        /// <param name="record">To return only the events belong to specific record (referring to existing record name), provide a record. If not specified, it will assume all records. This parameter is available only when event is related to record.</param>
-        /// <param name="dag">To return only the events belong to specific DAG (referring to group_id), provide a dag. If not specified, it will assume all dags.</param>
-        /// <param name="beginTime">To return only the events that have been logged *after* a given date/time, provide a timestamp in the format YYYY-MM-DD HH:MM (e.g., '2017-01-01 17:00' for January 1, 2017 at 5:00 PM server time). If not specified, it will assume no begin time.</param>
-        /// <param name="endTime">To return only records that have been logged *before* a given date/time, provide a timestamp in the format YYYY-MM-DD HH:MM (e.g., '2017-01-01 17:00' for January 1, 2017 at 5:00 PM server time). If not specified, it will use the current server time.</param>
-        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
-        /// <returns>List of all changes made to this project, including data exports, data changes, and the creation or deletion of users.</returns>
-        public async Task<string> ExportLoggingAsync(string token, Content content, ReturnFormat format = ReturnFormat.json, LogType logType = LogType.All, string user = null, string record = null, string dag = null, string beginTime = null, string endTime = null, OnErrorFormat onErrorFormat = OnErrorFormat.json)
-        {
-            var exportLoggingResults = string.Empty;
-            try
-            {
-                // Check for presence of token
-                this.CheckToken(token);
-
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", token },
-                    { "content", content.GetDisplayName() },
-                    { "format", format.GetDisplayName() },
-                    { "returnFormat", onErrorFormat.GetDisplayName() },
-                    { "logtype", logType.GetDisplayName() }
-                };
-
-                // Optional
-                if (!string.IsNullOrEmpty(user))
-                {
-                    payload.Add("user", user);
-                }
-                if (!string.IsNullOrEmpty(record))
-                {
-                    payload.Add("record", record);
-                }
-                if (!string.IsNullOrEmpty(dag))
-                {
-                    payload.Add("dag", dag);
-                }
-                if (!string.IsNullOrEmpty(beginTime))
-                {
-                    payload.Add("beginTime", beginTime);
-                }
-                if (!string.IsNullOrEmpty(endTime))
-                {
-                    payload.Add("endTime", endTime);
-                }
-                exportLoggingResults = await this.SendPostRequestAsync(payload, _uri);
-                return exportLoggingResults;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return exportLoggingResults;
-            }
-        }
-        #endregion
-        #region Data Access Groups
-        /// <summary>
-        /// POST
-        /// Export DAGs
-        /// This method allows you to export the Data Access Groups for a project
-        /// <remarks>
-        /// To use this method, you must have API Export privileges in the project.
-        /// </remarks>
-        /// </summary>
-        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
-        /// <param name="content">dag</param>
-        /// <param name="format">csv, json [default], xml</param>
-        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
-        /// <returns>DAGs for the project in the format specified</returns>
-        public async Task<string> ExportDagsAsync(string token, Content content, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
-        {
-            var exportDagsResults = string.Empty;
-            try
-            {
-                // Check for presence of token
-                this.CheckToken(token);
-
-                // Request payload
-                var payload = new Dictionary<string, string>
-                    {
-                        { "token", token },
-                        { "content", content.GetDisplayName() },
-                        { "format", format.GetDisplayName() },
-                        { "returnFormat", onErrorFormat.GetDisplayName() }
-                    };
-                exportDagsResults = await this.SendPostRequestAsync(payload, _uri);
-                return exportDagsResults;
-
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return exportDagsResults;
-            }
-        }
-        /// <summary>
-        /// POST
-        /// Import DAGs
-        /// This method allows you to import new DAGs (Data Access Groups) into a project or update the group name of any existing DAGs.
-        /// NOTE: DAGs can be renamed by simply changing the group name(data_access_group_name). 
-        /// DAG can be created by providing group name value while unique group name should be set to blank.
-        /// </summary>
-        /// <remarks>
-        /// To use this method, you must have API Import/Update privileges in the project.
-        /// </remarks>
-        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
-        /// <param name="content">dags</param>
-        /// <param name="action">import</param>
-        /// <param name="format">csv, json [default], xml</param>
-        /// <param name="data">Contains the attributes 'data_access_group_name' (referring to the group name) and 'unique_group_name' (referring to the auto-generated unique group name) of each DAG to be created/modified, in which they are provided in the specified format.
-        /// Refer to the API documenations for additional examples.
-        /// JSON Example:
-        /// [{"data_access_group_name":"CA Site","unique_group_name":"ca_site"}
-        /// {"data_access_group_name":"FL Site","unique_group_name":"fl_site"},
-        /// { "data_access_group_name":"New Site","unique_group_name":""}]
-        /// CSV Example:
-        /// data_access_group_name,unique_group_name
-        /// "CA Site",ca_site
-        /// "FL Site",fl_site
-        /// "New Site",
-        /// </param>
-        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
-        /// <returns>Number of DAGs added or updated</returns>
-        public async Task<string> ImportDagsAsync<T>(string token, Content content, RedcapAction action, ReturnFormat format, List<T> data, OnErrorFormat onErrorFormat = OnErrorFormat.json)
-        {
-            var importDagsResults = string.Empty;
-            try
-            {
-                // Check for presence of token
-                this.CheckToken(token);
-
-                var _serializedData = JsonConvert.SerializeObject(data);
-                var payload = new Dictionary<string, string>
-                    {
-                        { "token", token },
-                        { "content", content.GetDisplayName() },
-                        { "action", action.GetDisplayName() },
-                        { "format", format.GetDisplayName() },
-                        { "returnFormat", onErrorFormat.GetDisplayName() },
-                        { "data", _serializedData }
-                    };
-                // Execute request
-                importDagsResults =  await this.SendPostRequestAsync(payload, _uri);
-                return importDagsResults;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return importDagsResults;
-            }
-        }
-        /// <summary>
-        /// POST
-        /// Delete DAGs
-        /// This method allows you to delete DAGs from a project.
-        /// <remarks>
-        /// To use this method, you must have API Import/Update privileges in the project.
-        /// </remarks>
-        /// </summary>
-        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
-        /// <param name="content">dag</param>
-        /// <param name="action">delete</param>
-        /// <param name="dags">an array of unique group names that you wish to delete</param>
-        /// <returns>Number of DAGs deleted</returns>
-        public async Task<string> DeleteDagsAsync(string token, Content content, RedcapAction action, string[] dags)
-        {
-            var deleteDagsResult = string.Empty;
-            try
-            {
-                // Check for presence of token
-                this.CheckToken(token);
-
-                // Check for any dags
-                if (dags.Length < 1)
-                {
-                    throw new InvalidOperationException($"No dags to delete.");
-                }
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", token },
-                    { "content", content.GetDisplayName() },
-                    { "action", action.GetDisplayName() }
-                };
-                // Required
-                for (var i = 0; i < dags.Length; i++)
-                {
-                    payload.Add($"dags[{i}]", dags[i].ToString());
-                }
-                // Execute request
-                deleteDagsResult = await this.SendPostRequestAsync(payload, _uri);
-                return deleteDagsResult;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return deleteDagsResult;
-            }
-        }
-        /// <summary>
-        /// POST
-        /// Export User-DAG Assignments
-        /// This method allows you to export existing User-DAG assignments for a project
-        /// <remarks>
-        /// To use this method, you must have API Export privileges in the project.
-        /// </remarks>
-        /// </summary>
-        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
-        /// <param name="content">userDagMapping</param>
-        /// <param name="format">csv, json [default], xml</param>
-        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
-        /// <returns>User-DAG assignments for the project in the format specified</returns>
-        public async Task<string> ExportUserDagAssignmentAsync(string token, Content content, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
-        {
-            var exportUserDagAssignmentResult = string.Empty;
-            try
-            {
-                // Check for presence of token
-                this.CheckToken(token);
-
-                // Request payload
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", token },
-                    { "content", content.GetDisplayName() },
-                    { "format", format.GetDisplayName() },
-                    { "returnFormat", onErrorFormat.GetDisplayName() }
-                };
-                exportUserDagAssignmentResult = await this.SendPostRequestAsync(payload, _uri);
-                return exportUserDagAssignmentResult;
-
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return exportUserDagAssignmentResult;
-            }
-        }
-        /// <summary>
-        /// POST
-        /// Import User-DAG Assignments
-        /// This method allows you to assign users to any data access group.
-        /// NOTE: If you wish to modify an existing mapping, you *must* provide its unique username and group name.If the 'redcap_data_access_group' column is not provided, user will not assigned to any group.There should be only one record per username.
-        /// <remarks>
-        /// To use this method, you must have API Import/Update privileges in the project.
-        /// </remarks>
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
-        /// <param name="content">userDagMapping</param>
-        /// <param name="action">import</param>
-        /// <param name="format">csv, json [default], xml</param>
-        /// <param name="data">
-        /// Contains the attributes 'username' (referring to the existing unique username) and 'redcap_data_access_group' (referring to existing unique group name) of each User-DAG assignments to be modified, in which they are provided in the specified format.
-        /// JSON Example:
-        /// [{"username":"ca_dt_person","redcap_data_access_group":"ca_site"},
-        /// {"username":"fl_dt_person","redcap_data_access_group":"fl_site"},
-        /// { "username":"global_user","redcap_data_access_group":""}]
-        /// CSV Example:
-        /// username,redcap_data_access_group
-        /// ca_dt_person, ca_site
-        /// fl_dt_person, fl_site
-        /// global_user,
-        /// </param>
-        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
-        /// <returns>Number of User-DAG assignments added or updated</returns>
-        public async Task<string> ImportUserDagAssignmentAsync<T>(string token, Content content, RedcapAction action, ReturnFormat format, List<T> data, OnErrorFormat onErrorFormat = OnErrorFormat.json)
-        {
-            var ImportUserDagAssignmentResults = string.Empty;
-            try
-            {
-                // Check for presence of token
-                this.CheckToken(token);
-
-                var _serializedData = JsonConvert.SerializeObject(data);
-                var payload = new Dictionary<string, string>
-                    {
-                        { "token", token },
-                        { "content", content.GetDisplayName() },
-                        { "action", action.GetDisplayName() },
-                        { "format", format.GetDisplayName() },
-                        { "returnFormat", onErrorFormat.GetDisplayName() },
-                        { "data", _serializedData }
-                    };
-                // Execute request
-                return await this.SendPostRequestAsync(payload, _uri);
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return ImportUserDagAssignmentResults;
-            }
-        }
-
-        #endregion
         #region Arms
         /// <summary>
         /// API Version 1.0.0+ **
@@ -733,6 +410,290 @@ namespace Redcap
             }
         }
         #endregion Arms
+        #region Data Access Groups
+        
+        /// <summary>
+        /// POST
+        /// Export DAGs
+        /// This method allows you to export the Data Access Groups for a project
+        /// <remarks>
+        /// To use this method, you must have API Export privileges in the project.
+        /// </remarks>
+        /// </summary>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">dag</param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>DAGs for the project in the format specified</returns>
+        public async Task<string> ExportDagsAsync(string token, Content content, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        {
+            var exportDagsResults = string.Empty;
+            try
+            {
+                // Check for presence of token
+                this.CheckToken(token);
+
+                // Request payload
+                var payload = new Dictionary<string, string>
+                    {
+                        { "token", token },
+                        { "content", content.GetDisplayName() },
+                        { "format", format.GetDisplayName() },
+                        { "returnFormat", onErrorFormat.GetDisplayName() }
+                    };
+                exportDagsResults = await this.SendPostRequestAsync(payload, _uri);
+                return exportDagsResults;
+
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return exportDagsResults;
+            }
+        }
+        
+        /// <summary>
+        /// POST
+        /// Import DAGs
+        /// This method allows you to import new DAGs (Data Access Groups) into a project or update the group name of any existing DAGs.
+        /// NOTE: DAGs can be renamed by simply changing the group name(data_access_group_name). 
+        /// DAG can be created by providing group name value while unique group name should be set to blank.
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">dags</param>
+        /// <param name="action">import</param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="data">Contains the attributes 'data_access_group_name' (referring to the group name) and 'unique_group_name' (referring to the auto-generated unique group name) of each DAG to be created/modified, in which they are provided in the specified format.
+        /// Refer to the API documenations for additional examples.
+        /// JSON Example:
+        /// [{"data_access_group_name":"CA Site","unique_group_name":"ca_site"}
+        /// {"data_access_group_name":"FL Site","unique_group_name":"fl_site"},
+        /// { "data_access_group_name":"New Site","unique_group_name":""}]
+        /// CSV Example:
+        /// data_access_group_name,unique_group_name
+        /// "CA Site",ca_site
+        /// "FL Site",fl_site
+        /// "New Site",
+        /// </param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>Number of DAGs added or updated</returns>
+        public async Task<string> ImportDagsAsync<T>(string token, Content content, RedcapAction action, ReturnFormat format, List<T> data, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        {
+            var importDagsResults = string.Empty;
+            try
+            {
+                // Check for presence of token
+                this.CheckToken(token);
+
+                var _serializedData = JsonConvert.SerializeObject(data);
+                var payload = new Dictionary<string, string>
+                    {
+                        { "token", token },
+                        { "content", content.GetDisplayName() },
+                        { "action", action.GetDisplayName() },
+                        { "format", format.GetDisplayName() },
+                        { "returnFormat", onErrorFormat.GetDisplayName() },
+                        { "data", _serializedData }
+                    };
+                // Execute request
+                importDagsResults =  await this.SendPostRequestAsync(payload, _uri);
+                return importDagsResults;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return importDagsResults;
+            }
+        }
+        
+        /// <summary>
+        /// POST
+        /// Delete DAGs
+        /// This method allows you to delete DAGs from a project.
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges in the project.
+        /// </remarks>
+        /// </summary>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">dag</param>
+        /// <param name="action">delete</param>
+        /// <param name="dags">an array of unique group names that you wish to delete</param>
+        /// <returns>Number of DAGs deleted</returns>
+        public async Task<string> DeleteDagsAsync(string token, Content content, RedcapAction action, string[] dags)
+        {
+            var deleteDagsResult = string.Empty;
+            try
+            {
+                // Check for presence of token
+                this.CheckToken(token);
+
+                // Check for any dags
+                if (dags.Length < 1)
+                {
+                    throw new InvalidOperationException($"No dags to delete.");
+                }
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "action", action.GetDisplayName() }
+                };
+                // Required
+                for (var i = 0; i < dags.Length; i++)
+                {
+                    payload.Add($"dags[{i}]", dags[i].ToString());
+                }
+                // Execute request
+                deleteDagsResult = await this.SendPostRequestAsync(payload, _uri);
+                return deleteDagsResult;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return deleteDagsResult;
+            }
+        }
+        
+        /// <summary>
+        /// From Redcap Version 11.3.1
+        /// 
+        /// Switch DAG
+        /// This method allows the current API user to switch (assign/reassign/unassign) their current Data Access Group assignment if they have been assigned to multiple DAGs via the DAG Switcher page in the project.
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges in the project.
+        /// </remarks>
+        /// </summary>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">dag</param>
+        /// <param name="action">switch</param>
+        /// <param name="dag">The unique group name of the Data Access Group to which you wish to switch.</param>
+        /// <returns>Returns "1" when the current API user is switched to the specified Data Access Group, otherwise it returns an error message.</returns>
+        public async Task<string> SwitchDagAsync(string token, RedcapDag dag, Content content = Content.Dag, RedcapAction action = RedcapAction.Switch)
+        {
+            var switchDagResult = string.Empty;
+            try
+            {
+                // Check for presence of token
+                this.CheckToken(token);
+
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "dag", dag.UniqueGroupName },
+                    { "content", content.GetDisplayName() },
+                    { "action", action.GetDisplayName() }
+                };
+                // Execute request
+                switchDagResult = await this.SendPostRequestAsync(payload, _uri);
+                return switchDagResult;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return switchDagResult;
+            }
+
+        }
+
+        /// <summary>
+        /// Export User-DAG Assignments
+        /// This method allows you to export existing User-DAG assignments for a project.
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Export privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">userDagMapping</param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>User-DAG assignments for the project in the format specified</returns>
+        public async Task<string> ExportUserDagAssignmentAsync(string token, Content content, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        {
+            var exportUserDagAssignmentResult = string.Empty;
+            try
+            {
+                // Check for presence of token
+                this.CheckToken(token);
+
+                // Request payload
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "format", format.GetDisplayName() },
+                    { "returnFormat", onErrorFormat.GetDisplayName() }
+                };
+                exportUserDagAssignmentResult = await this.SendPostRequestAsync(payload, _uri);
+                return exportUserDagAssignmentResult;
+
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return exportUserDagAssignmentResult;
+            }
+        }
+        /// <summary>
+        /// POST
+        /// Import User-DAG Assignments
+        /// This method allows you to assign users to any data access group.
+        /// NOTE: If you wish to modify an existing mapping, you *must* provide its unique username and group name.If the 'redcap_data_access_group' column is not provided, user will not assigned to any group.There should be only one record per username.
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges in the project.
+        /// </remarks>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">userDagMapping</param>
+        /// <param name="action">import</param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="data">
+        /// Contains the attributes 'username' (referring to the existing unique username) and 'redcap_data_access_group' (referring to existing unique group name) of each User-DAG assignments to be modified, in which they are provided in the specified format.
+        /// JSON Example:
+        /// [{"username":"ca_dt_person","redcap_data_access_group":"ca_site"},
+        /// {"username":"fl_dt_person","redcap_data_access_group":"fl_site"},
+        /// { "username":"global_user","redcap_data_access_group":""}]
+        /// CSV Example:
+        /// username,redcap_data_access_group
+        /// ca_dt_person, ca_site
+        /// fl_dt_person, fl_site
+        /// global_user,
+        /// </param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>Number of User-DAG assignments added or updated</returns>
+        public async Task<string> ImportUserDagAssignmentAsync<T>(string token, Content content, RedcapAction action, ReturnFormat format, List<T> data, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        {
+            var ImportUserDagAssignmentResults = string.Empty;
+            try
+            {
+                // Check for presence of token
+                this.CheckToken(token);
+
+                var _serializedData = JsonConvert.SerializeObject(data);
+                var payload = new Dictionary<string, string>
+                    {
+                        { "token", token },
+                        { "content", content.GetDisplayName() },
+                        { "action", action.GetDisplayName() },
+                        { "format", format.GetDisplayName() },
+                        { "returnFormat", onErrorFormat.GetDisplayName() },
+                        { "data", _serializedData }
+                    };
+                // Execute request
+                return await this.SendPostRequestAsync(payload, _uri);
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return ImportUserDagAssignmentResults;
+            }
+        }
+
+        #endregion
         #region Events
 
         /// <summary>
@@ -1783,7 +1744,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
-        /// From Redcap Version 6.4.0
+        /// From Redcap Version 11.4.4
         /// Export PDF file of Data Collection Instruments (either as blank or with data)
         /// This method allows you to export a PDF file for any of the following: 1) a single data collection instrument (blank), 2) all instruments (blank), 3) a single instrument (with data from a single record), 4) all instruments (with data from a single record), or 5) all instruments (with data from ALL records). 
         /// This is the exact same PDF file that is downloadable from a project's data entry form in the web interface, and additionally, the user's privileges with regard to data exports will be applied here just like they are when downloading the PDF in the web interface (e.g., if they have de-identified data export rights, then it will remove data from certain fields in the PDF). 
@@ -1797,10 +1758,11 @@ namespace Redcap
         /// <param name="recordId">the record ID. The value is blank by default. If record is blank, it will return the PDF as blank (i.e. with no data). If record is provided, it will return a single instrument or all instruments containing data from that record only.</param>
         /// <param name="eventName">the unique event name - only for longitudinal projects. For a longitudinal project, if record is not blank and event is blank, it will return data for all events from that record. If record is not blank and event is not blank, it will return data only for the specified event from that record.</param>
         /// <param name="instrument">the unique instrument name as seen in the second column of the Data Dictionary. The value is blank by default, which returns all instruments. If record is not blank and instrument is blank, it will return all instruments for that record.</param>
-        /// <param name="allRecord">[The value of this parameter does not matter and is ignored.] If this parameter is passed with any value, it will export all instruments (and all events, if longitudinal) with data from all records. Note: If this parameter is passed, the parameters record, event, and instrument will be ignored.</param>
-        /// <param name="onErrorFormat">csv, json [default] , xml- The returnFormat is only used with regard to the format of any error messages that might be returned.</param>
+        /// <param name="allRecords">[The value of this parameter does not matter and is ignored.] If this parameter is passed with any value, it will export all instruments (and all events, if longitudinal) with data from all records. Note: If this parameter is passed, the parameters record, event, and instrument will be ignored.</param>
+        /// <param name="compactDisplay">Set to TRUE to return a compact-formatted PDF that excludes fields that have no data saved and excludes unselected multiple choice options, thus producing a smaller PDF file. If set to FALSE, all fields will be displayed normally.</param>
+        /// <param name="returnFormat">csv, json [default] , xml- The returnFormat is only used with regard to the format of any error messages that might be returned.</param>
         /// <returns>A PDF file containing one or all data collection instruments from the project, in which the instruments will be blank (no data), contain data from a single record, or contain data from all records in the project, depending on the parameters passed in the API request.</returns>
-        public async Task<string> ExportPDFInstrumentsAsync(string token, Content content = Content.Pdf, string recordId = null, string eventName = null, string instrument = null, bool allRecord = false, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        public async Task<string> ExportPDFInstrumentsAsync(string token, Content content = Content.Pdf, string recordId = null, string eventName = null, string instrument = null, bool allRecords = false, bool compactDisplay = false, OnErrorFormat returnFormat = OnErrorFormat.json)
         {
             try
             {
@@ -1813,7 +1775,7 @@ namespace Redcap
                 {
                     { "token", token },
                     { "content", content.GetDisplayName() },
-                    { "returnFormat", onErrorFormat.GetDisplayName() }
+                    { "returnFormat", returnFormat.GetDisplayName() }
                 };
                 // Add all optional parameters
                 if (!IsNullOrEmpty(recordId))
@@ -1828,9 +1790,13 @@ namespace Redcap
                 {
                     payload.Add("instrument", instrument);
                 }
-                if (allRecord)
+                if (allRecords)
                 {
-                    payload.Add("allRecords", allRecord.ToString());
+                    payload.Add("allRecords", allRecords.ToString());
+                }
+                if (compactDisplay)
+                {
+                    payload.Add("compactDisplay", compactDisplay.ToString());
                 }
                 // Execute request
                 return await this.SendPostRequestAsync(payload, _uri);
@@ -2130,6 +2096,75 @@ namespace Redcap
             }
         }
         #endregion Instruments
+        #region Logging
+        /// <summary>
+        /// API @Version 10.8
+        /// POST
+        /// Export Logging
+        /// This method allows you to export the logging (audit trail) of all changes made to this project, including data exports, data changes, project metadata changes, modification of user rights, etc.
+        /// <remarks>
+        /// To use this method, you must have API Export privileges in the project.
+        /// </remarks>
+        /// </summary>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">log</param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="logType">You may choose event type to fetch result for specific event type</param>
+        /// <param name="user">To return only the events belong to specific user (referring to existing username), provide a user. If not specified, it will assume all users</param>
+        /// <param name="record">To return only the events belong to specific record (referring to existing record name), provide a record. If not specified, it will assume all records. This parameter is available only when event is related to record.</param>
+        /// <param name="dag">To return only the events belong to specific DAG (referring to group_id), provide a dag. If not specified, it will assume all dags.</param>
+        /// <param name="beginTime">To return only the events that have been logged *after* a given date/time, provide a timestamp in the format YYYY-MM-DD HH:MM (e.g., '2017-01-01 17:00' for January 1, 2017 at 5:00 PM server time). If not specified, it will assume no begin time.</param>
+        /// <param name="endTime">To return only records that have been logged *before* a given date/time, provide a timestamp in the format YYYY-MM-DD HH:MM (e.g., '2017-01-01 17:00' for January 1, 2017 at 5:00 PM server time). If not specified, it will use the current server time.</param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>List of all changes made to this project, including data exports, data changes, and the creation or deletion of users.</returns>
+        public async Task<string> ExportLoggingAsync(string token, Content content, ReturnFormat format = ReturnFormat.json, LogType logType = LogType.All, string user = null, string record = null, string dag = null, string beginTime = null, string endTime = null, OnErrorFormat onErrorFormat = OnErrorFormat.json)
+        {
+            var exportLoggingResults = string.Empty;
+            try
+            {
+                // Check for presence of token
+                this.CheckToken(token);
+
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "format", format.GetDisplayName() },
+                    { "returnFormat", onErrorFormat.GetDisplayName() },
+                    { "logtype", logType.GetDisplayName() }
+                };
+
+                // Optional
+                if (!string.IsNullOrEmpty(user))
+                {
+                    payload.Add("user", user);
+                }
+                if (!string.IsNullOrEmpty(record))
+                {
+                    payload.Add("record", record);
+                }
+                if (!string.IsNullOrEmpty(dag))
+                {
+                    payload.Add("dag", dag);
+                }
+                if (!string.IsNullOrEmpty(beginTime))
+                {
+                    payload.Add("beginTime", beginTime);
+                }
+                if (!string.IsNullOrEmpty(endTime))
+                {
+                    payload.Add("endTime", endTime);
+                }
+                exportLoggingResults = await this.SendPostRequestAsync(payload, _uri);
+                return exportLoggingResults;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return exportLoggingResults;
+            }
+        }
+        #endregion
         #region Metadata
         /// <summary>
         /// API Version 1.0.0+
@@ -2883,6 +2918,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
+        /// From Redcap Version 11.4.0
         /// Export Records
         /// This method allows you to export a set of records for a project.
         /// Note about export rights: Please be aware that Data Export user rights will be applied to this API request.For example, if you have 'No Access' data export rights in the project, then the API data export will fail and return an error. And if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then some data fields *might* be removed and filtered out of the data set returned from the API. To make sure that no data is unnecessarily filtered out of your API request, you should have 'Full Data Set' export rights in the project.
@@ -2904,8 +2940,11 @@ namespace Redcap
         /// <param name="exportSurveyFields">true, false [default] - specifies whether or not to export the survey identifier field (e.g., 'redcap_survey_identifier') or survey timestamp fields (e.g., instrument+'_timestamp') when surveys are utilized in the project. If you do not pass in this flag, it will default to 'false'. If set to 'true', it will return the redcap_survey_identifier field and also the survey timestamp field for a particular survey when at least one field from that survey is being exported. NOTE: If the survey identifier field or survey timestamp fields are imported via API data import, they will simply be ignored since they are not real fields in the project but rather are pseudo-fields.</param>
         /// <param name="exportDataAccessGroups">true, false [default] - specifies whether or not to export the 'redcap_data_access_group' field when data access groups are utilized in the project. If you do not pass in this flag, it will default to 'false'. NOTE: This flag is only viable if the user whose token is being used to make the API request is *not* in a data access group. If the user is in a group, then this flag will revert to its default value.</param>
         /// <param name="filterLogic">String of logic text (e.g., [age] > 30) for filtering the data to be returned by this API method, in which the API will only return the records (or record-events, if a longitudinal project) where the logic evaluates as TRUE. This parameter is blank/null by default unless a value is supplied. Please note that if the filter logic contains any incorrect syntax, the API will respond with an error message. </param>
-        /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<string> ExportRecordsAsync(string token, ReturnFormat format = ReturnFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, OnErrorFormat onErrorFormat = OnErrorFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null)
+        /// <param name="exportBlankForGrayFormStatus">true, false [default] - specifies whether or not to export blank values for instrument complete status fields that have a gray status icon. All instrument complete status fields having a gray icon can be exported either as a blank value or as "0" (Incomplete). Blank values are recommended in a data export if the data will be re-imported into a REDCap project.</param>
+        /// <returns>
+        /// Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id
+        /// </returns>
+        public async Task<string> ExportRecordsAsync(string token, ReturnFormat format = ReturnFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, OnErrorFormat onErrorFormat = OnErrorFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportBlankForGrayFormStatus = false)
         {
             try
             {
@@ -2937,9 +2976,8 @@ namespace Redcap
                 {
                     payload.Add("events", await this.ConvertArraytoString(events));
                 }
-                /*
-                 * Pertains to CSV data only
-                 */
+
+                // Pertains to CSV data only
                 var _rawOrLabelValue = rawOrLabelHeaders.ToString();
                 if (!IsNullOrEmpty(_rawOrLabelValue))
                 {
@@ -2960,10 +2998,17 @@ namespace Redcap
                 {
                     payload.Add("exportDataAccessGroups", exportDataAccessGroups.ToString());
                 }
+                // Optional (defaults to empty)
                 if (!IsNullOrEmpty(filterLogic))
                 {
                     payload.Add("filterLogic", filterLogic);
                 }
+                // Optional (defaults to false)
+                if (exportBlankForGrayFormStatus)
+                {
+                    payload.Add("exportBlankForGrayFormStatus", exportBlankForGrayFormStatus.ToString());
+                }
+
                 return await this.SendPostRequestAsync(payload, _uri);
 
             }
@@ -2980,6 +3025,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0+
+        /// From Redcap Version 11.4.0
         /// Export Records
         /// This method allows you to export a set of records for a project.
         /// Note about export rights: Please be aware that Data Export user rights will be applied to this API request.For example, if you have 'No Access' data export rights in the project, then the API data export will fail and return an error. And if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then some data fields *might* be removed and filtered out of the data set returned from the API. To make sure that no data is unnecessarily filtered out of your API request, you should have 'Full Data Set' export rights in the project.
@@ -3002,8 +3048,9 @@ namespace Redcap
         /// <param name="exportSurveyFields">true, false [default] - specifies whether or not to export the survey identifier field (e.g., 'redcap_survey_identifier') or survey timestamp fields (e.g., instrument+'_timestamp') when surveys are utilized in the project. If you do not pass in this flag, it will default to 'false'. If set to 'true', it will return the redcap_survey_identifier field and also the survey timestamp field for a particular survey when at least one field from that survey is being exported. NOTE: If the survey identifier field or survey timestamp fields are imported via API data import, they will simply be ignored since they are not real fields in the project but rather are pseudo-fields.</param>
         /// <param name="exportDataAccessGroups">true, false [default] - specifies whether or not to export the 'redcap_data_access_group' field when data access groups are utilized in the project. If you do not pass in this flag, it will default to 'false'. NOTE: This flag is only viable if the user whose token is being used to make the API request is *not* in a data access group. If the user is in a group, then this flag will revert to its default value.</param>
         /// <param name="filterLogic">String of logic text (e.g., [age] > 30) for filtering the data to be returned by this API method, in which the API will only return the records (or record-events, if a longitudinal project) where the logic evaluates as TRUE. This parameter is blank/null by default unless a value is supplied. Please note that if the filter logic contains any incorrect syntax, the API will respond with an error message. </param>
+        /// <param name="exportBlankForGrayFormStatus">true, false [default] - specifies whether or not to export blank values for instrument complete status fields that have a gray status icon. All instrument complete status fields having a gray icon can be exported either as a blank value or as "0" (Incomplete). Blank values are recommended in a data export if the data will be re-imported into a REDCap project.</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<string> ExportRecordsAsync(string token, Content content, ReturnFormat format = ReturnFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, OnErrorFormat onErrorFormat = OnErrorFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null)
+        public async Task<string> ExportRecordsAsync(string token, Content content, ReturnFormat format = ReturnFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, OnErrorFormat onErrorFormat = OnErrorFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportBlankForGrayFormStatus = false)
         {
             try
             {
@@ -3035,9 +3082,8 @@ namespace Redcap
                 {
                     payload.Add("events", await this.ConvertArraytoString(events));
                 }
-                /*
-                 * Pertains to CSV data only
-                 */
+
+                // Pertains to CSV data only
                 var _rawOrLabelValue = rawOrLabelHeaders.ToString();
                 if (!IsNullOrEmpty(_rawOrLabelValue))
                 {
@@ -3058,10 +3104,17 @@ namespace Redcap
                 {
                     payload.Add("exportDataAccessGroups", exportDataAccessGroups.ToString());
                 }
+                // Optional (defaults to empty)
                 if (!IsNullOrEmpty(filterLogic))
                 {
                     payload.Add("filterLogic", filterLogic);
                 }
+                // Optional (defaults to false)
+                if (exportBlankForGrayFormStatus)
+                {
+                    payload.Add("exportBlankForGrayFormStatus", exportBlankForGrayFormStatus.ToString());
+                }
+
                 return await this.SendPostRequestAsync(payload, _uri);
 
             }
@@ -3078,6 +3131,7 @@ namespace Redcap
 
         /// <summary>
         /// API Version 1.0.0++
+        /// From Redcap Version 11.4.0
         /// Export Record
         /// This method allows you to export a single record for a project.
         /// Note about export rights: Please be aware that Data Export user rights will be applied to this API request.For example, if you have 'No Access' data export rights in the project, then the API data export will fail and return an error. And if you have 'De-Identified' or 'Remove all tagged Identifier fields' data export rights, then some data fields *might* be removed and filtered out of the data set returned from the API. To make sure that no data is unnecessarily filtered out of your API request, you should have 'Full Data Set' export rights in the project.
@@ -3100,8 +3154,9 @@ namespace Redcap
         /// <param name="exportSurveyFields">true, false [default] - specifies whether or not to export the survey identifier field (e.g., 'redcap_survey_identifier') or survey timestamp fields (e.g., instrument+'_timestamp') when surveys are utilized in the project. If you do not pass in this flag, it will default to 'false'. If set to 'true', it will return the redcap_survey_identifier field and also the survey timestamp field for a particular survey when at least one field from that survey is being exported. NOTE: If the survey identifier field or survey timestamp fields are imported via API data import, they will simply be ignored since they are not real fields in the project but rather are pseudo-fields.</param>
         /// <param name="exportDataAccessGroups">true, false [default] - specifies whether or not to export the 'redcap_data_access_group' field when data access groups are utilized in the project. If you do not pass in this flag, it will default to 'false'. NOTE: This flag is only viable if the user whose token is being used to make the API request is *not* in a data access group. If the user is in a group, then this flag will revert to its default value.</param>
         /// <param name="filterLogic">String of logic text (e.g., [age] > 30) for filtering the data to be returned by this API method, in which the API will only return the records (or record-events, if a longitudinal project) where the logic evaluates as TRUE. This parameter is blank/null by default unless a value is supplied. Please note that if the filter logic contains any incorrect syntax, the API will respond with an error message. </param>
+        /// <param name="exportBlankForGrayFormStatus">true, false [default] - specifies whether or not to export blank values for instrument complete status fields that have a gray status icon. All instrument complete status fields having a gray icon can be exported either as a blank value or as "0" (Incomplete). Blank values are recommended in a data export if the data will be re-imported into a REDCap project.</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<string> ExportRecordAsync(string token, Content content, string record, ReturnFormat format = ReturnFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, OnErrorFormat onErrorFormat = OnErrorFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null)
+        public async Task<string> ExportRecordAsync(string token, Content content, string record, ReturnFormat format = ReturnFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, OnErrorFormat onErrorFormat = OnErrorFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportBlankForGrayFormStatus = false)
         {
             try
             {
@@ -3153,9 +3208,15 @@ namespace Redcap
                 {
                     payload.Add("exportDataAccessGroups", exportDataAccessGroups.ToString());
                 }
+                // Optional (defaults to empty)
                 if (!IsNullOrEmpty(filterLogic))
                 {
                     payload.Add("filterLogic", filterLogic);
+                }
+                // Optional (defaults to false)
+                if (exportBlankForGrayFormStatus)
+                {
+                    payload.Add("exportBlankForGrayFormStatus", exportBlankForGrayFormStatus.ToString());
                 }
                 return await this.SendPostRequestAsync(payload, _uri);
 
@@ -3406,6 +3467,116 @@ namespace Redcap
                 {
                     payload.Add($"records[{i}]", records[i]);
                 }
+
+                // Optional
+                payload.Add("arm", arm?.ToString());
+
+                return await this.SendPostRequestAsync(payload, _uri);
+            }
+            catch (Exception Ex)
+            {
+                /*
+                 * We'll just log the error and return the error message.
+                 */
+                Log.Error($"{Ex.Message}");
+                return Ex.Message;
+            }
+        }
+        
+        /// <summary>
+        /// From Redcap Version 11.3.0
+        /// 
+        /// Delete Records
+        /// This method allows you to delete one or more records from a project in a single API request, and also optionally allows you to delete parts of a record, such as a single instrument's data for one or more records or a single event's data for one or more records.
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have 'Delete Record' user privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">record</param>
+        /// <param name="action">delete</param>
+        /// <param name="records">an array of record names specifying specific records you wish to delete</param>
+        /// <param name="arm">the arm number of the arm in which the record(s) should be deleted. 
+        /// (This can only be used if the project is longitudinal with more than one arm.) NOTE: If the arm parameter is not provided, the specified records will be deleted from all arms in which they exist. Whereas, if arm is provided, they will only be deleted from the specified arm. </param>
+        /// <param name="instrument">the unique instrument name (column B in the Data Dictionary) of an instrument (as a string) if you wish to delete the data for all fields on the specified instrument for the records specified.</param>
+        /// <param name="redcapEvent">the unique event name - only for longitudinal projects. NOTE: If instrument is provided for a longitudinal project, the event parameter is mandatory.</param>
+        ///  <param name="repeatInstance">the repeating instance number for a repeating instrument or repeating event. NOTE: If project has repeating instruments/events, it will remove only the data for that repeating instance</param>
+        /// <returns>the number of records deleted or (if instrument, event, and/or instance are provided) the number of items deleted over the total records specified.</returns>
+        public async Task<string> DeleteRecordsAsync(string token, Content content, RedcapAction action, string[] records, int? arm, RedcapInstrument instrument, RedcapEvent redcapEvent, RedcapRepeatInstance repeatInstance)
+        {
+            try
+            {
+                /*
+                 * Check the required parameters for empty or null
+                 */
+                if (IsNullOrEmpty(token))
+                {
+                    throw new ArgumentNullException("Please provide a valid Redcap token.");
+                }
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "action",  action.GetDisplayName() }
+                };
+                // Required
+                for (var i = 0; i < records.Length; i++)
+                {
+                    payload.Add($"records[{i}]", records[i]);
+                }
+
+                // Optional
+                payload.Add("arm", arm?.ToString());
+                payload.Add("instrumnet", instrument.InstrumentName);
+                payload.Add("event", redcapEvent.EventName);
+                payload.Add("repeat_instance", repeatInstance.RepeatInstance.ToString());
+
+                return await this.SendPostRequestAsync(payload, _uri);
+            }
+            catch (Exception Ex)
+            {
+                /*
+                 * We'll just log the error and return the error message.
+                 */
+                Log.Error($"{Ex.Message}");
+                return Ex.Message;
+            }
+        }
+
+        /// <summary>
+        /// From Redcap Version 11.3.3
+        /// 
+        /// Rename Record
+        /// This method allows you to rename a record from a project in a single API request.
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have 'Rename Record' user privileges in the project.
+        /// </remarks>
+        /// <param name="token"></param>
+        /// <param name="record"></param>
+        /// <param name="newRecordName"></param>
+        /// <param name="content"></param>
+        /// <param name="action"></param>
+        /// <param name="arm"></param>
+        /// <returns>Returns "1" if record is renamed or error message if any.</returns>
+        public async Task<string> RenameRecordAsync(string token, string record, string newRecordName, Content content, RedcapAction action, int? arm)
+        {
+            try
+            {
+                /*
+                 * Check the required parameters for empty or null
+                 */
+                if (IsNullOrEmpty(token))
+                {
+                    throw new ArgumentNullException("Please provide a valid Redcap token.");
+                }
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "action",  action.GetDisplayName() }
+                };
 
                 // Optional
                 payload.Add("arm", arm?.ToString());
@@ -4379,1480 +4550,306 @@ namespace Redcap
                 return Ex.Message;
             }
         }
-        #endregion Users & User Privileges
 
-        #endregion API Version 1.0.0+ End
-
-        #region deprecated methods < version 1.0.0
         /// <summary>
-        /// Export Arms
-        /// </summary>
-        /// <param name="inputFormat">test</param>
-        /// <param name="returnFormat">test</param>
+        /// From Redcap Version 11.3.0
         /// 
-        [Obsolete("Please use ExportArmsAsync with token param")]
-        public async Task<string> ExportArmsAsync(ReturnFormat inputFormat, OnErrorFormat returnFormat)
+        /// Delete Users
+        /// This method allows you to delete Users from a project.
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges *and* User Rights privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="users">an array of unique usernames that you wish to delete</param>
+        /// <param name="content">user</param>
+        /// <param name="action">delete</param>
+        /// <returns>Number of Users deleted</returns>
+        public async Task<string> DeleteUsersAsync(string token, List<string> users, Content content = Content.User, RedcapAction action = RedcapAction.Delete)
         {
             try
             {
-                string _responseMessage;
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
-
-                var payload = new Dictionary<string, string>
-                    {
-                        { "token", _token },
-                        { "content", "arm" },
-                        { "format", _inputFormat },
-                        { "returnFormat", _returnFormat },
-                        { "arms", null}
-                    };
-                // Execute send request
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use DeleteArmsAsync with token param")]
-        public async Task<string> DeleteArmsAsync<T>(T data)
-        {
-            try
-            {
-                string _responseMessage;
-                var _serializedData = JsonConvert.SerializeObject(data);
-                var payload = new Dictionary<string, string>
+                /*
+                 * Check the required parameters for empty or null
+                 */
+                if (IsNullOrEmpty(token))
                 {
-                    { "token", _token },
-                    { "content", "arm" },
-                    { "action", "delete" },
-                    { "arms", _serializedData }
-                };
-                // Execute request
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ExportMetaDataAsync with token param")]
-        public async Task<string> GetMetaDataAsync(ReturnFormat? inputFormat, OnErrorFormat? returnFormat)
-        {
-            try
-            {
-                string _responseMessage;
-                // Handle optional parameters
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", _token },
-                    { "content", "metadata" },
-                    { "format", _inputFormat },
-                    { "returnFormat", _returnFormat }
-                };
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="delimiters"></param>
-        /// <param name="fields"></param>
-        /// <param name="forms"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ExportMetaDataAsync")]
-        public async Task<string> GetMetaDataAsync(ReturnFormat? inputFormat, OnErrorFormat? returnFormat, char[] delimiters, string fields = "", string forms = "")
-        {
-            try
-            {
-                string _responseMessage;
-                var _fields = "";
-                var _forms = "";
-                var _response = String.Empty;
-                if (delimiters.Length == 0)
-                {
-                    // Provide some default delimiters, mostly comma and spaces for redcap
-                    delimiters = new char[] { ',', ' ' };
-                }
-
-                var fieldsResult = await this.ExtractFieldsAsync(fields, delimiters);
-                var formsResult = await this.ExtractFormsAsync(forms, delimiters);
-
-                // Handle optional parameters
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
-
-                if (!String.IsNullOrEmpty(fields))
-                {
-                    // Convert Array List into string array
-                    string[] fieldsArray = fieldsResult.ToArray();
-                    // Convert string array into String
-                    _fields = await this.ConvertArraytoString(fieldsArray);
-                }
-                if (!String.IsNullOrEmpty(forms))
-                {
-                    string[] formsArray = formsResult.ToArray();
-                    // Convert string array into String
-                    _forms = await this.ConvertArraytoString(formsArray);
+                    throw new ArgumentNullException("Please provide a valid Redcap token.");
                 }
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _token },
-                    { "content", "metadata" },
-                    { "format", _inputFormat },
-                    { "returnFormat", _returnFormat }
-                };
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="record"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="delimiters"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ExportRecordsAsync with token param")]
-        public async Task<string> GetRecordAsync(string record, ReturnFormat inputFormat, OnErrorFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
-        {
-            try
-            {
-                string _responseMessage;
-                var _records = String.Empty;
-                if (delimiters.Length == 0)
-                {
-                    // Provide some default delimiters, mostly comma and spaces for redcap
-                    delimiters = new char[] { ',', ' ' };
-                }
-                var recordResults = await this.ExtractRecordsAsync(record, delimiters);
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat, redcapDataType);
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", _token },
-                    { "content", "record" },
-                    { "format", _inputFormat },
-                    { "returnFormat", _returnFormat },
-                    { "type", _redcapDataType }
-                };
-                if (recordResults.Count == 0)
-                {
-                    Log.Error($"Missing required informaion.");
-                    throw new InvalidOperationException($"Missing required informaion.");
-                }
-                else
-                {
-                    // Convert Array List into string array
-                    var inputRecords = recordResults.ToArray();
-                    // Convert string array into String
-                    _records = await this.ConvertArraytoString(inputRecords);
-                    payload.Add("records", _records);
-                }
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="record"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="delimiters"></param>
-        /// <param name="forms"></param>
-        /// <param name="events"></param>
-        /// <param name="fields"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ExportRecordsAsync with token param")]
-        public async Task<string> GetRecordAsync(string record, ReturnFormat inputFormat, RedcapDataType redcapDataType, OnErrorFormat returnFormat = OnErrorFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
-        {
-            try
-            {
-                var _records = String.Empty;
-                if (delimiters == null)
-                {
-                    // Provide some default delimiters, mostly comma and spaces for redcap
-                    delimiters = new char[] { ',', ' ' };
-                }
-                var recordItems = await this.ExtractRecordsAsync(records: record, delimiters: delimiters);
-                var fieldItems = await this.ExtractFieldsAsync(fields: fields, delimiters: delimiters);
-                var formItems = await this.ExtractFormsAsync(forms: forms, delimiters: delimiters);
-                var eventItems = await this.ExtractEventsAsync(events: events, delimiters: delimiters);
-
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat, redcapDataType);
-
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", _token },
-                    { "content", "record" },
-                    { "format", _inputFormat },
-                    { "returnFormat", _returnFormat },
-                    { "type", _redcapDataType }
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "action",  action.GetDisplayName() }
                 };
                 // Required
-                if (recordItems.Count == 0)
+                for (var i = 0; i < users.Count; i++)
                 {
-                    Log.Error($"Missing required informaion.");
-                    throw new InvalidOperationException($"Missing required informaion.");
-                }
-                else
-                {
-                    // Convert Array List into string array
-                    var _inputRecords = recordItems.ToArray();
-                    payload.Add("records", await this.ConvertArraytoString(_inputRecords));
-                }
-                // Optional
-                if (fieldItems.Count > 0)
-                {
-                    var _fields = fieldItems.ToArray();
-                    payload.Add("fields", await this.ConvertArraytoString(_fields));
-                }
-
-                // Optional
-                if (formItems.Count > 0)
-                {
-                    var _forms = formItems.ToArray();
-                    payload.Add("forms", await this.ConvertArraytoString(_forms));
-                }
-
-                // Optional
-                if (eventItems.Count > 0)
-                {
-                    var _events = eventItems.ToArray();
-                    payload.Add("events", await this.ConvertArraytoString(_events));
+                    payload.Add($"users[{i}]", users[i]);
                 }
 
                 return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
+                /*
+                 * We'll just log the error and return the error message.
+                 */
                 Log.Error($"{Ex.Message}");
-                return string.Empty;
+                return Ex.Message;
             }
+
         }
+
+        #endregion
+        #region User Roles
+
         /// <summary>
+        /// From Redcap Version 11.3.0
         /// 
+        /// Export User Roles
+        /// This method allows you to export the list of user roles for a project, including their user privileges.
         /// </summary>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ExportRecordsAsync with token param")]
-        public async Task<string> GetRecordsAsync(ReturnFormat inputFormat, OnErrorFormat returnFormat, RedcapDataType redcapDataType)
+        /// <remarks>
+        /// To use this method, you must have API Export privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">userRole</param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>The method will return all the attributes below with regard to user roles privileges in the format specified. Please note that the 'forms' attribute is the only attribute that contains sub-elements (one for each data collection instrument), in which each form will have its own Form Rights value (see the key below to learn what each numerical value represents). 
+        /// Most user role privilege attributes are boolean (0=No Access, 1=Access). Attributes returned:
+        /// unique_role_name, role_label, design, user_rights, data_access_groups, data_export, reports, stats_and_charts, manage_survey_participants, calendar, data_import_tool, data_comparison_tool, logging, file_repository, data_quality_create, data_quality_execute, api_export, api_import, mobile_app, mobile_app_download_data, record_create, record_rename, record_delete, lock_records_customization, lock_records, lock_records_all_forms, forms
+        /// KEY:
+        /// Data Export: 0=No Access, 2=De-Identified, 1=Full Data Set
+        /// Form Rights: 0=No Access, 2=Read Only, 1=View records/responses and edit records (survey responses are read-only), 3=Edit survey responses
+        /// Other attribute values: 0=No Access, 1=Access.
+        /// </returns>
+        public async Task<string> ExportUserRolesAsync(string token, Content content = Content.UserRole, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
-            string _responseMessage;
             try
             {
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat, redcapDataType);
-                var response = String.Empty;
+                /*
+                 * Check the required parameters for empty or null
+                 */
+                if (IsNullOrEmpty(token))
+                {
+                    throw new ArgumentNullException("Please provide a valid Redcap token.");
+                }
+
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _token },
-                    { "content", "record" },
-                    { "format", _inputFormat },
-                    { "returnFormat", _returnFormat },
-                    { "type", _redcapDataType }
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "format",  format.GetDisplayName() },
+                    { "returnFormat",  onErrorFormat.GetDisplayName() }
                 };
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ExportRedcapVersionAsync with token param")]
-        public async Task<string> GetRedcapVersionAsync(ReturnFormat inputFormat, RedcapDataType redcapDataType)
-        {
-            try
-            {
-                string _responseMessage;
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, OnErrorFormat.json, redcapDataType);
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", _token },
-                    { "content", "version" },
-                    { "format", _inputFormat },
-                    { "type", _redcapDataType }
-                };
-                // Execute send request
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="returnContent"></param>
-        /// <param name="overwriteBehavior"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="returnFormat"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ImportRecordsAsync with token param")]
-        public async Task<string> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, ReturnFormat? inputFormat, RedcapDataType? redcapDataType, OnErrorFormat? returnFormat)
-        {
-            try
-            {
-                string _responseMessage;
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat, redcapDataType);
-                if (data != null)
-                {
-                    List<object> dataList = new List<object>
-                    {
-                        data
-                    };
-                    var _serializedData = JsonConvert.SerializeObject(dataList);
-                    var _overWriteBehavior = await this.ExtractBehaviorAsync(overwriteBehavior);
-                    var payload = new Dictionary<string, string>
-                    {
-                        { "token", _token },
-                        { "content", Content.Record.GetDisplayName() },
-                        { "format", _inputFormat },
-                        { "type", _redcapDataType },
-                        { "overwriteBehavior", _overWriteBehavior },
-                        { "dateFormat", "MDY" },
-                        { "returnFormat", _inputFormat },
-                        { "returnContent", "count" },
-                        { "data", _serializedData }
-                    };
-
-                    // Execute send request
-                    _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                    return _responseMessage;
-                }
-                return null;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"Could not save records into redcap.");
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="returnContent"></param>
-        /// <param name="overwriteBehavior"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="dateFormat"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ImportRecordsAsync with token param")]
-        public async Task<string> SaveRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, ReturnFormat? inputFormat, RedcapDataType? redcapDataType, OnErrorFormat? returnFormat, string dateFormat = "MDY")
-        {
-            try
-            {
-                string _responseMessage;
-                string _dateFormat = dateFormat;
-                // Handle optional parameters
-                if (String.IsNullOrEmpty(_dateFormat))
-                {
-                    _dateFormat = "MDY";
-                }
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat, redcapDataType);
-                var _returnContent = await this.HandleReturnContent(returnContent);
-                var _overWriteBehavior = await this.ExtractBehaviorAsync(overwriteBehavior);
-
-                // Extract properties from object provided
-                if (data != null)
-                {
-                    List<object> list = new List<object>
-                    {
-                        data
-                    };
-                    var formattedData = JsonConvert.SerializeObject(list);
-                    var payload = new Dictionary<string, string>
-                    {
-                        { "token", _token },
-                        { "content", Content.Record.GetDisplayName() },
-                        { "format", _inputFormat },
-                        { "type", _redcapDataType },
-                        { "overwriteBehavior", _overWriteBehavior },
-                        { "dateFormat", _dateFormat },
-                        { "returnFormat", _inputFormat },
-                        { "returnContent", _returnContent },
-                        { "data", formattedData }
-                    };
-
-                    // Execute send request
-                    _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                    return _responseMessage;
-                }
-                return string.Empty;
-
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return await Task.FromResult(string.Empty);
-            }
-        }
-        /// <summary>
-        /// Saves record to redcap
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="returnContent"></param>
-        /// <param name="overwriteBehavior"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="dateFormat"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ImportRecordsAsync with token param")]
-        public async Task<string> SaveRecordsAsync(List<string> data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, ReturnFormat? inputFormat, RedcapDataType? redcapDataType, OnErrorFormat? returnFormat, string dateFormat = "MDY")
-        {
-            try
-            {
-                string _responseMessage;
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat, redcapDataType);
-                var _returnContent = await this.HandleReturnContent(returnContent);
-                var _overWriteBehavior = await this.ExtractBehaviorAsync(overwriteBehavior);
-
-                var _response = String.Empty;
-                var _dateFormat = dateFormat;
-                // Handle optional parameters
-                if (string.IsNullOrEmpty((string)_dateFormat))
-                {
-                    _dateFormat = "MDY";
-                }
-                // Extract properties from object provided
-                if (data != null)
-                {
-                    var _serializedData = JsonConvert.SerializeObject(data);
-                    var payload = new Dictionary<string, string>
-                    {
-                        { "token", _token },
-                        { "content",  Content.Record.GetDisplayName() },
-                        { "format", _inputFormat },
-                        { "type", _redcapDataType },
-                        { "overwriteBehavior", _overWriteBehavior },
-                        { "dateFormat", _dateFormat },
-                        { "returnFormat", _returnFormat },
-                        { "returnContent", _returnContent },
-                        { "data", _serializedData }
-                    };
-
-                    // Execute send request
-                    _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                    return _responseMessage;
-                }
-                return string.Empty;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return await Task.FromResult(string.Empty);
-            }
-
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="returnContent"></param>
-        /// <param name="overwriteBehavior"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="dateFormat"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ImportRecordsAsync with token param")]
-        public async Task<string> ImportRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, ReturnFormat? inputFormat, RedcapDataType? redcapDataType, OnErrorFormat? returnFormat, string dateFormat = "MDY")
-        {
-            try
-            {
-                string _responseMessage;
-                string _dateFormat = dateFormat;
-                // Handle optional parameters
-                if (String.IsNullOrEmpty(_dateFormat))
-                {
-                    _dateFormat = "MDY";
-                }
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat, redcapDataType);
-                var _returnContent = await this.HandleReturnContent(returnContent);
-                var _overWriteBehavior = await this.ExtractBehaviorAsync(overwriteBehavior);
-
-                // Extract properties from object provided
-                if (data != null)
-                {
-                    List<object> list = new List<object>
-                    {
-                        data
-                    };
-                    var formattedData = JsonConvert.SerializeObject(list);
-                    var payload = new Dictionary<string, string>
-                    {
-                        { "token", _token },
-                        { "content",  Content.Record.GetDisplayName() },
-                        { "format", _inputFormat },
-                        { "type", _redcapDataType },
-                        { "overwriteBehavior", _overWriteBehavior },
-                        { "dateFormat", _dateFormat },
-                        { "returnFormat", _inputFormat },
-                        { "returnContent", _returnContent },
-                        { "data", formattedData }
-                    };
-
-                    // Execute send request
-                    _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                    return _responseMessage;
-                }
-                return string.Empty;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return await Task.FromResult(string.Empty);
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="returnContent"></param>
-        /// <param name="overwriteBehavior"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="apiToken"></param>
-        /// <param name="dateFormat"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ImportRecordsAsync with token param")]
-        public async Task<string> ImportRecordsAsync(object data, ReturnContent returnContent, OverwriteBehavior overwriteBehavior, ReturnFormat? inputFormat, RedcapDataType? redcapDataType, OnErrorFormat? returnFormat, string apiToken, string dateFormat = "MDY")
-        {
-            try
-            {
-                string _apiToken = apiToken;
-                string _responseMessage;
-                string _dateFormat = dateFormat;
-                // Handle optional parameters
-                if (String.IsNullOrEmpty(_dateFormat))
-                {
-                    _dateFormat = "MDY";
-                }
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat, redcapDataType);
-                var _returnContent = await this.HandleReturnContent(returnContent);
-                var _overWriteBehavior = await this.ExtractBehaviorAsync(overwriteBehavior);
-
-                // Extract properties from object provided
-                if (data != null)
-                {
-                    //List<object> list = new List<object>
-                    //{
-                    //    data
-                    //};
-                    var formattedData = JsonConvert.SerializeObject(data);
-                    var payload = new Dictionary<string, string>
-                    {
-                        { "token", _apiToken },
-                        { "content",  Content.Record.GetDisplayName()},
-                        { "format", _inputFormat },
-                        { "type", _redcapDataType },
-                        { "overwriteBehavior", _overWriteBehavior },
-                        { "dateFormat", _dateFormat },
-                        { "returnFormat", _inputFormat },
-                        { "returnContent", _returnContent },
-                        { "data", formattedData }
-                    };
-
-                    // Execute send request
-                    _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                    return _responseMessage;
-                }
-                return string.Empty;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return await Task.FromResult(string.Empty);
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ExportMetaDataAsync with token param")]
-
-        public async Task<string> ExportMetaDataAsync(ReturnFormat? inputFormat, OnErrorFormat? returnFormat)
-        {
-            try
-            {
-                string _responseMessage;
-                // Handle optional parameters
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", _token },
-                    { "content",  Content.MetaData.GetDisplayName() },
-                    { "format", _inputFormat },
-                    { "returnFormat", _returnFormat }
-                };
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="delimiters"></param>
-        /// <param name="fields"></param>
-        /// <param name="forms"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ExportMetaDataAsync with token param")]
-        public async Task<string> ExportMetaDataAsync(ReturnFormat? inputFormat, OnErrorFormat? returnFormat, char[] delimiters, string fields = "", string forms = "")
-        {
-            try
-            {
-                string _responseMessage;
-                var _fields = "";
-                var _forms = "";
-                if (delimiters.Length == 0)
-                {
-                    // Provide some default delimiters, mostly comma and spaces for redcap
-                    delimiters = new char[] { ',', ' ' };
-                }
-
-                var fieldsResult = await this.ExtractFieldsAsync(fields, delimiters);
-                var formsResult = await this.ExtractFormsAsync(forms, delimiters);
-
-                // Handle optional parameters
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
-
-                if (!String.IsNullOrEmpty(fields))
-                {
-                    // Convert Array List into string array
-                    string[] fieldsArray = fieldsResult.ToArray();
-                    // Convert string array into String
-                    _fields = await this.ConvertArraytoString(fieldsArray);
-                }
-                if (!String.IsNullOrEmpty(forms))
-                {
-                    string[] formsArray = formsResult.ToArray();
-                    // Convert string array into String
-                    _forms = await this.ConvertArraytoString(formsArray);
-                }
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", _token },
-                    { "content", Content.MetaData.GetDisplayName()  },
-                    { "format", _inputFormat },
-                    { "returnFormat", _returnFormat }
-                };
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="arms"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ExportEventsAsync with token param")]
-        public async Task<string> ExportEventsAsync(ReturnFormat inputFormat, OnErrorFormat returnFormat = OnErrorFormat.json, int[] arms = null)
-        {
-            try
-            {
-                string _responseMessage;
-                var _arms = "";
-                // Handle optional parameters
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
-                if (arms.Length > 0)
-                {
-                    // Convert string array into String
-                    _arms = await this.ConvertIntArraytoString(arms);
-                }
-                var payload = new Dictionary<string, string>
-                {
-                    {"arms", _arms },
-                    { "token", _token },
-                    { "content", Content.Event.GetDisplayName()  },
-                    { "format", _inputFormat },
-                    { "returnFormat", _returnFormat }
-                };
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-        }
-        /// <summary>
-        /// Alias /test/compatibility
-        /// </summary>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <returns>string</returns>
-        public delegate Task<string> GetRedcapVersion(ReturnFormat inputFormat, RedcapDataType redcapDataType);
-        /// <summary>
-        /// Alias /test/compatibility
-        /// </summary>
-        /// <param name="record"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="delimiters"></param>
-        /// <param name="forms"></param>
-        /// <param name="events"></param>
-        /// <param name="fields"></param>
-        /// <returns></returns>
-        public delegate Task<string> ExportRecord(string record, ReturnFormat inputFormat, RedcapDataType redcapDataType, OnErrorFormat returnFormat = OnErrorFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="record"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="delimiters"></param>
-        /// <param name="forms"></param>
-        /// <param name="events"></param>
-        /// <param name="fields"></param>
-        /// <returns></returns>
-        public delegate Task<string> ExportRecords(string record, ReturnFormat inputFormat, RedcapDataType redcapDataType, OnErrorFormat returnFormat = OnErrorFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="data"></param>
-        /// <param name="overRide"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ImportArmsAsync with token param")]
-        public async Task<string> ImportArmsAsync<T>(List<T> data, Override overRide, ReturnFormat inputFormat, OnErrorFormat returnFormat)
-        {
-            try
-            {
-                string _responseMessage;
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
-                var _override = overRide.ToString();
-                var _serializedData = JsonConvert.SerializeObject(data);
-                var payload = new Dictionary<string, string>
-                    {
-                        { "token", _token },
-                        { "content", Content.Arm.GetDisplayName() },
-                        { "action", "import" },
-                        { "format", _inputFormat },
-                        { "type", _redcapDataType },
-                        { "override", _override },
-                        { "returnFormat", _returnFormat },
-                        { "data", _serializedData }
-                    };
-                // Execute request
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="record"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="delimiters"></param>
-        /// <param name="forms"></param>
-        /// <param name="events"></param>
-        /// <param name="fields"></param>
-        /// <returns></returns>
-        [Obsolete("ExportRecordAsync is deprecated, please use ExportRecordsAsync version 1.0+", true)]
-        public async Task<string> ExportRecordAsync(string record, ReturnFormat inputFormat, RedcapDataType redcapDataType, OnErrorFormat returnFormat = OnErrorFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
-        {
-            try
-            {
-                if (delimiters == null)
-                {
-                    // Provide some default delimiters, mostly comma and spaces for redcap
-                    delimiters = new char[] { ',', ' ' };
-                }
-                var recordItems = await this.ExtractRecordsAsync(records: record, delimiters: delimiters);
-                var fieldItems = await this.ExtractFieldsAsync(fields: fields, delimiters: delimiters);
-                var formItems = await this.ExtractFormsAsync(forms: forms, delimiters: delimiters);
-                var eventItems = await this.ExtractEventsAsync(events: events, delimiters: delimiters);
-
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat, redcapDataType);
-
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", _token },
-                    { "content", Content.Record.GetDisplayName()  },
-                    { "format", _inputFormat },
-                    { "returnFormat", _returnFormat },
-                    { "type", _redcapDataType }
-                };
-                // Required
-                if (recordItems.Count == 0)
-                {
-                    Log.Error($"Missing required informaion.");
-                    throw new InvalidOperationException($"Missing required informaion.");
-                }
-                else
-                {
-                    // Convert Array List into string array
-                    var _inputRecords = recordItems.ToArray();
-                    payload.Add("records", await this.ConvertArraytoString(_inputRecords));
-                }
-                // Optional
-                if (fieldItems.Count > 0)
-                {
-                    var _fields = fieldItems.ToArray();
-                    payload.Add("fields", await this.ConvertArraytoString(_fields));
-                }
-
-                // Optional
-                if (formItems.Count > 0)
-                {
-                    var _forms = formItems.ToArray();
-                    payload.Add("forms", await this.ConvertArraytoString(_forms));
-                }
-
-                // Optional
-                if (eventItems.Count > 0)
-                {
-                    var _events = eventItems.ToArray();
-                    payload.Add("events", await this.ConvertArraytoString(_events));
-                }
 
                 return await this.SendPostRequestAsync(payload, _uri);
             }
             catch (Exception Ex)
             {
+                /*
+                 * We'll just log the error and return the error message.
+                 */
                 Log.Error($"{Ex.Message}");
-                return string.Empty;
+                return Ex.Message;
             }
         }
+
         /// <summary>
+        /// From Redcap Version 11.3.0
         /// 
+        /// Import User Roles
+        /// This method allows you to import new user roles into a project while setting their privileges, or update the privileges of existing user roles in the project
         /// </summary>
-        /// <param name="records"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="delimiters"></param>
-        /// <param name="forms"></param>
-        /// <param name="events"></param>
-        /// <param name="fields"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("ExportRecordAsync is deprecated, please use ExportRecordsAsync version 1.0+", true)]
-        public async Task<string> ExportRecordsAsync(string records, ReturnFormat inputFormat, RedcapDataType redcapDataType, OnErrorFormat returnFormat = OnErrorFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges *and* User Rights privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="data">
+        /// Contains the attributes of the user role to be added to the project or whose privileges in the project are being updated, in which they are provided in the specified format. All values should be numerical with the exception of unique_role_name, role_label and forms. Please note that the 'forms' attribute is the only attribute that contains sub-elements (one for each data collection instrument), in which each form will have its own Form Rights value (see the key below to learn what each numerical value represents). Most user privilege attributes are boolean (0=No Access, 1=Access).
+        /// Missing attributes: If a user role is being added to a project in the API request, then any attributes not provided for a user role in the request(including form-level rights) will automatically be given the minimum privileges(typically 0=No Access) for the attribute/privilege.However, if an existing user role's privileges are being modified in the API request, then any attributes not provided will not be modified from their current value but only the attributes provided in the request will be modified.
+        /// Data Export: 0=No Access, 2=De-Identified, 1=Full Data Set
+        /// Form Rights: 0=No Access, 2=Read Only, 1=View records/responses and edit records(survey responses are read-only), 3=Edit survey responses
+        /// Other attribute values: 0=No Access, 1=Access.
+        /// All available attributes: unique_role_name, role_label, design, user_rights, data_access_groups, data_export, reports, stats_and_charts, manage_survey_participants, calendar, data_import_tool, data_comparison_tool, logging, file_repository, data_quality_create, data_quality_execute, api_export, api_import, mobile_app, mobile_app_download_data, record_create, record_rename, record_delete, lock_records_customization, lock_records, lock_records_all_forms, forms
+        /// </param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>Number of user roles added or updated</returns>
+        public async Task<string> ImportUserRolesAsync<T>(string token, List<T> data, Content content = Content.UserRole,  ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
+            var importUserRolesResult = string.Empty;
             try
             {
-                string _responseMessage;
-                var _records = String.Empty;
-                if (delimiters == null)
+                var _serializedData = JsonConvert.SerializeObject(data);
+                var payload = new Dictionary<string, string>
+                    {
+                        { "token", _token },
+                        { "content", content.ToString() },
+                        { "format", format.ToString() },
+                        { "returnFormat", onErrorFormat.ToString() },
+                        { "data", _serializedData }
+                    };
+                // Execute request
+                importUserRolesResult = await this.SendPostRequestAsync(payload, _uri);
+                return importUserRolesResult;
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return importUserRolesResult;
+            }
+
+        }
+
+        /// <summary>
+        /// From Redcap Version 11.3.0
+        /// 
+        /// Delete User Roles
+        /// This method allows you to delete User Roles from a project.
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges *and* User Rights privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="roles">an array of unique rolenames that you wish to delete</param>
+        /// <param name="content">userRole</param>
+        /// <param name="action">delete</param>
+        /// <returns>Number of User Roles deleted</returns>
+        public async Task<string> DeleteUserRolesAsync(string token, List<string> roles, Content content = Content.UserRole, RedcapAction action = RedcapAction.Delete)
+        {
+            var deleteUserRolesResult = string.Empty;
+            try
+            {
+                /*
+                 * Check the required parameters for empty or null
+                 */
+                if (IsNullOrEmpty(token))
                 {
-                    // Provide some default delimiters, mostly comma and spaces for redcap
-                    delimiters = new char[] { ',', ' ' };
+                    throw new ArgumentNullException("Please provide a valid Redcap token.");
                 }
-                var recordItems = await this.ExtractRecordsAsync(records: records, delimiters: delimiters);
-                var fieldItems = await this.ExtractFieldsAsync(fields: fields, delimiters: delimiters);
-                var formItems = await this.ExtractFormsAsync(forms: forms, delimiters: delimiters);
-                var eventItems = await this.ExtractEventsAsync(events: events, delimiters: delimiters);
-
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat, redcapDataType);
-
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _token },
-                    { "content", Content.Record.GetDisplayName()  },
-                    { "format", _inputFormat },
-                    { "returnFormat", _returnFormat },
-                    { "type", _redcapDataType }
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "action",  action.GetDisplayName() }
                 };
                 // Required
-                if (recordItems.Count == 0)
+                for (var i = 0; i < roles.Count; i++)
                 {
-                    Log.Error($"Missing required informaion.");
-                    throw new InvalidOperationException($"Missing required informaion.");
-                }
-                else
-                {
-                    // Convert Array List into string array
-                    var _inputRecords = recordItems.ToArray();
-                    payload.Add("records", await this.ConvertArraytoString(_inputRecords));
-                }
-                // Optional
-                if (fieldItems.Count > 0)
-                {
-                    var _fields = fieldItems.ToArray();
-                    payload.Add("fields", await this.ConvertArraytoString(_fields));
+                    payload.Add($"roles[{i}]", roles[i]);
                 }
 
-                // Optional
-                if (formItems.Count > 0)
-                {
-                    var _forms = formItems.ToArray();
-                    payload.Add("forms", await this.ConvertArraytoString(_forms));
-                }
-
-                // Optional
-                if (eventItems.Count > 0)
-                {
-                    var _events = eventItems.ToArray();
-                    payload.Add("events", await this.ConvertArraytoString(_events));
-                }
-
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
+                deleteUserRolesResult = await this.SendPostRequestAsync(payload, _uri);
+                return deleteUserRolesResult;
             }
             catch (Exception Ex)
             {
+                /*
+                 * We'll just log the error and return the error message.
+                 */
                 Log.Error($"{Ex.Message}");
-                return string.Empty;
+                return deleteUserRolesResult;
             }
         }
+
         /// <summary>
+        /// From Redcap Version 11.3.0
         /// 
+        /// Export User-Role Assignments
+        /// This method allows you to export existing User-Role assignments for a project 
         /// </summary>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="delimiters"></param>
-        /// <param name="forms"></param>
-        /// <param name="events"></param>
-        /// <param name="fields"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("ExportRecordAsync is deprecated, please use ExportRecordsAsync version 1.0+", true)]
-        public async Task<string> ExportRecordsAsync(ReturnFormat inputFormat, RedcapDataType redcapDataType, OnErrorFormat returnFormat = OnErrorFormat.json, char[] delimiters = null, string forms = null, string events = null, string fields = null)
+        /// <remarks>
+        /// To use this method, you must have API Export privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">userRoleMapping</param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>User-Role assignments for the project in the format specified</returns>
+        public async Task<string> ExportUserRoleAssignmentAsync(string token, Content content = Content.UserRoleMapping, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
+            var exportUserRolesAssignmentResult = string.Empty;
             try
             {
-                string _responseMessage;
-                var _records = String.Empty;
-                if (delimiters == null)
+                /*
+                 * Check the required parameters for empty or null
+                 */
+                if (IsNullOrEmpty(token))
                 {
-                    // Provide some default delimiters, mostly comma and spaces for redcap
-                    delimiters = new char[] { ',', ' ' };
+                    throw new ArgumentNullException("Please provide a valid Redcap token.");
                 }
-                var fieldItems = await this.ExtractFieldsAsync(fields: fields, delimiters: delimiters);
-                var formItems = await this.ExtractFormsAsync(forms: forms, delimiters: delimiters);
-                var eventItems = await this.ExtractEventsAsync(events: events, delimiters: delimiters);
-
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat, redcapDataType);
 
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _token },
-                    { "content", Content.Record.GetDisplayName()  },
-                    { "format", _inputFormat },
-                    { "returnFormat", _returnFormat },
-                    { "type", _redcapDataType }
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "format",  format.GetDisplayName() },
+                    { "returnFormat",  onErrorFormat.GetDisplayName() }
                 };
-                // Optional
-                if (fieldItems.Count > 0)
-                {
-                    var _fields = fieldItems.ToArray();
-                    payload.Add("fields", await this.ConvertArraytoString(_fields));
-                }
 
-                // Optional
-                if (formItems.Count > 0)
-                {
-                    var _forms = formItems.ToArray();
-                    payload.Add("forms", await this.ConvertArraytoString(_forms));
-                }
-
-                // Optional
-                if (eventItems.Count > 0)
-                {
-                    var _events = eventItems.ToArray();
-                    payload.Add("events", await this.ConvertArraytoString(_events));
-                }
-
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
+                exportUserRolesAssignmentResult = await this.SendPostRequestAsync(payload, _uri);
+                return exportUserRolesAssignmentResult;
             }
             catch (Exception Ex)
             {
+                /*
+                 * We'll just log the error and return the error message.
+                 */
                 Log.Error($"{Ex.Message}");
-                return string.Empty;
+                return exportUserRolesAssignmentResult;
             }
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="inputFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ExportRedcapVersionAsync with token param ")]
-        public async Task<string> ExportRedcapVersionAsync(ReturnFormat inputFormat, RedcapDataType redcapDataType)
-        {
-            try
-            {
-                string _responseMessage;
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, OnErrorFormat.json, redcapDataType);
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", _token },
-                    { "content", Content.Version.GetDisplayName() },
-                    { "format", _inputFormat },
-                    { "type", _redcapDataType }
-                };
-                // Execute send request
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
 
-                return await Task.FromResult(_responseMessage);
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-        }
         /// <summary>
+        /// From Redcap Version 11.3.0
         /// 
+        /// Import User-Role Assignments
+        /// This method allows you to assign users to any user role.
+        /// NOTE: If you wish to modify an existing mapping, you *must* provide its unique username and role name. If the 'unique_role_name' column is not provided, user will not assigned to any user role. There should be only one record per username.
         /// </summary>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ExportUsersAsync with token param ")]
-        public async Task<string> ExportUsersAsync(ReturnFormat inputFormat, OnErrorFormat returnFormat = OnErrorFormat.json)
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges *and* User Rights privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="data">
+        /// Contains the attributes 'username' (referring to the existing unique username) and 'unique_role_name' (referring to existing unique role name) of each User-Role assignments to be modified, in which they are provided in the specified format.
+        /// JSON Example:[{"username":"global_user","unique_role_name":""},
+        /// {"username":"ca_dt_person","unique_role_name":"U-2119C4Y87T"},
+        /// { "username":"fl_dt_person","unique_role_name":"U-2119C4Y87T"}]
+        /// </param>
+        /// <param name="content">userRoleMapping</param>
+        /// <param name="action">import</param>
+        /// <param name="format"></param>
+        /// <param name="onErrorFormat"></param>
+        /// <returns>Number of User-Role assignments added or updated</returns>
+        public async Task<string> ImportUserRoleAssignmentAsync<T>(string token, List<T> data, Content content = Content.UserRoleMapping, RedcapAction action = RedcapAction.Import, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
+            var importUserRoleAssignmentResult = string.Empty;
             try
             {
-                string _responseMessage;
-                var _inputFormat = inputFormat.ToString();
-                var _returnFormat = returnFormat.ToString();
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", _token },
-                    { "content", Content.User.GetDisplayName()  },
-                    { "format", _inputFormat },
-                    { "returnFormat", _returnFormat }
-                };
-
-                // Execute send request
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <param name="redcapDataType"></param>
-        /// <param name="delimiters"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ExportRecordsAsync with token param ")]
-        public async Task<string> GetRecordsAsync(ReturnFormat inputFormat, OnErrorFormat returnFormat, RedcapDataType redcapDataType, char[] delimiters)
-        {
-            try
-            {
-                string _responseMessage;
-                var _records = String.Empty;
-                if (delimiters == null)
-                {
-                    // Provide some default delimiters, mostly comma and spaces for redcap
-                    delimiters = new char[] { ',', ' ' };
-                }
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", _token },
-                    { "content", Content.Record.GetDisplayName() },
-                    { "format", _inputFormat },
-                    { "returnFormat", _returnFormat },
-                    { "type", _redcapDataType }
-                };
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="data"></param>
-        /// <param name="overRide"></param>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ImportEventsAsync with token param ")]
-        public async Task<string> ImportEventsAsync<T>(List<T> data, Override overRide, ReturnFormat inputFormat, OnErrorFormat returnFormat = OnErrorFormat.json)
-        {
-            try
-            {
-                string _responseMessage;
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
-                var _override = overRide.ToString();
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                 {
-                    { "token", _token },
-                    { "content", Content.Event.GetDisplayName() },
-                    { "action", "import" },
-                    { "format", _inputFormat },
-                    { "type", _redcapDataType },
-                    { "override", _override },
-                    { "returnFormat", _returnFormat },
+                    { "token", token },
+                    { "content", content.ToString() },
+                    { "format", format.ToString() },
+                    { "returnFormat", onErrorFormat.ToString() },
                     { "data", _serializedData }
                 };
                 // Execute request
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
+                importUserRoleAssignmentResult = await this.SendPostRequestAsync(payload, _uri);
+                return importUserRoleAssignmentResult;
             }
             catch (Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
-                return string.Empty;
+                return importUserRoleAssignmentResult;
             }
+        }
+        #endregion User Roles
 
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="record"></param>
-        /// <param name="field"></param>
-        /// <param name="eventName"></param>
-        /// <param name="repeatInstance"></param>
-        /// <param name="returnFormat"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ExportFileAsync with token param ")]
-        public async Task<string> ExportFileAsync(string record, string field, string eventName, string repeatInstance, OnErrorFormat returnFormat = OnErrorFormat.json)
-        {
-            try
-            {
-                string _responseMessage;
-                var _returnFormat = returnFormat.ToString();
-                var _eventName = eventName;
-                var _repeatInstance = repeatInstance;
-                var _record = record;
-                var _field = field;
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", _token },
-                    { "content", Content.File.GetDisplayName() },
-                    { "action", "export" },
-                    { "record", _record },
-                    { "field", _field },
-                    { "event", _eventName },
-                    { "returnFormat", _returnFormat }
-                };
-                if (!string.IsNullOrEmpty(_repeatInstance))
-                {
-                    payload.Add("repeat_instance", _repeatInstance);
-                }
-                // Execute request
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error(Ex.Message);
-                return string.Empty;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="record"></param>
-        /// <param name="field"></param>
-        /// <param name="eventName"></param>
-        /// <param name="repeatInstance"></param>
-        /// <param name="filePath"></param>
-        /// <param name="returnFormat"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("ExportFileAsync is deprecated, please use ExportFileAsync version 1.0+", true)]
-        public async Task<string> ExportFileAsync(string record, string field, string eventName, string repeatInstance, string filePath = null, OnErrorFormat returnFormat = OnErrorFormat.json)
-        {
-            try
-            {
-                string _responseMessage;
-                var _filePath = filePath;
-                if (!string.IsNullOrEmpty(filePath))
-                {
-                    if (!Directory.Exists(_filePath))
-                    {
-                        Log.Information($"The directory does not exist!");
-                        Directory.CreateDirectory(_filePath);
-                    }
-                }
-                var _returnFormat = returnFormat.ToString();
-                var _eventName = eventName;
-                var _repeatInstance = repeatInstance;
-                var _record = record;
-                var _field = field;
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", _token },
-                    { "content", Content.File.GetDisplayName() },
-                    { "action", "export" },
-                    { "record", _record },
-                    { "field", _field },
-                    { "event", _eventName },
-                    { "returnFormat", _returnFormat },
-                    { "filePath", $@"{_filePath}" }
-                };
-                if (!string.IsNullOrEmpty(_repeatInstance))
-                {
-                    payload.Add("repeat_instance", _repeatInstance);
-                }
-                // Execute request
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error(Ex.Message);
-                return string.Empty;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="record"></param>
-        /// <param name="field"></param>
-        /// <param name="eventName"></param>
-        /// <param name="repeatInstance"></param>
-        /// <param name="fileName"></param>
-        /// <param name="filePath"></param>
-        /// <param name="returnFormat"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("ImportFileAsync is deprecated, please use ImportFileAsync version 1.0+", true)]
-        public async Task<string> ImportFileAsync(string record, string field, string eventName, string repeatInstance, string fileName, string filePath, OnErrorFormat returnFormat = OnErrorFormat.json)
-        {
-
-            try
-            {
-                string _responseMessage;
-                var _fileName = fileName;
-                var _filePath = filePath;
-                var _binaryFile = Path.Combine(_filePath, _fileName);
-                ByteArrayContent _fileContent;
-                var _returnFormat = returnFormat.ToString();
-                var _eventName = eventName;
-                var _repeatInstance = repeatInstance;
-                var _record = record;
-                var _field = field;
-                var payload = new MultipartFormDataContent()
-                {
-                        {new StringContent(_token), "token" },
-                        {new StringContent("file") ,"content" },
-                        {new StringContent("import"), "action" },
-                        {new StringContent(_record), "record" },
-                        {new StringContent(_field), "field" },
-                        {new StringContent(_eventName),  "event" },
-                        {new StringContent(_returnFormat), "returnFormat" }
-                };
-                if (!string.IsNullOrEmpty(_repeatInstance))
-                {
-                    // add repeat instrument params if available
-                    payload.Add(new StringContent(_repeatInstance), "repeat_instance");
-                }
-                if (string.IsNullOrEmpty(_fileName) || string.IsNullOrEmpty(_filePath))
-                {
-
-                    throw new InvalidOperationException($"file can not be empty or null");
-                }
-                else
-                {
-                    // add the binary file in specific content type
-                    _fileContent = new ByteArrayContent(File.ReadAllBytes(_binaryFile));
-                    _fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-                    payload.Add(_fileContent, "file", _fileName);
-                }
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error(Ex.Message);
-                return string.Empty;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="record"></param>
-        /// <param name="field"></param>
-        /// <param name="eventName"></param>
-        /// <param name="repeatInstance"></param>
-        /// <param name="returnFormat"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use DeleteFileAsync with token param ")]
-        public async Task<string> DeleteFileAsync(string record, string field, string eventName, string repeatInstance, OnErrorFormat returnFormat = OnErrorFormat.json)
-        {
-            try
-            {
-                string _responseMessage;
-                var _returnFormat = returnFormat.ToString();
-                var _eventName = eventName;
-                var _repeatInstance = repeatInstance;
-                var _record = record;
-                var _field = field;
-                var payload = new MultipartFormDataContent()
-                {
-                        {new StringContent(_token), "token" },
-                        {new StringContent("file") ,"content" },
-                        {new StringContent("delete"), "action" },
-                        {new StringContent(_record), "record" },
-                        {new StringContent(_field), "field" },
-                        {new StringContent(_eventName),  "event" },
-                        {new StringContent(_returnFormat), "returnFormat" }
-                };
-                if (!string.IsNullOrEmpty(_repeatInstance))
-                {
-                    // add repeat instrument params if available
-                    payload.Add(new StringContent(_repeatInstance), "repeat_instance");
-                }
-                _responseMessage = await this.SendPostRequestAsync(payload, _uri);
-                return _responseMessage;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error(Ex.Message);
-                return string.Empty;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="inputFormat"></param>
-        /// <param name="returnFormat"></param>
-        /// <returns></returns>
-        /// 
-        [Obsolete("Please use ExportEventsAsync with token param ")]
-        public async Task<string> ExportEventsAsync(ReturnFormat inputFormat, OnErrorFormat returnFormat = OnErrorFormat.json)
-        {
-            try
-            {
-                // Handle optional parameters
-                var (_inputFormat, _returnFormat, _redcapDataType) = await this.HandleFormat(inputFormat, returnFormat);
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", _token },
-                    { "content", Content.Event.GetDisplayName() },
-                    { "format", _inputFormat },
-                    { "returnFormat", _returnFormat }
-                };
-                return await this.SendPostRequestAsync(payload, _uri);
-            }
-            catch (Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return string.Empty;
-            }
-        }
-        #endregion deprecated
     }
 }
