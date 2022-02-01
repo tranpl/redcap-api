@@ -13,8 +13,8 @@ namespace Redcap.Broker
     public partial class ApiBroker: IApiBroker
     {
         protected readonly HttpClient httpClient;
-        protected readonly IRestClient restClient;
-        public ApiBroker(HttpClient httpClient, IRestClient restClient)
+        protected readonly RestClient restClient;
+        public ApiBroker(HttpClient httpClient, RestClient restClient)
         {
             this.httpClient = httpClient;
             this.restClient = restClient;
@@ -28,7 +28,7 @@ namespace Redcap.Broker
             Log.Error($"Message: {ex.Message}. Method: {method} File: {filePath} LineNumber: {lineNumber}");
             throw new Exception(errorMessage);
         }
-        public async Task<T> PostAsync<T>(IRestRequest request, CancellationToken cancellationToken = default)
+        public async Task<T> PostAsync<T>(RestRequest request, CancellationToken cancellationToken = default)
         {
             var response = await restClient.PostAsync<T>(request, cancellationToken);
             

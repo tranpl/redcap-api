@@ -11,6 +11,6 @@ namespace Redcap.Broker
     {
         Task<T> ExecuteAsync<T>(RestRequest request) where T : new();
         void LogException(Exception ex, [CallerMemberName] string method = null, [CallerFilePath] string filePath = null, [CallerLineNumber] int lineNumber = 0);
-        Task<T> PostAsync<T>(IRestRequest request, CancellationToken cancellationToken = default);
+        Task<T> PostAsync<T>(RestRequest request, CancellationToken cancellationToken = default);
     }
 }
