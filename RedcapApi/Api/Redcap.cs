@@ -2904,8 +2904,10 @@ namespace Redcap
         /// <param name="exportSurveyFields">true, false [default] - specifies whether or not to export the survey identifier field (e.g., 'redcap_survey_identifier') or survey timestamp fields (e.g., instrument+'_timestamp') when surveys are utilized in the project. If you do not pass in this flag, it will default to 'false'. If set to 'true', it will return the redcap_survey_identifier field and also the survey timestamp field for a particular survey when at least one field from that survey is being exported. NOTE: If the survey identifier field or survey timestamp fields are imported via API data import, they will simply be ignored since they are not real fields in the project but rather are pseudo-fields.</param>
         /// <param name="exportDataAccessGroups">true, false [default] - specifies whether or not to export the 'redcap_data_access_group' field when data access groups are utilized in the project. If you do not pass in this flag, it will default to 'false'. NOTE: This flag is only viable if the user whose token is being used to make the API request is *not* in a data access group. If the user is in a group, then this flag will revert to its default value.</param>
         /// <param name="filterLogic">String of logic text (e.g., [age] > 30) for filtering the data to be returned by this API method, in which the API will only return the records (or record-events, if a longitudinal project) where the logic evaluates as TRUE. This parameter is blank/null by default unless a value is supplied. Please note that if the filter logic contains any incorrect syntax, the API will respond with an error message. </param>
+        /// <param name="recordCreatedOrModifiedBeginTimespan">Begin DateTime of records created/modified. This parameter is null by default unless a value is supplied. </param>
+        /// <param name="recordCreatedOrModifiedEndTimespan">End DateTime of records created/modified. This parameter is null by default unless a value is supplied. </param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<string> ExportRecordsAsync(string token, ReturnFormat format = ReturnFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, OnErrorFormat onErrorFormat = OnErrorFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null)
+        public async Task<string> ExportRecordsAsync(string token, ReturnFormat format = ReturnFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, OnErrorFormat onErrorFormat = OnErrorFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, DateTime? recordCreatedOrModifiedBeginTimespan = null, DateTime? recordCreatedOrModifiedEndTimespan = null)
         {
             try
             {
@@ -2964,6 +2966,14 @@ namespace Redcap
                 {
                     payload.Add("filterLogic", filterLogic);
                 }
+                if (recordCreatedOrModifiedBeginTimespan.HasValue)
+                {
+                    payload.Add("dateRangeBegin", recordCreatedOrModifiedBeginTimespan.Value.ToString("yyyy-MM-dd hh:mm:ss"));
+                }
+                if (recordCreatedOrModifiedEndTimespan.HasValue)
+                {
+                    payload.Add("dateRangeEnd", recordCreatedOrModifiedEndTimespan.Value.ToString("yyyy-MM-dd hh:mm:ss"));
+                }
                 return await this.SendPostRequestAsync(payload, _uri);
 
             }
@@ -3002,8 +3012,10 @@ namespace Redcap
         /// <param name="exportSurveyFields">true, false [default] - specifies whether or not to export the survey identifier field (e.g., 'redcap_survey_identifier') or survey timestamp fields (e.g., instrument+'_timestamp') when surveys are utilized in the project. If you do not pass in this flag, it will default to 'false'. If set to 'true', it will return the redcap_survey_identifier field and also the survey timestamp field for a particular survey when at least one field from that survey is being exported. NOTE: If the survey identifier field or survey timestamp fields are imported via API data import, they will simply be ignored since they are not real fields in the project but rather are pseudo-fields.</param>
         /// <param name="exportDataAccessGroups">true, false [default] - specifies whether or not to export the 'redcap_data_access_group' field when data access groups are utilized in the project. If you do not pass in this flag, it will default to 'false'. NOTE: This flag is only viable if the user whose token is being used to make the API request is *not* in a data access group. If the user is in a group, then this flag will revert to its default value.</param>
         /// <param name="filterLogic">String of logic text (e.g., [age] > 30) for filtering the data to be returned by this API method, in which the API will only return the records (or record-events, if a longitudinal project) where the logic evaluates as TRUE. This parameter is blank/null by default unless a value is supplied. Please note that if the filter logic contains any incorrect syntax, the API will respond with an error message. </param>
+        /// <param name="recordCreatedOrModifiedBeginTimespan">Begin DateTime of records created/modified. This parameter is null by default unless a value is supplied. </param>
+        /// <param name="recordCreatedOrModifiedEndTimespan">End DateTime of records created/modified. This parameter is null by default unless a value is supplied. </param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<string> ExportRecordsAsync(string token, Content content, ReturnFormat format = ReturnFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, OnErrorFormat onErrorFormat = OnErrorFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null)
+        public async Task<string> ExportRecordsAsync(string token, Content content, ReturnFormat format = ReturnFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, OnErrorFormat onErrorFormat = OnErrorFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, DateTime? recordCreatedOrModifiedBeginTimespan = null, DateTime? recordCreatedOrModifiedEndTimespan = null)
         {
             try
             {
@@ -3061,6 +3073,14 @@ namespace Redcap
                 if (!IsNullOrEmpty(filterLogic))
                 {
                     payload.Add("filterLogic", filterLogic);
+                }
+                if (recordCreatedOrModifiedBeginTimespan.HasValue)
+                {
+                    payload.Add("dateRangeBegin", recordCreatedOrModifiedBeginTimespan.Value.ToString("yyyy-MM-dd hh:mm:ss"));
+                }
+                if (recordCreatedOrModifiedEndTimespan.HasValue)
+                {
+                    payload.Add("dateRangeEnd", recordCreatedOrModifiedEndTimespan.Value.ToString("yyyy-MM-dd hh:mm:ss"));
                 }
                 return await this.SendPostRequestAsync(payload, _uri);
 
