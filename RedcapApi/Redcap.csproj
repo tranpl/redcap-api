@@ -24,6 +24,7 @@
     <Title>Redcap Api</Title>
     <PackageReleaseNotes>- add new api methods for FileRepository
 - update documentation</PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="bin\**" />
