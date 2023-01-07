@@ -15,7 +15,6 @@
     <PackageTags>redcap api library vcu</PackageTags>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
-    <StartupObject />
     <NeutralLanguage>en</NeutralLanguage>
     <FileVersion>1.3.0</FileVersion>
     <license>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</license>
