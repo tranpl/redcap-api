@@ -1,4 +1,4 @@
-[![Build Status](https://dev.azure.com/cctrbic/redcap-api/_apis/build/status/cctrbic.redcap-api?branchName=refs%2Fpull%2F90%2Fmerge)](https://dev.azure.com/cctrbic/redcap-api/_build/latest?definitionId=117&branchName=refs%2Fpull%2F90%2Fmerge)
+[![Build Status](https://dev.azure.com/cctrbic/redcap-api/_apis/build/status/cctrbic.redcap-api?branchName=master)](https://dev.azure.com/cctrbic/redcap-api/_build/latest?definitionId=117&branchName=refs%2Fpull%2F90%2Fmerge)
 
 [![NuGet](https://img.shields.io/nuget/dt/RedcapApi.svg?style=for-the-badge)](https://www.nuget.org/packages/RedcapAPI) 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=for-the-badge)](https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md)
