@@ -245,7 +245,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             Console.WriteLine($"Using records from the imported method..");
             var recordsToExport = importDemographicsData.Select(x => x.RecordId).ToArray();
             var instrumentName = new string[] { "demographics" };
-            var ExportRecordsAsyncResult = await redcap_api_2_0_0.ExportRecordsAsync(_token, Content.Record, ReturnFormat.json, RedcapDataType.flat, recordsToExport, null, instrumentName);
+            var ExportRecordsAsyncResult = await redcap_api_2_0_0.ExportRecordsAsync(_token, Content.Record, RedcapFormat.json, RedcapDataType.flat, recordsToExport, null, instrumentName);
             Console.WriteLine($"ExportRecordsAsyncResult: {ExportRecordsAsyncResult}");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();
