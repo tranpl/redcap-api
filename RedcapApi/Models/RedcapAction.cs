@@ -12,6 +12,18 @@ namespace Redcap.Models
     public enum RedcapAction
     {
         /// <summary>
+        /// Create Folder
+        /// </summary>
+        [Display(Name ="createFolder")]
+        CreateFolder,
+
+        /// <summary>
+        /// List Folders
+        /// </summary>
+        [Display(Name ="list")]
+        List,
+
+        /// <summary>
         /// Export Action
         /// </summary>
         /// 

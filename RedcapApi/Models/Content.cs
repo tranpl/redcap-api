@@ -47,6 +47,14 @@ namespace Redcap.Models
         /// 
         [Display(Name = "file")]
         File,
+
+        /// <summary>
+        /// File Repository
+        /// </summary>
+        /// 
+        [Display(Name ="fileRepository")]
+        FileRepository,
+
         /// <summary>
         /// Meta Data Content
         /// </summary>
