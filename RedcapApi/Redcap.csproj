@@ -17,7 +17,6 @@
     <OutputType>Library</OutputType>
     <NeutralLanguage>en</NeutralLanguage>
     <FileVersion>1.0.7.0</FileVersion>
-    <PackageLicenseUrl>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</PackageLicenseUrl>
     <Copyright>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</Copyright>
     <icon>https://vortex.cctr.vcu.edu/images/ram_crest_160.png</icon>
     <PackageIcon>vcu.png</PackageIcon>
