@@ -9,6 +9,21 @@ namespace Redcap.Models
     public enum Content
     {
         /// <summary>
+        /// Log
+        /// </summary>
+        [Display(Name ="log")]
+        Log,
+        /// <summary>
+        /// User-Mapping
+        /// </summary>
+        [Display(Name = "userDagMapping")]
+        UserDagMapping,
+        /// <summary>
+        /// Dag Content
+        /// </summary>
+        [Display(Name = "dag")]
+        Dag,
+        /// <summary>
         /// Arm Content
         /// </summary>
         /// 
@@ -32,6 +47,14 @@ namespace Redcap.Models
         /// 
         [Display(Name = "file")]
         File,
+
+        /// <summary>
+        /// File Repository
+        /// </summary>
+        /// 
+        [Display(Name ="fileRepository")]
+        FileRepository,
+
         /// <summary>
         /// Meta Data Content
         /// </summary>
@@ -133,7 +156,19 @@ namespace Redcap.Models
         /// </summary>
         /// 
         [Display(Name = "user")]
-        User
+        User,
+
+        /// <summary>
+        /// User Role
+        /// </summary>
+        [Display(Name ="userRole")]
+        UserRole,
+        /// <summary>
+        /// User Role Mapping
+        /// </summary>
+        [Display(Name = "userRoleMapping")]
+        UserRoleMapping
+
 
     }
 }

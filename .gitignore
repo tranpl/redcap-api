@@ -261,4 +261,3 @@ __pycache__/
 *.pyc
 RedcapApi/Properties
 RedcapApiDemo/Properties
-nuget.config

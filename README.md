@@ -1,5 +1,7 @@
-[![Travis](https://img.shields.io/travis/cctrbic/redcap-api.svg?style=for-the-badge)](https://travis-ci.org/cctrbic/redcap-api) [![NuGet](https://img.shields.io/nuget/dt/RedcapApi.svg?style=for-the-badge)](https://www.nuget.org/packages/RedcapAPI) [![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=for-the-badge)](https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md)
-[![Build status](https://dev.azure.com/cctrbic/redcap-api-library/_apis/build/status/redcap-api-library-ASP.NET%20Core-CI)](https://dev.azure.com/cctrbic/redcap-api-library/_build/latest?definitionId=15)
+[![Build Status](https://dev.azure.com/cctrbic/redcap-api/_apis/build/status/cctrbic.redcap-api?branchName=refs%2Fpull%2F90%2Fmerge)](https://dev.azure.com/cctrbic/redcap-api/_build/latest?definitionId=117&branchName=refs%2Fpull%2F90%2Fmerge)
+
+[![NuGet](https://img.shields.io/nuget/dt/RedcapApi.svg?style=for-the-badge)](https://www.nuget.org/packages/RedcapAPI) 
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=for-the-badge)](https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md)
 
 Project Feedback, using REDCap of course: https://redcap.vcu.edu/surveys/?s=KJLHWRTJYA
 
@@ -14,6 +16,10 @@ __Prerequisites__
 5.  Build the solution, then run the tests
 
 __API METHODS SUPPORTED (Not all listed)__
+* ExportLoggingAsync
+* ExportDagsAsync
+* ImportDagsAsync
+* DeleteDagsAsync
 * ExportArmsAsync
 * ImportArmsAsync
 * DeleteArmsAsync
@@ -55,7 +61,7 @@ namespace RedcapApiDemo
             Console.WriteLine("Redcap Api Demo Started!");
             // Use your own API Token here...
             var apiToken = "3D57A7FA57C8A43F6C8803A84BB3957B";
-            var redcap_api = new RedcapApi("http://localhost/redcap/api/");
+            var redcap_api = new RedcapApi("https://localhost/redcap/api/");
 
             Console.WriteLine("Exporting all records from project.");
             var result = redcap_api.ExportRecordsAsync(apiToken).Result;
@@ -74,21 +80,21 @@ __Install directly in Package Manager Console or Command Line Interface__
 ```C#
 Package Manager
 
-Install-Package RedcapAPI -Version 1.0.7
+Install-Package RedcapAPI -Version 1.1.0
 
 ```
 
 ```C#
 .NET CLI
 
-dotnet add package RedcapAPI --version 1.0.7
+dotnet add package RedcapAPI --version 1.1.0
 
  ```
 
 ```C#
 Paket CLI
 
-paket add RedcapAPI --version 1.0.7
+paket add RedcapAPI --version 1.1.0
 
 ```
 

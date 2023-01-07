@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json;
-using Redcap.Models;
-using Serilog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
@@ -11,78 +8,18 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Xunit.Abstractions;
-using Xunit.Sdk;
+
+using Redcap.Http;
+using Redcap.Models;
+
+using Serilog;
+
 using static System.String;
 
 namespace Redcap.Utilities
 {
     /// <summary>
-    /// 
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class TestPriorityAttribute : Attribute
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="priority"></param>
-        public TestPriorityAttribute(int priority)
-        {
-            Priority = priority;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        public int Priority { get; private set; }
-    }
-    /// <summary>
-    /// 
-    /// </summary>
-    public class PriorityOrderer : ITestCaseOrderer
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="TTestCase"></typeparam>
-        /// <param name="testCases"></param>
-        /// <returns></returns>
-        public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
-        {
-            var sortedMethods = new SortedDictionary<int, List<TTestCase>>();
-
-            foreach (TTestCase testCase in testCases)
-            {
-                int priority = 0;
-
-                foreach (IAttributeInfo attr in testCase.TestMethod.Method.GetCustomAttributes((typeof(TestPriorityAttribute).AssemblyQualifiedName)))
-                    priority = attr.GetNamedArgument<int>("Priority");
-
-                GetOrCreate(sortedMethods, priority).Add(testCase);
-            }
-
-            foreach (var list in sortedMethods.Keys.Select(priority => sortedMethods[priority]))
-            {
-                list.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod.Method.Name, y.TestMethod.Method.Name));
-                foreach (TTestCase testCase in list)
-                    yield return testCase;
-            }
-        }
-
-        static TValue GetOrCreate<TKey, TValue>(IDictionary<TKey, TValue> dictionary, TKey key) where TValue : new()
-        {
-            TValue result;
-
-            if (dictionary.TryGetValue(key, out result)) return result;
-
-            result = new TValue();
-            dictionary[key] = result;
-
-            return result;
-        }
-    }
-    /// <summary>
-    /// Utility class for extension methods
+    /// Utilities
     /// </summary>
     public static class Utils
     {
@@ -130,7 +67,7 @@ namespace Redcap.Utilities
                 fileName = fileName.Replace("\"", "");
                 /*
                  * Add extension
-                 */ 
+                 */
                 if (!string.IsNullOrEmpty(fileExtension))
                 {
                     fileName = fileName + "." + fileExtension;
@@ -144,10 +81,10 @@ namespace Redcap.Utilities
                     }
                 );
             }
-            catch(Exception Ex)
+            catch (Exception Ex)
             {
                 Log.Error(Ex.Message);
-                if(filestream != null)
+                if (filestream != null)
                 {
                     filestream.Flush();
                 }
@@ -583,7 +520,7 @@ namespace Redcap.Utilities
             try
             {
                 Stream stream = null;
-                using(var handler = GetHttpHandler())
+                using (var handler = GetHttpHandler())
                 using (var client = new HttpClient(handler))
                 {
                     // Encode the values for payload
@@ -644,9 +581,8 @@ namespace Redcap.Utilities
         /// <param name="redcapApi"></param>
         /// <param name="payload">data</param>
         /// <param name="uri">URI of the api instance</param>
-        /// <param name="isLargeDataset">Requests size > 32k chars </param>
         /// <returns></returns>
-        public static async Task<string> SendPostRequestAsync(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, bool isLargeDataset = false)
+        public static async Task<string> SendPostRequestAsync(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri)
         {
             try
             {
@@ -666,112 +602,53 @@ namespace Redcap.Utilities
                         payload.Remove(pathkey);
                     }
 
-                    /*
-                     * Encode the values for payload
-                     * Add in ability to process large data set, using StringContent
-                     * Thanks to Ibrahim for pointing this out.
-                     * https://stackoverflow.com/questions/23703735/how-to-set-large-string-inside-httpcontent-when-using-httpclient/23740338
-                     */
-                    if (isLargeDataset)
+                    using (var content = new CustomFormUrlEncodedContent(payload))
                     {
-                        /*
-                         * Send request with large data set
-                         */
-
-                        var serializedPayload = JsonConvert.SerializeObject(payload);
-                        using (var content = new StringContent(serializedPayload, Encoding.UTF8, "application/json"))
+                        using (var response = await client.PostAsync(uri, content))
                         {
-                            using (var response = await client.PostAsync(uri, content))
+                            if (response.IsSuccessStatusCode)
                             {
-                                if (response.IsSuccessStatusCode)
+                                // Get the filename so we can save with the name
+                                var headers = response.Content.Headers;
+                                var fileName = headers.ContentType?.Parameters.Select(x => x.Value).FirstOrDefault();
+                                if (!string.IsNullOrEmpty(fileName))
                                 {
-                                    // Get the filename so we can save with the name
-                                    var headers = response.Content.Headers;
-                                    var fileName = headers.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
-                                    if (!string.IsNullOrEmpty(fileName))
+                                    var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
                                     {
-                                        var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-                                        {
-                                            FileName = fileName
-                                        };
-                                    }
+                                        FileName = fileName
+                                    };
+                                }
 
-                                    if (!string.IsNullOrEmpty(pathValue))
+
+                                if (!string.IsNullOrEmpty(pathValue))
+                                {
+                                    var fileExtension = payload.Where(x => x.Key == "content" && x.Value == "pdf").SingleOrDefault().Value;
+                                    if (!string.IsNullOrEmpty(fileExtension))
                                     {
+                                        // pdf 
+                                        fileName = payload.Where(x => x.Key == "instrument").SingleOrDefault().Value;
+                                        // to do , make extensions for various types
                                         // save the file to a specified location using an extension method
-                                        await response.Content.ReadAsFileAsync(fileName, pathValue, true);
-                                        _responseMessage = fileName;
+                                        await response.Content.ReadAsFileAsync(fileName, pathValue, true, fileExtension);
+
                                     }
                                     else
                                     {
-                                        _responseMessage = await response.Content.ReadAsStringAsync();
-                                    }
+                                        await response.Content.ReadAsFileAsync(fileName, pathValue, true, fileExtension);
 
+                                    }
+                                    _responseMessage = fileName;
                                 }
                                 else
                                 {
                                     _responseMessage = await response.Content.ReadAsStringAsync();
                                 }
                             }
-
-                        }
-                        return _responseMessage;
-                    }
-                    else
-                    {
-                        /*
-                        * Maximum character limit of 32,000 using FormUrlEncodedContent
-                        * Send request using small data set
-                        */
-                        using (var content = new FormUrlEncodedContent(payload))
-                        {
-                            using (var response = await client.PostAsync(uri, content))
+                            else
                             {
-                                if (response.IsSuccessStatusCode)
-                                {
-                                    // Get the filename so we can save with the name
-                                    var headers = response.Content.Headers;
-                                    var fileName = headers.ContentType.Parameters.Select(x => x.Value).FirstOrDefault();
-                                    if (!string.IsNullOrEmpty(fileName))
-                                    {
-                                        var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-                                        {
-                                            FileName = fileName
-                                        };
-                                    }
-
-
-                                    if (!string.IsNullOrEmpty(pathValue))
-                                    {
-                                        var fileExtension = payload.Where(x => x.Key == "content" && x.Value == "pdf").SingleOrDefault().Value;
-                                        if (!string.IsNullOrEmpty(fileExtension))
-                                        {
-                                            // pdf 
-                                            fileName = payload.Where(x => x.Key == "instrument").SingleOrDefault().Value;
-                                            // to do , make extensions for various types
-                                            // save the file to a specified location using an extension method
-                                            await response.Content.ReadAsFileAsync(fileName, pathValue, true, fileExtension);
-
-                                        }
-                                        else
-                                        {
-                                            await response.Content.ReadAsFileAsync(fileName, pathValue, true, fileExtension);
-
-                                        }
-                                        _responseMessage = fileName;
-                                    }
-                                    else
-                                    {
-                                        _responseMessage = await response.Content.ReadAsStringAsync();
-                                    }
-                                }
-                                else
-                                {
-                                    _responseMessage = await response.Content.ReadAsStringAsync();
-                                }
+                                _responseMessage = await response.Content.ReadAsStringAsync();
                             }
                         }
-
                     }
                     return _responseMessage;
                 }
