@@ -10,20 +10,23 @@
     <Description>This library allows applications on the .NET platform to make http calls to REDCap instances.</Description>
     <Product>Redcap Api Library</Product>
     <PackageId>RedcapAPI</PackageId>
-    <Version>1.2.0</Version>
-    <AssemblyVersion>1.2.0</AssemblyVersion>
+    <Version>1.3.0</Version>
+    <AssemblyVersion>1.3.0</AssemblyVersion>
     <PackageTags>redcap api library vcu</PackageTags>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />
     <NeutralLanguage>en</NeutralLanguage>
-    <FileVersion>1.2.0</FileVersion>
+    <FileVersion>1.3.0</FileVersion>
     <license>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</license>
     <Copyright>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</Copyright>
     <icon>https://vortex.cctr.vcu.edu/images/ram_crest_160.png</icon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>vcu.png</PackageIcon>
+    <Title>Redcap Api</Title>
+    <PackageReleaseNotes>- add new api methods for FileRepository
+- update documentation</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="bin\**" />
@@ -41,6 +44,5 @@
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Text.Json" Version="7.0.1" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Include="xunit.extensibility.core" Version="2.4.2" />
   </ItemGroup>
 </Project>
