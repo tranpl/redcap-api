@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 using Newtonsoft.Json;
 
@@ -12,6 +14,8 @@ using Redcap.Models;
 using Redcap.Utilities;
 
 using Serilog;
+
+using Xunit;
 
 using static System.String;
 
@@ -4298,25 +4302,22 @@ namespace Redcap
         #endregion Surveys
         #region Users & User Privileges
         /// <summary>
-        /// API Version 1.0.0+
-        /// From Redcap Version 4.7.0
+        /// From Redcap Version 4.7.0<br/>
         /// 
-        /// Export Users
+        /// Export Users <br/>
         /// This method allows you to export the list of users for a project, including their user privileges and also email address, first name, and last name. Note: If the user has been assigned to a user role, it will return the user with the role's defined privileges. 
         /// </summary>
         /// <remarks>
         /// To use this method, you must have API Export privileges in the project.
+        /// KEY: Data Export: 0=No Access, 2=De-Identified, 1=Full Data Set
+        /// Form Rights: 0=No Access, 2=Read Only, 1=View records/responses and edit records(survey responses are read-only), 3=Edit survey responses
+        /// Other attribute values: 0=No Access, 1=Access.
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>The method will return all the attributes below with regard to user privileges in the format specified. Please note that the 'forms' attribute is the only attribute that contains sub-elements (one for each data collection instrument), in which each form will have its own Form Rights value (see the key below to learn what each numerical value represents). Most user privilege attributes are boolean (0=No Access, 1=Access). Attributes returned:
         /// username, email, firstname, lastname, expiration, data_access_group, design, user_rights, data_access_groups, data_export, reports, stats_and_charts, manage_survey_participants, calendar, data_import_tool, data_comparison_tool, logging, file_repository, data_quality_create, data_quality_execute, api_export, api_import, mobile_app, mobile_app_download_data, record_create, record_rename, record_delete, lock_records_customization, lock_records, lock_records_all_forms, forms</returns>
-        /// <example>
-        /// KEY: Data Export: 0=No Access, 2=De-Identified, 1=Full Data Set
-        /// Form Rights: 0=No Access, 2=Read Only, 1=View records/responses and edit records(survey responses are read-only), 3=Edit survey responses
-        /// Other attribute values: 0=No Access, 1=Access.
-        /// </example>
         public async Task<string> ExportUsersAsync(string token, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
             try
@@ -4349,14 +4350,16 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0+
-        /// From Redcap Version 4.7.0
+        /// From Redcap Version 4.7.0 <br/>
         /// 
-        /// Export Users
+        /// Export Users<br/>
         /// This method allows you to export the list of users for a project, including their user privileges and also email address, first name, and last name. Note: If the user has been assigned to a user role, it will return the user with the role's defined privileges. 
         /// </summary>
         /// <remarks>
-        /// To use this method, you must have API Export privileges in the project.
+        /// To use this method, you must have API Export privileges in the project. <br/>
+        /// Data Export:<br/> 0=No Access,<br/> 2=De-Identified,<br/> 1=Full Data Set
+        /// Form Rights:<br/> 0=No Access,<br/> 2=Read Only,<br/> 1=View records/responses and edit records(survey responses are read-only),<br/> 3=Edit survey responses
+        /// Other attribute values: 0=No Access, 1=Access.
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">user</param>
@@ -4364,11 +4367,7 @@ namespace Redcap
         /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>The method will return all the attributes below with regard to user privileges in the format specified. Please note that the 'forms' attribute is the only attribute that contains sub-elements (one for each data collection instrument), in which each form will have its own Form Rights value (see the key below to learn what each numerical value represents). Most user privilege attributes are boolean (0=No Access, 1=Access). Attributes returned:
         /// username, email, firstname, lastname, expiration, data_access_group, design, user_rights, data_access_groups, data_export, reports, stats_and_charts, manage_survey_participants, calendar, data_import_tool, data_comparison_tool, logging, file_repository, data_quality_create, data_quality_execute, api_export, api_import, mobile_app, mobile_app_download_data, record_create, record_rename, record_delete, lock_records_customization, lock_records, lock_records_all_forms, forms</returns>
-        /// <example>
-        /// KEY: Data Export: 0=No Access, 2=De-Identified, 1=Full Data Set
-        /// Form Rights: 0=No Access, 2=Read Only, 1=View records/responses and edit records(survey responses are read-only), 3=Edit survey responses
-        /// Other attribute values: 0=No Access, 1=Access.
-        /// </example>
+        /// 
         public async Task<string> ExportUsersAsync(string token, Content content = Content.User, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
             try
@@ -4401,10 +4400,9 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0+
-        /// From Redcap Version 4.7.0 
+        /// From Redcap Version 4.7.0<br/> 
         /// 
-        /// Import Users
+        /// Import Users<br/>
         /// This method allows you to import new users into a project while setting their user privileges, or update the privileges of existing users in the project. 
         /// </summary>
         /// <remarks>
@@ -4476,10 +4474,9 @@ namespace Redcap
         }
 
         /// <summary>
-        /// API Version 1.0.0+
-        /// From Redcap Version 4.7.0
+        /// From Redcap Version 4.7.0<br/><br/>
         /// 
-        /// Import Users
+        /// Import Users<br/><br/>
         /// This method allows you to import new users into a project while setting their user privileges, or update the privileges of existing users in the project. 
         /// </summary>
         /// <remarks>
@@ -4552,9 +4549,9 @@ namespace Redcap
         }
 
         /// <summary>
-        /// From Redcap Version 11.3.0
+        /// From Redcap Version 11.3.0<br/><br/>
         /// 
-        /// Delete Users
+        /// Delete Users<br/><br/>
         /// This method allows you to delete Users from a project.
         /// </summary>
         /// <remarks>
@@ -4605,9 +4602,9 @@ namespace Redcap
         #region User Roles
 
         /// <summary>
-        /// From Redcap Version 11.3.0
+        /// From Redcap Version 11.3.0<br/><br/>
         /// 
-        /// Export User Roles
+        /// Export User Roles<br/><br/>
         /// This method allows you to export the list of user roles for a project, including their user privileges.
         /// </summary>
         /// <remarks>
@@ -4620,11 +4617,24 @@ namespace Redcap
         /// <returns>The method will return all the attributes below with regard to user roles privileges in the format specified. Please note that the 'forms' attribute is the only attribute that contains sub-elements (one for each data collection instrument), in which each form will have its own Form Rights value (see the key below to learn what each numerical value represents). 
         /// Most user role privilege attributes are boolean (0=No Access, 1=Access). Attributes returned:
         /// unique_role_name, role_label, design, user_rights, data_access_groups, data_export, reports, stats_and_charts, manage_survey_participants, calendar, data_import_tool, data_comparison_tool, logging, file_repository, data_quality_create, data_quality_execute, api_export, api_import, mobile_app, mobile_app_download_data, record_create, record_rename, record_delete, lock_records_customization, lock_records, lock_records_all_forms, forms
-        /// KEY:
-        /// Data Export: 0=No Access, 2=De-Identified, 1=Full Data Set
-        /// Form Rights: 0=No Access, 2=Read Only, 1=View records/responses and edit records (survey responses are read-only), 3=Edit survey responses
-        /// Other attribute values: 0=No Access, 1=Access.
+        /// KEY:<br/>
+        /// Data Export:<br/><br/> 
+        /// 0=No Access,<br/> 
+        /// 2=De-Identified,<br/> <br/>
+        /// 1=Full Data Set   
+        /// <br/><br/>
+        /// Form Rights:<br/> 
+        /// 0=No Access, <br/>
+        /// 2=Read Only, <br/>
+        /// 1=View records/responses and edit records (survey responses are read-only), <br/>
+        /// 3=Edit survey responses <br/> <br/>
+        /// Other attribute values:<br/> 
+        /// 0=No Access,<br/>
+        /// 1=Access.
         /// </returns>
+        /// <example>
+        /// 
+        /// </example>
         public async Task<string> ExportUserRolesAsync(string token, Content content = Content.UserRole, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
             try
@@ -4658,9 +4668,9 @@ namespace Redcap
         }
 
         /// <summary>
-        /// From Redcap Version 11.3.0
+        /// From Redcap Version 11.3.0<br/><br/>
         /// 
-        /// Import User Roles
+        /// Import User Roles<br/><br/>
         /// This method allows you to import new user roles into a project while setting their privileges, or update the privileges of existing user roles in the project
         /// </summary>
         /// <remarks>
@@ -4705,9 +4715,9 @@ namespace Redcap
         }
 
         /// <summary>
-        /// From Redcap Version 11.3.0
+        /// From Redcap Version 11.3.0<br/><br/>
         /// 
-        /// Delete User Roles
+        /// Delete User Roles<br/><br/>
         /// This method allows you to delete User Roles from a project.
         /// </summary>
         /// <remarks>
@@ -4756,9 +4766,9 @@ namespace Redcap
         }
 
         /// <summary>
-        /// From Redcap Version 11.3.0
+        /// From Redcap Version 11.3.0 <br/><br/>
         /// 
-        /// Export User-Role Assignments
+        /// Export User-Role Assignments<br/><br/>
         /// This method allows you to export existing User-Role assignments for a project 
         /// </summary>
         /// <remarks>
@@ -4804,9 +4814,9 @@ namespace Redcap
         }
 
         /// <summary>
-        /// From Redcap Version 11.3.0
+        /// From Redcap Version 11.3.0 <br/><br/>
         /// 
-        /// Import User-Role Assignments
+        /// Import User-Role Assignments<br/><br/>
         /// This method allows you to assign users to any user role.
         /// NOTE: If you wish to modify an existing mapping, you *must* provide its unique username and role name. If the 'unique_role_name' column is not provided, user will not assigned to any user role. There should be only one record per username.
         /// </summary>
@@ -4822,8 +4832,8 @@ namespace Redcap
         /// </param>
         /// <param name="content">userRoleMapping</param>
         /// <param name="action">import</param>
-        /// <param name="format"></param>
-        /// <param name="onErrorFormat"></param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Number of User-Role assignments added or updated</returns>
         public async Task<string> ImportUserRoleAssignmentAsync<T>(string token, List<T> data, Content content = Content.UserRoleMapping, RedcapAction action = RedcapAction.Import, ReturnFormat format = ReturnFormat.json, OnErrorFormat onErrorFormat = OnErrorFormat.json)
         {
@@ -4850,6 +4860,240 @@ namespace Redcap
             }
         }
         #endregion User Roles
+
+        #region File Repository
+
+        /// <summary>
+        /// From Redcap Version 13.1 <br/><br/>
+        /// 
+        /// Create a New Folder in the File Repository <br/><br/>
+        /// 
+        /// This method allows you to create a new folder in the File Repository.<br/> 
+        /// You may optionally provide the folder_id of the parent folder under which you wish this folder to be created.<br/> 
+        /// Providing a dag_id and/or role_id will allow you to restrict access to only users within a specific DAG (Data Access Group) or User Role, respectively.
+        /// 
+        /// </summary>
+        /// 
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges and File Repository privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">fileRepository</param>
+        /// <param name="action">createFolder</param>
+        /// <param name="name">The desired name of the folder to be created (max length = 150 characters)</param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="folderId">the folder_id of a specific folder in the File Repository for which you wish to create this sub-folder. If none is provided, the folder will be created in the top-level directory of the File Repository.</param>
+        /// <param name="dagId">the dag_id of the DAG (Data Access Group) to which you wish to restrict access for this folder. If none is provided, the folder will accessible to users in all DAGs and users in no DAGs.</param>
+        /// <param name="roleId">the role_id of the User Role to which you wish to restrict access for this folder. If none is provided, the folder will accessible to users in all User Roles and users in no User Roles.</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// 
+        /// <returns>The folder_id of the new folder created in the specified format. <br/>For example, if using format=json, the output would look similar to this: [{folder_id:45}].</returns>
+        public async Task<string> CreateFolderFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.CreateFolder, string name = null, RedcapFormat format = RedcapFormat.json, string folderId = null, string dagId = null, string roleId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        {
+            /*
+             * Check the required parameters for empty or null
+             */
+            if (IsNullOrEmpty(token))
+            {
+                throw new ArgumentNullException("Please provide a valid Redcap token.");
+            }
+            if (IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException("Please provide a valid name for the folder to create in the Repository.");
+            }
+            var payload = new Dictionary<string, string>
+            {
+                { "token", token },
+                { "content", content.GetDisplayName() },
+                { "action", action.GetDisplayName() },
+                { "format", format.GetDisplayName() },
+                { "returnFormat", returnFormat.GetDisplayName() }
+            };  
+            // Optional
+            if (!IsNullOrEmpty(folderId))
+            {
+                payload.Add("folder_id", folderId);
+            }
+            if (!IsNullOrEmpty(dagId))
+            {
+                payload.Add("dag_id", dagId);
+            }
+            if (!IsNullOrEmpty(roleId))
+            {
+                payload.Add("role_id", roleId);
+            }
+
+            // Execute send request
+            return await this.SendPostRequestAsync(payload, _uri);
+
+        }
+        /// <summary>
+        /// From Redcap Version 13.1<br/>
+        /// 
+        /// Export a List of Files/Folders from the File Repository<br/><br/>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Export privileges and File Repository privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">fileRepository</param>
+        /// <param name="action">list</param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="folderId">the folder_id of a specific folder in the File Repository for which you wish to export a list of its files and sub-folders. If none is provided, the top-level directory of the File Repository will be used.</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>The list of all files and folders within a given sub-folder in the File Repository in the format specified.</returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<string> ExportFilesFoldersFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.List, RedcapFormat format = RedcapFormat.json, string folderId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        {
+            /*
+             * Check the required parameters for empty or null
+             */
+            if (IsNullOrEmpty(token))
+            {
+                throw new ArgumentNullException("Please provide a valid Redcap token.");
+            }
+            var payload = new Dictionary<string, string>
+            {
+                { "token", token },
+                { "content", content.GetDisplayName() },
+                { "action", action.GetDisplayName() },
+                { "format", format.GetDisplayName() },
+                { "returnFormat", returnFormat.GetDisplayName() }
+            };
+            // Optional
+            if (!IsNullOrEmpty(folderId))
+            {
+                payload.Add("folder_id", folderId);
+            }
+
+            // Execute send request
+            return await this.SendPostRequestAsync(payload, _uri);
+        }
+        /// <summary>
+        /// From Redcap Version 13.1<br/>
+        /// Export a File from the File Repository<br/>
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Export privileges and File Repository privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">fileRepository</param>
+        /// <param name="action">export</param>
+        /// <param name="docId">the doc_id of the file in the File Repository</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns>the contents of the file</returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<string> ExportFileFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.Export, string docId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        {
+            /*
+             * Check the required parameters for empty or null
+             */
+            if (IsNullOrEmpty(token))
+            {
+                throw new ArgumentNullException("Please provide a valid Redcap token.");
+            }
+            var payload = new Dictionary<string, string>
+            {
+                { "token", token },
+                { "content", content.GetDisplayName() },
+                { "action", action.GetDisplayName() },
+                { "returnFormat", returnFormat.GetDisplayName() }
+            };
+            // Optional
+            if (!IsNullOrEmpty(docId))
+            {
+                payload.Add("doc_id", docId);
+            }
+
+            // Execute send request
+            return await this.SendPostRequestAsync(payload, _uri);
+        }
+        /// <summary>
+        /// From Redcap Version 13.1<br/>
+        /// Import a File into the File Repository<br/>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges and File Repository privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">fileRepository</param>
+        /// <param name="action">import</param>
+        /// <param name="file">the contents of the file</param>
+        /// <param name="folderId">the folder_id of a specific folder in the File Repository where you wish to store the file. If none is provided, the file will be stored in the top-level directory of the File Repository.</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<string> ImportFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.Import, string file = null, string folderId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        {
+            /*
+             * Check the required parameters for empty or null
+             */
+            if (IsNullOrEmpty(token))
+            {
+                throw new ArgumentNullException("Please provide a valid Redcap token.");
+            }
+            if (IsNullOrEmpty(file))
+            {
+                throw new ArgumentNullException("Please provide a file to import.");
+            }
+            var payload = new Dictionary<string, string>
+            {
+                { "token", token },
+                { "content", content.GetDisplayName() },
+                { "action", action.GetDisplayName() },
+                { "returnFormat", returnFormat.GetDisplayName() }
+            };
+            // Optional
+            if (!IsNullOrEmpty(folderId))
+            {
+                payload.Add("folder_id", folderId);
+            }
+
+            // Execute send request
+            return await this.SendPostRequestAsync(payload, _uri);
+        }
+        /// <summary>
+        /// From Redcap Version 13.1<br/>
+        /// Delete a File from the File Repository<br/>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges and File Repository privileges in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">fileRepository</param>
+        /// <param name="action">delete</param>
+        /// <param name="docId">the doc_id of the file in the File Repository</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<string> DeleteFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.Delete, string docId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        {
+            /*
+             * Check the required parameters for empty or null
+             */
+            if (IsNullOrEmpty(token))
+            {
+                throw new ArgumentNullException("Please provide a valid Redcap token.");
+            }
+            if (IsNullOrEmpty(docId))
+            {
+                throw new ArgumentNullException("Please provide a document id to delete.");
+            }
+            var payload = new Dictionary<string, string>
+            {
+                { "token", token },
+                { "content", content.GetDisplayName() },
+                { "action", action.GetDisplayName() },
+                { "returnFormat", returnFormat.GetDisplayName() }
+            };
+            // Execute send request
+            return await this.SendPostRequestAsync(payload, _uri);
+        }
+        #endregion File Repository
+
 
     }
 }

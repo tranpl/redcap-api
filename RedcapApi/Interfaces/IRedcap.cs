@@ -60,6 +60,13 @@ namespace Redcap.Interfaces
         Task<string> DeleteFileAsync(string token, string record, string field, string eventName, string repeatInstance, OnErrorFormat returnFormat = OnErrorFormat.json);
         #endregion
 
+        #region File Repository
+        Task<string> CreateFolderFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.CreateFolder, string name = null, RedcapFormat format = RedcapFormat.json, string folderId = null, string dagId = null, string roleId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportFilesFoldersFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.List, RedcapFormat format = RedcapFormat.json, string folderId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportFileFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.Export, string docId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ImportFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.Import, string file = null, string folderId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> DeleteFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.Delete, string docId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        #endregion File Repository
         #region Instruments
         Task<string> ExportInstrumentsAsync(string token, Content content = Content.Instrument, ReturnFormat inputFormat = ReturnFormat.json);
         Task<string> ExportInstrumentsAsync(string token, ReturnFormat inputFormat = ReturnFormat.json);
