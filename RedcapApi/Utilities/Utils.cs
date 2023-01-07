@@ -19,28 +19,6 @@ using static System.String;
 namespace Redcap.Utilities
 {
     /// <summary>
-    /// 
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class TestPriorityAttribute : Attribute
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="priority"></param>
-        public TestPriorityAttribute(int priority)
-        {
-            Priority = priority;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        public int Priority { get; private set; }
-    }
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <summary>
     /// Utilities
     /// </summary>
     public static class Utils
