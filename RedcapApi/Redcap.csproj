@@ -21,7 +21,10 @@
     <icon>https://vortex.cctr.vcu.edu/images/ram_crest_160.png</icon>
     <PackageIcon>vcu.png</PackageIcon>
     <Title>Redcap Api</Title>
-    <PackageReleaseNotes>update api documentation, streamline api parameters to match official documentations</PackageReleaseNotes>
+    <PackageReleaseNotes>-update api documentation, 
+-multiple breaking changes
+-fix some apis where parameters were behind the releases
+-streamline api parameters to match official documentations</PackageReleaseNotes>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
