@@ -211,11 +211,11 @@ namespace Redcap.Utilities
         /// <param name="onErrorFormat"></param>
         /// <param name="redcapDataType"></param>
         /// <returns>tuple, string, string, string</returns>
-        public static async Task<(string format, string onErrorFormat, string redcapDataType)> HandleFormat(this RedcapApi redcapApi, ReturnFormat? format = ReturnFormat.json, OnErrorFormat? onErrorFormat = OnErrorFormat.json, RedcapDataType? redcapDataType = RedcapDataType.flat)
+        public static async Task<(string format, string onErrorFormat, string redcapDataType)> HandleFormat(this RedcapApi redcapApi, RedcapFormat? format = RedcapFormat.json, RedcapReturnFormat? onErrorFormat = RedcapReturnFormat.json, RedcapDataType? redcapDataType = RedcapDataType.flat)
         {
             // default
-            var _format = ReturnFormat.json.ToString();
-            var _onErrorFormat = OnErrorFormat.json.ToString();
+            var _format = RedcapFormat.json.ToString();
+            var _onErrorFormat = RedcapReturnFormat.json.ToString();
             var _redcapDataType = RedcapDataType.flat.ToString();
 
             try
@@ -223,33 +223,33 @@ namespace Redcap.Utilities
 
                 switch (format)
                 {
-                    case ReturnFormat.json:
-                        _format = ReturnFormat.json.ToString();
+                    case RedcapFormat.json:
+                        _format = RedcapFormat.json.ToString();
                         break;
-                    case ReturnFormat.csv:
-                        _format = ReturnFormat.csv.ToString();
+                    case RedcapFormat.csv:
+                        _format = RedcapFormat.csv.ToString();
                         break;
-                    case ReturnFormat.xml:
-                        _format = ReturnFormat.xml.ToString();
+                    case RedcapFormat.xml:
+                        _format = RedcapFormat.xml.ToString();
                         break;
                     default:
-                        _format = ReturnFormat.json.ToString();
+                        _format = RedcapFormat.json.ToString();
                         break;
                 }
 
                 switch (onErrorFormat)
                 {
-                    case OnErrorFormat.json:
-                        _onErrorFormat = OnErrorFormat.json.ToString();
+                    case RedcapReturnFormat.json:
+                        _onErrorFormat = RedcapReturnFormat.json.ToString();
                         break;
-                    case OnErrorFormat.csv:
-                        _onErrorFormat = OnErrorFormat.csv.ToString();
+                    case RedcapReturnFormat.csv:
+                        _onErrorFormat = RedcapReturnFormat.csv.ToString();
                         break;
-                    case OnErrorFormat.xml:
-                        _onErrorFormat = OnErrorFormat.xml.ToString();
+                    case RedcapReturnFormat.xml:
+                        _onErrorFormat = RedcapReturnFormat.xml.ToString();
                         break;
                     default:
-                        _onErrorFormat = OnErrorFormat.json.ToString();
+                        _onErrorFormat = RedcapReturnFormat.json.ToString();
                         break;
                 }
 

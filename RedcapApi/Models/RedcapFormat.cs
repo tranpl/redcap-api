@@ -8,10 +8,11 @@ namespace Redcap.Models
     /// Format, 0 = json
     /// Format, 1 = csv [default]
     /// Format, 2 = xml 
+    /// </summary>
+    /// 
     public enum RedcapFormat
     {
 
-        /// </summary>
         /// <summary>
         /// Default Javascript Notation
         /// </summary>
