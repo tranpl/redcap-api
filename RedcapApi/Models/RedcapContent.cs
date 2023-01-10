@@ -1,12 +1,11 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Redcap.Models
 {
     /// <summary>
     /// Redcap Content Model
     /// </summary>
-    public enum Content
+    public enum RedcapContent
     {
         /// <summary>
         /// Log
