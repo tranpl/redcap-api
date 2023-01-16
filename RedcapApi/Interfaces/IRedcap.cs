@@ -103,7 +103,7 @@ namespace Redcap.Interfaces
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns>Number of Arms imported</returns>
-        Task<string> ImportArmsAsync<T>(string token, Override overrideBhavior, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat);
+        Task<string> ImportArmsAsync<T>(string token, Override overrideBhavior, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
 
         /// <summary>
         /// From Redcap Version 4.7.0<br/><br/>
@@ -499,7 +499,7 @@ namespace Redcap.Interfaces
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <param name="filePath">File path which the file will be saved.</param>
         /// <returns>the file name that was exported</returns>
-        Task<string> ExportFileAsync(string token, RedcapContent content, RedcapAction action, string record, string field, string eventName, string repeatInstance = "1", RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string filePath = null);
+        Task<string> ExportFileAsync(string token, RedcapContent content, RedcapAction action, string record, string field, string eventName, string repeatInstance = "1", RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string filePath = default);
 
         /// <summary>
         /// Import a File <br/><br/>
@@ -671,6 +671,7 @@ namespace Redcap.Interfaces
         /// <returns>string</returns>
         Task<string> DeleteFileRepositoryAsync(string token, RedcapContent content, RedcapAction action, string docId, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
         #endregion File Repository
+
         #region Instruments
 
         /// <summary>
@@ -938,7 +939,7 @@ namespace Redcap.Interfaces
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="odm">default: NULL - The 'odm' parameter must be an XML string in CDISC ODM XML format that contains project metadata (fields, forms, events, arms) and might optionally contain data to be imported as well. The XML contained in this parameter can come from a REDCap Project XML export file from REDCap itself, or may come from another system that is capable of exporting projects and data in CDISC ODM format. If the 'odm' parameter is included in the API request, it will use the XML to import its contents into the newly created project. This will allow you not only to create the project with the API request, but also to import all fields, forms, and project attributes (and events and arms, if longitudinal) as well as record data all at the same time.</param>
         /// <returns>When a project is created, a 32-character project-level API Token is returned (associated with both the project and user creating the project). This token could then ostensibly be used to make subsequent API calls to this project, such as for adding new events, fields, records, etc.</returns>
-        Task<string> CreateProjectAsync<T>(string token, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string odm = null);
+        Task<string> CreateProjectAsync<T>(string token, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string odm = default);
         /// <summary>
         /// From Redcap Version 6.11.0<br/><br/> 
         /// 
@@ -967,7 +968,7 @@ namespace Redcap.Interfaces
         /// <param name="odm">default: NULL - The 'odm' parameter must be an XML string in CDISC ODM XML format that contains project metadata (fields, forms, events, arms) and might optionally contain data to be imported as well. The XML contained in this parameter can come from a REDCap Project XML export file from REDCap itself, or may come from another system that is capable of exporting projects and data in CDISC ODM format. If the 'odm' parameter is included in the API request, it will use the XML to import its contents into the newly created project. This will allow you not only to create the project with the API request, but also to import all fields, forms, and project attributes (and events and arms, if longitudinal) as well as record data all at the same time.</param>
         /// <returns>When a project is created, a 32-character project-level API Token is returned (associated with both the project and user creating the project). This token could then ostensibly be used to make subsequent API calls to this project, such as for adding new events, fields, records, etc.</returns>
 
-        Task<string> CreateProjectAsync<T>(string token, RedcapContent content, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string odm = null);
+        Task<string> CreateProjectAsync<T>(string token, RedcapContent content, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string odm = default);
         /// <summary>
         /// Import Project Information <br/><br/>
         /// This method allows you to update some of the basic attributes of a given REDCap project, such as the project's title, if it is longitudinal, if surveys are enabled, etc. Its data format corresponds to the format in the API method Export Project Information. 
@@ -1407,7 +1408,7 @@ namespace Redcap.Interfaces
 
         #endregion
 
-        #region REDCap
+        #region Version
         /// <summary>
         /// Export REDCap Version<br/>
         /// This method returns the current REDCap version number as plain text (e.g., 4.13.18, 5.12.2, 6.0.0).
