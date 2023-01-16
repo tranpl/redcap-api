@@ -24,6 +24,7 @@ namespace Redcap
     /// </summary>
     public class RedcapApi : IRedcap
     {
+        #region Constructor
         /// <summary>
         /// Redcap Api Token
         /// The token can be obtained from your redcap project.
@@ -71,6 +72,7 @@ namespace Redcap
             _uri = new Uri(redcapApiUrl);
             Utils.UseInsecureCertificate = useInsecureCertificates;
         }
+        #endregion
         #region Arms
         /// <summary>
         /// From Redcap Version 4.7.0<br/><br/>
