@@ -58,6 +58,7 @@ namespace RedcapApiDemo
             * Output to console
             */
             Console.WriteLine("Starting Redcap Api Demo..");
+            Console.WriteLine("Please make sure redcap is running locally.");
             Console.WriteLine("Please make sure you include a working redcap api token.");
             Console.WriteLine("Enter your redcap instance uri, example: http://localhost/redcap");
             _uri = Console.ReadLine();
@@ -81,18 +82,17 @@ namespace RedcapApiDemo
             Console.WriteLine($"Using Endpoint=> {_uri} Token => {_token}");
 
             Console.WriteLine("-----------------------------Starting API Demonstration-------------");
-            Console.WriteLine("Starting demo for API Version 1.0.0+");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();
 
             Console.WriteLine("Creating a new instance of RedcapApi");
-            var redcap_api_2_0_0 = new RedcapApi(_uri);
-            Console.WriteLine($"Using {_uri.ToString()} for redcap api endpoint.");
+            var redcapApi = new RedcapApi(_uri);
+            Console.WriteLine($"Using {_uri} for redcap api endpoint.");
 
             #region ExportLoggingAsync()
             Console.WriteLine("Calling ExportLoggingAsync() . . .");
             Console.WriteLine($"Exporting logs for User . . .");
-            var ExportLoggingAsync = await redcap_api_2_0_0.ExportLoggingAsync(_token, RedcapContent.Log, RedcapFormat.json, LogType.User);
+            var ExportLoggingAsync = await redcapApi.ExportLoggingAsync(_token, RedcapContent.Log, RedcapFormat.json, LogType.User);
             Console.WriteLine($"ExportLoggingAsync Results: {JsonConvert.DeserializeObject(ExportLoggingAsync)}");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();
@@ -103,7 +103,7 @@ namespace RedcapApiDemo
             Console.WriteLine("Calling ImportDagsAsync() . . .");
             Console.WriteLine($"Importing Dags . . .");
             var dags = RedcapDemoUtilities.CreateDags(5);
-            var ImportDagsAsyncResult = await redcap_api_2_0_0.ImportDagsAsync(_token, RedcapContent.Dag, RedcapAction.Import, RedcapFormat.json, dags);
+            var ImportDagsAsyncResult = await redcapApi.ImportDagsAsync(_token, RedcapContent.Dag, RedcapAction.Import, RedcapFormat.json, dags);
             Console.WriteLine($"ImportDagsAsync Results: {JsonConvert.DeserializeObject(ImportDagsAsyncResult)}");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();
@@ -113,7 +113,7 @@ namespace RedcapApiDemo
             #region ExportDagsAsync()
             Console.WriteLine("Calling ExportDagsAsync() . . .");
             Console.WriteLine($"Exporting Dags . . .");
-            var ExportDagsAsyncResult = await redcap_api_2_0_0.ExportDagsAsync(_token, RedcapContent.Dag, RedcapFormat.json);
+            var ExportDagsAsyncResult = await redcapApi.ExportDagsAsync(_token, RedcapContent.Dag, RedcapFormat.json);
             Console.WriteLine($"ExportDagsAsync Results: {JsonConvert.DeserializeObject(ExportDagsAsyncResult)}");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();
@@ -123,7 +123,7 @@ namespace RedcapApiDemo
             Console.WriteLine("Calling DeleteDagsAsync() . . .");
             Console.WriteLine($"Deleting Dags . . .");
             var dagsToDelete = JsonConvert.DeserializeObject<List<RedcapDag>>(ExportDagsAsyncResult).Select(x => x.UniqueGroupName).ToArray();
-            var DeleteDagsAsyncResult = await redcap_api_2_0_0.DeleteDagsAsync(_token, RedcapContent.Dag, RedcapAction.Delete, dagsToDelete);
+            var DeleteDagsAsyncResult = await redcapApi.DeleteDagsAsync(_token, RedcapContent.Dag, RedcapAction.Delete, dagsToDelete);
             Console.WriteLine($"DeleteDagsAsync Results: {JsonConvert.DeserializeObject(DeleteDagsAsyncResult)}");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();
@@ -135,7 +135,7 @@ namespace RedcapApiDemo
             var importDemographicsData = RedcapDemoUtilities.CreateDemographics(includeBio: true, 5);
             Console.WriteLine("Serializing the data . . .");
             Console.WriteLine($"Importing record {string.Join(",", importDemographicsData.Select(x => x.RecordId).ToList())} . . .");
-            var ImportRecordsAsync = await redcap_api_2_0_0.ImportRecordsAsync(_token, RedcapContent.Record, RedcapFormat.json, RedcapDataType.flat, OverwriteBehavior.normal, false, importDemographicsData, "MDY", CsvDelimiter.tab, ReturnContent.count, RedcapReturnFormat.json);
+            var ImportRecordsAsync = await redcapApi.ImportRecordsAsync(_token, RedcapContent.Record, RedcapFormat.json, RedcapDataType.flat, OverwriteBehavior.normal, false, importDemographicsData, "MDY", CsvDelimiter.tab, ReturnContent.count, RedcapReturnFormat.json);
             var ImportRecordsAsyncData = JsonConvert.DeserializeObject(ImportRecordsAsync);
             Console.WriteLine($"ImportRecordsAsync Result: {ImportRecordsAsyncData}");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
@@ -147,7 +147,7 @@ namespace RedcapApiDemo
             Console.WriteLine($"Using records from the imported method..");
             var recordsToExport = importDemographicsData.Select(x => x.RecordId).ToArray();
             var instrumentName = new string[] { "demographics" };
-            var ExportRecordsAsyncResult = await redcap_api_2_0_0.ExportRecordsAsync(_token, RedcapContent.Record, RedcapFormat.json, RedcapDataType.flat, recordsToExport, null, instrumentName);
+            var ExportRecordsAsyncResult = await redcapApi.ExportRecordsAsync(_token, RedcapContent.Record, RedcapFormat.json, RedcapDataType.flat, recordsToExport, null, instrumentName);
             Console.WriteLine($"ExportRecordsAsyncResult: {ExportRecordsAsyncResult}");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();
@@ -157,7 +157,7 @@ namespace RedcapApiDemo
             Console.WriteLine("Calling DeleteRecordsAsync() . . .");
             var records = importDemographicsData.Select(x => x.RecordId).ToArray();
             Console.WriteLine($"Deleting record {string.Join(",", recordsToExport)} . . .");
-            var DeleteRecordsAsync = await redcap_api_2_0_0.DeleteRecordsAsync(_token, RedcapContent.Record, RedcapAction.Delete, recordsToExport, 1);
+            var DeleteRecordsAsync = await redcapApi.DeleteRecordsAsync(_token, RedcapContent.Record, RedcapAction.Delete, recordsToExport, 1);
             var DeleteRecordsAsyncData = JsonConvert.DeserializeObject(DeleteRecordsAsync);
             Console.WriteLine($"DeleteRecordsAsync Result: {DeleteRecordsAsyncData}");
 
@@ -170,7 +170,7 @@ namespace RedcapApiDemo
             var recordToRename = importDemographicsData.Select(x => x.RecordId).SingleOrDefault();
             Console.WriteLine($"Renaming record {recordToRename} . . .");
             var newRecordName = "2";
-            var RenameRecordAsyncResult = await redcap_api_2_0_0.RenameRecordAsync(_token, RedcapContent.Record, RedcapAction.Rename,recordToRename, newRecordName, 1);
+            var RenameRecordAsyncResult = await redcapApi.RenameRecordAsync(_token, RedcapContent.Record, RedcapAction.Rename,recordToRename, newRecordName, 1);
             var RenameRecordAsyncData = JsonConvert.DeserializeObject(RenameRecordAsyncResult);
             Console.WriteLine($"RenameRecordAsync Result: {DeleteRecordsAsyncData}");
 
@@ -188,7 +188,7 @@ namespace RedcapApiDemo
             redcapUsers.Add(redcapUser1);
             redcapUsers.Add(redcapUser2);
             Console.WriteLine($"Importing  {redcapUsers.Count} user. . .");
-            var ImportUsersAsyncResult = await redcap_api_2_0_0.ImportUsersAsync(_token, redcapUsers, RedcapFormat.json, RedcapReturnFormat.json);
+            var ImportUsersAsyncResult = await redcapApi.ImportUsersAsync(_token, redcapUsers, RedcapFormat.json, RedcapReturnFormat.json);
             var ImportUsersAsyncData = JsonConvert.DeserializeObject(ImportUsersAsyncResult);
             Console.WriteLine($"ImportUsersAsync Result: {ImportUsersAsyncData}");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
@@ -199,7 +199,7 @@ namespace RedcapApiDemo
             #region ExportArmsAsync()
             var arms = new string[] { };
             Console.WriteLine("Calling ExportArmsAsync()");
-            var ExportArmsAsyncResult = await redcap_api_2_0_0.ExportArmsAsync(_token, RedcapContent.Arm, RedcapFormat.json, arms, RedcapReturnFormat.json);
+            var ExportArmsAsyncResult = await redcapApi.ExportArmsAsync(_token, RedcapContent.Arm, RedcapFormat.json, arms, RedcapReturnFormat.json);
             Console.WriteLine($"ExportArmsAsyncResult: {JsonConvert.DeserializeObject(ExportArmsAsyncResult)}");
             #endregion ExportArmsAsync()
 
@@ -209,7 +209,7 @@ namespace RedcapApiDemo
             #region ImportArmsAsync()
             var ImportArmsAsyncData = RedcapDemoUtilities.CreateArms(count: 3);
             Console.WriteLine("Calling ImportArmsAsync()");
-            var ImportArmsAsyncResult = await redcap_api_2_0_0.ImportArmsAsync(_token, RedcapContent.Arm, Override.False, RedcapAction.Import, RedcapFormat.json, ImportArmsAsyncData, RedcapReturnFormat.json);
+            var ImportArmsAsyncResult = await redcapApi.ImportArmsAsync(_token, RedcapContent.Arm, Override.False, RedcapAction.Import, RedcapFormat.json, ImportArmsAsyncData, RedcapReturnFormat.json);
             Console.WriteLine($"ImportArmsAsyncResult: {JsonConvert.DeserializeObject(ImportArmsAsyncResult)}");
             #endregion ImportArmsAsync()
 
@@ -219,7 +219,7 @@ namespace RedcapApiDemo
             #region DeleteArmsAsync()
             var DeleteArmsAsyncData = ImportArmsAsyncData.Select(x => x.ArmNumber).ToArray();
             Console.WriteLine("Calling DeleteArmsAsync()");
-            var DeleteArmsAsyncResult = await redcap_api_2_0_0.DeleteArmsAsync(_token, RedcapContent.Arm, RedcapAction.Delete, DeleteArmsAsyncData);
+            var DeleteArmsAsyncResult = await redcapApi.DeleteArmsAsync(_token, RedcapContent.Arm, RedcapAction.Delete, DeleteArmsAsyncData);
             Console.WriteLine($"DeleteArmsAsyncResult: {JsonConvert.DeserializeObject(DeleteArmsAsyncResult)}");
             #endregion DeleteArmsAsync()
 
@@ -229,7 +229,7 @@ namespace RedcapApiDemo
             #region ExportEventsAsync()
             var ExportEventsAsyncData = new string[] { "1" };
             Console.WriteLine("Calling ExportEventsAsync()");
-            var ExportEventsAsyncResult = await redcap_api_2_0_0.ExportEventsAsync(_token, RedcapContent.Event, RedcapFormat.json, ExportEventsAsyncData, RedcapReturnFormat.json);
+            var ExportEventsAsyncResult = await redcapApi.ExportEventsAsync(_token, RedcapContent.Event, RedcapFormat.json, ExportEventsAsyncData, RedcapReturnFormat.json);
             Console.WriteLine($"ExportEventsAsyncResult: {JsonConvert.DeserializeObject(ExportEventsAsyncResult)}");
             #endregion ExportEventsAsync()
 
@@ -258,7 +258,7 @@ namespace RedcapApiDemo
                     CustomEventLabel = "hello clinical"
                 }
             };
-            var ImportEventsAsyncResult = await redcap_api_2_0_0.ImportEventsAsync(_token, RedcapContent.Event, RedcapAction.Import, Override.False, RedcapFormat.json, eventList, RedcapReturnFormat.json);
+            var ImportEventsAsyncResult = await redcapApi.ImportEventsAsync(_token, RedcapContent.Event, RedcapAction.Import, Override.False, RedcapFormat.json, eventList, RedcapReturnFormat.json);
             Console.WriteLine($"ImportEventsAsyncResult: {ImportEventsAsyncResult}");
             #endregion ImportEventsAsync()
 
@@ -269,7 +269,7 @@ namespace RedcapApiDemo
             #region DeleteEventsAsync()
             var DeleteEventsAsyncData = new string[] { "baseline_arm_1" };
             Console.WriteLine("Calling DeleteEventsAsync()");
-            var DeleteEventsAsyncResult = await redcap_api_2_0_0.DeleteEventsAsync(_token, RedcapContent.Event, RedcapAction.Delete, DeleteEventsAsyncData);
+            var DeleteEventsAsyncResult = await redcapApi.DeleteEventsAsync(_token, RedcapContent.Event, RedcapAction.Delete, DeleteEventsAsyncData);
             Console.WriteLine($"DeleteEventsAsyncResult: {DeleteEventsAsyncResult}");
             #endregion DeleteEventsAsync()
 
@@ -280,7 +280,7 @@ namespace RedcapApiDemo
             #region SwitchDagAsync()
             var SwitchDagAsyncData = new RedcapDag { GroupName = "testGroup", UniqueGroupName = "unique_name" };
             Console.WriteLine("Calling SwitchDagAsync()");
-            var SwitchDagAsyncResult = await redcap_api_2_0_0.SwitchDagAsync(_token, SwitchDagAsyncData, RedcapContent.Dag, RedcapAction.Switch);
+            var SwitchDagAsyncResult = await redcapApi.SwitchDagAsync(_token, SwitchDagAsyncData, RedcapContent.Dag, RedcapAction.Switch);
             Console.WriteLine($"SwitchDagAsyncResult: {SwitchDagAsyncResult}");
             #endregion SwitchDagAsync()
 
@@ -291,7 +291,7 @@ namespace RedcapApiDemo
 
             #region ExportFieldNamesAsync()
             Console.WriteLine("Calling ExportFieldNamesAsync(), first_name");
-            var ExportFieldNamesAsyncResult = await redcap_api_2_0_0.ExportFieldNamesAsync(_token, RedcapContent.ExportFieldNames, RedcapFormat.json, "first_name", RedcapReturnFormat.json);
+            var ExportFieldNamesAsyncResult = await redcapApi.ExportFieldNamesAsync(_token, RedcapContent.ExportFieldNames, RedcapFormat.json, "first_name", RedcapReturnFormat.json);
             Console.WriteLine($"ExportFieldNamesAsyncResult: {ExportFieldNamesAsyncResult}");
             #endregion ExportFieldNamesAsync()
 
@@ -307,7 +307,7 @@ namespace RedcapApiDemo
             var parent = Directory.GetParent(parentDirectory).FullName;
             var filePath = Directory.GetParent(parent).FullName + @"\Docs\";
             Console.WriteLine($"Calling ImportFileAsync(), {fileName}");
-            var ImportFileAsyncResult = await redcap_api_2_0_0.ImportFileAsync(_token, RedcapContent.File, RedcapAction.Import, recordId, fieldName, eventName, null, fileName, filePath, RedcapReturnFormat.json);
+            var ImportFileAsyncResult = await redcapApi.ImportFileAsync(_token, RedcapContent.File, RedcapAction.Import, recordId, fieldName, eventName, null, fileName, filePath, RedcapReturnFormat.json);
             Console.WriteLine($"ImportFileAsyncResult: {ImportFileAsyncResult}");
             #endregion ImportFileAsync()
 
@@ -317,7 +317,7 @@ namespace RedcapApiDemo
 
             #region ExportFileAsync()
             Console.WriteLine($"Calling ExportFileAsync(), {fileName} for field name {fieldName}, not save the file.");
-            var ExportFileAsyncResult = await redcap_api_2_0_0.ExportFileAsync(_token, RedcapContent.File, RedcapAction.Export, recordId, fieldName, eventName, null, RedcapReturnFormat.json);
+            var ExportFileAsyncResult = await redcapApi.ExportFileAsync(_token, RedcapContent.File, RedcapAction.Export, recordId, fieldName, eventName, null, RedcapReturnFormat.json);
             Console.WriteLine($"ExportFileAsyncResult: {ExportFileAsyncResult}");
             #endregion ExportFileAsync()
 
@@ -327,7 +327,7 @@ namespace RedcapApiDemo
             #region ExportFileAsync()
             var filedDownloadPath = @"C:\redcap_download_files";
             Console.WriteLine($"Calling ExportFileAsync(), {fileName} for field name {fieldName}, saving the file.");
-            var ExportFileAsyncResult2 = await redcap_api_2_0_0.ExportFileAsync(_token, RedcapContent.File, RedcapAction.Export, recordId, fieldName, eventName, null, RedcapReturnFormat.json, filedDownloadPath);
+            var ExportFileAsyncResult2 = await redcapApi.ExportFileAsync(_token, RedcapContent.File, RedcapAction.Export, recordId, fieldName, eventName, null, RedcapReturnFormat.json, filedDownloadPath);
             Console.WriteLine($"ExportFileAsyncResult2: {ExportFileAsyncResult2}");
             #endregion ExportFileAsync()
 
@@ -336,7 +336,7 @@ namespace RedcapApiDemo
 
             #region DeleteFileAsync()
             Console.WriteLine($"Calling DeleteFileAsync(), deleting file: {fileName} for field: {fieldName}");
-            var DeleteFileAsyncResult = await redcap_api_2_0_0.DeleteFileAsync(_token, RedcapContent.File, RedcapAction.Delete, recordId, fieldName, eventName, "1", RedcapReturnFormat.json);
+            var DeleteFileAsyncResult = await redcapApi.DeleteFileAsync(_token, RedcapContent.File, RedcapAction.Delete, recordId, fieldName, eventName, "1", RedcapReturnFormat.json);
             Console.WriteLine($"DeleteFileAsyncResult: {DeleteFileAsyncResult}");
             #endregion DeleteFileAsync()
 
@@ -345,7 +345,7 @@ namespace RedcapApiDemo
 
             #region ExportInstrumentsAsync()
             Console.WriteLine($"Calling DeleteFileAsync()");
-            var ExportInstrumentsAsyncResult = await redcap_api_2_0_0.ExportInstrumentsAsync(_token, RedcapContent.Instrument, RedcapFormat.json);
+            var ExportInstrumentsAsyncResult = await redcapApi.ExportInstrumentsAsync(_token, RedcapContent.Instrument, RedcapFormat.json);
             Console.WriteLine($"ExportInstrumentsAsyncResult: {ExportInstrumentsAsyncResult}");
             #endregion ExportInstrumentsAsync()
 
@@ -354,7 +354,7 @@ namespace RedcapApiDemo
 
             #region ExportPDFInstrumentsAsync()
             Console.WriteLine($"Calling ExportPDFInstrumentsAsync(), returns raw");
-            var ExportPDFInstrumentsAsyncResult = await redcap_api_2_0_0.ExportPDFInstrumentsAsync(_token, RedcapContent.Pdf, recordId, eventName, "demographics", true);
+            var ExportPDFInstrumentsAsyncResult = await redcapApi.ExportPDFInstrumentsAsync(_token, RedcapContent.Pdf, recordId, eventName, "demographics", true);
             Console.WriteLine($"ExportInstrumentsAsyncResult: {JsonConvert.SerializeObject(ExportPDFInstrumentsAsyncResult)}");
             #endregion ExportPDFInstrumentsAsync()
 
@@ -363,7 +363,7 @@ namespace RedcapApiDemo
 
             #region ExportPDFInstrumentsAsync()
             Console.WriteLine($"Calling ExportPDFInstrumentsAsync(), saving pdf file to {filedDownloadPath}");
-            var ExportPDFInstrumentsAsyncResult2 = await redcap_api_2_0_0.ExportPDFInstrumentsAsync(_token, recordId, eventName, "demographics", true, filedDownloadPath, RedcapReturnFormat.json);
+            var ExportPDFInstrumentsAsyncResult2 = await redcapApi.ExportPDFInstrumentsAsync(_token, recordId, eventName, "demographics", true, filedDownloadPath, RedcapReturnFormat.json);
             Console.WriteLine($"ExportPDFInstrumentsAsyncResult2: {ExportPDFInstrumentsAsyncResult2}");
             #endregion ExportPDFInstrumentsAsync()
 
@@ -383,7 +383,7 @@ namespace RedcapApiDemo
             #region ImportInstrumentMappingAsync()
             var importInstrumentMappingData = new List<FormEventMapping> { new FormEventMapping { arm_num = "1", unique_event_name = "clinical_arm_1", form = "demographics" } };
             Console.WriteLine($"Calling ImportInstrumentMappingAsync()");
-            var ImportInstrumentMappingAsyncResult = await redcap_api_2_0_0.ImportInstrumentMappingAsync(_token, RedcapContent.FormEventMapping, RedcapFormat.json, importInstrumentMappingData, RedcapReturnFormat.json);
+            var ImportInstrumentMappingAsyncResult = await redcapApi.ImportInstrumentMappingAsync(_token, RedcapContent.FormEventMapping, RedcapFormat.json, importInstrumentMappingData, RedcapReturnFormat.json);
             Console.WriteLine($"ImportInstrumentMappingAsyncResult: {ImportInstrumentMappingAsyncResult}");
             #endregion ImportInstrumentMappingAsync()
 
@@ -392,7 +392,7 @@ namespace RedcapApiDemo
 
             #region ExportMetaDataAsync()
             Console.WriteLine($"Calling ExportMetaDataAsync()");
-            var ExportMetaDataAsyncResult = await redcap_api_2_0_0.ExportMetaDataAsync(_token, RedcapContent.MetaData, RedcapFormat.json, null, null, RedcapReturnFormat.json);
+            var ExportMetaDataAsyncResult = await redcapApi.ExportMetaDataAsync(_token, RedcapContent.MetaData, RedcapFormat.json, null, null, RedcapReturnFormat.json);
             Console.WriteLine($"ExportMetaDataAsyncResult: {ExportMetaDataAsyncResult}");
             #endregion ExportMetaDataAsync()
 
@@ -416,7 +416,7 @@ namespace RedcapApiDemo
             var projectData = new List<RedcapProject> { new RedcapProject { project_title = "Amazing Project ", purpose = ProjectPurpose.Other, purpose_other = "Test" } };
             Console.WriteLine($"Calling CreateProjectAsync(), creating a new project with Amazing Project as title, purpose 1 (other) ");
             Console.WriteLine($"-----------------------Notice the use of SUPER TOKEN------------------------");
-            var CreateProjectAsyncResult = await redcap_api_2_0_0.CreateProjectAsync(_superToken, RedcapContent.Project, RedcapFormat.json, projectData, RedcapReturnFormat.json, null);
+            var CreateProjectAsyncResult = await redcapApi.CreateProjectAsync(_superToken, RedcapContent.Project, RedcapFormat.json, projectData, RedcapReturnFormat.json, null);
             Console.WriteLine($"CreateProjectAsyncResult: {CreateProjectAsyncResult}");
             #endregion CreateProjectAsync()
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
@@ -425,7 +425,7 @@ namespace RedcapApiDemo
             #region ImportProjectInfoAsync()
             var projectInfo = new RedcapProjectInfo { ProjectTitle = "Updated Amazing Project ", Purpose = ProjectPurpose.QualityImprovement, SurveysEnabled = 1 };
             Console.WriteLine($"Calling ImportProjectInfoAsync()");
-            var ImportProjectInfoAsyncResult = await redcap_api_2_0_0.ImportProjectInfoAsync(_token, RedcapContent.ProjectSettings, RedcapFormat.json, projectInfo);
+            var ImportProjectInfoAsyncResult = await redcapApi.ImportProjectInfoAsync(_token, RedcapContent.ProjectSettings, RedcapFormat.json, projectInfo);
             Console.WriteLine($"ImportProjectInfoAsyncResult: {ImportProjectInfoAsyncResult}");
             #endregion ImportProjectInfoAsync()
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
@@ -433,7 +433,7 @@ namespace RedcapApiDemo
 
             #region ExportProjectInfoAsync()
             Console.WriteLine($"Calling ExportProjectInfoAsync()");
-            var ExportProjectInfoAsyncResult = await redcap_api_2_0_0.ExportProjectInfoAsync(_token, RedcapContent.ProjectSettings, RedcapFormat.json);
+            var ExportProjectInfoAsyncResult = await redcapApi.ExportProjectInfoAsync(_token, RedcapContent.ProjectSettings, RedcapFormat.json);
             Console.WriteLine($"ExportProjectInfoAsyncResult: {ExportProjectInfoAsyncResult}");
             #endregion ExportProjectInfoAsync()
 
