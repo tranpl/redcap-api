@@ -24,6 +24,7 @@ namespace Redcap
     /// </summary>
     public class RedcapApi : IRedcap
     {
+        #region Constructor
         /// <summary>
         /// Redcap Api Token
         /// The token can be obtained from your redcap project.
@@ -71,6 +72,7 @@ namespace Redcap
             _uri = new Uri(redcapApiUrl);
             Utils.UseInsecureCertificate = useInsecureCertificates;
         }
+        #endregion
         #region Arms
         /// <summary>
         /// From Redcap Version 4.7.0<br/><br/>
@@ -100,7 +102,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.Arm.GetDisplayName() },
+                    { "content", RedcapContent.Arm.GetDisplayName() },
                     { "format", format.GetDisplayName() }
                 };
                 // Optional
@@ -143,7 +145,7 @@ namespace Redcap
         /// <param name="arms">e.g. ["1","2"] an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Arms for the project in the format specified(only ones with Events available)</returns>
-        public async Task<string> ExportArmsAsync(string token, Content content = Content.Arm, RedcapFormat format = RedcapFormat.json, string[] arms = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportArmsAsync(string token, RedcapContent content = RedcapContent.Arm, RedcapFormat format = RedcapFormat.json, string[] arms = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -222,7 +224,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                     {
                         { "token", token },
-                        { "content", Content.Arm.GetDisplayName() },
+                        { "content", RedcapContent.Arm.GetDisplayName() },
                         { "action", action.GetDisplayName() },
                         { "format", format.GetDisplayName() },
                         { "override", overrideBhavior.GetDisplayName() },
@@ -269,7 +271,7 @@ namespace Redcap
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns>Number of Arms imported</returns>
-        public async Task<string> ImportArmsAsync<T>(string token, Content content, Override overrideBhavior, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ImportArmsAsync<T>(string token, RedcapContent content, Override overrideBhavior, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -332,7 +334,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.Arm.GetDisplayName() },
+                    { "content", RedcapContent.Arm.GetDisplayName() },
                     { "action", RedcapAction.Delete.GetDisplayName() }
                 };
                 // Required
@@ -371,7 +373,7 @@ namespace Redcap
         /// <param name="action">delete</param>
         /// <param name="arms">an array of arm numbers that you wish to delete</param>
         /// <returns>Number of Arms deleted</returns>
-        public async Task<string> DeleteArmsAsync(string token, Content content = Content.Event, RedcapAction action = RedcapAction.Delete, string[] arms = default)
+        public async Task<string> DeleteArmsAsync(string token, RedcapContent content = RedcapContent.Event, RedcapAction action = RedcapAction.Delete, string[] arms = default)
         {
             try
             {
@@ -423,7 +425,7 @@ namespace Redcap
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>DAGs for the project in the format specified</returns>
-        public async Task<string> ExportDagsAsync(string token, Content content = Content.Dag, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportDagsAsync(string token, RedcapContent content = RedcapContent.Dag, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             var exportDagsResults = string.Empty;
             try
@@ -477,7 +479,7 @@ namespace Redcap
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Number of DAGs added or updated</returns>
-        public async Task<string> ImportDagsAsync<T>(string token, Content content, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ImportDagsAsync<T>(string token, RedcapContent content, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             var importDagsResults = string.Empty;
             try
@@ -518,7 +520,7 @@ namespace Redcap
         /// <param name="action">delete</param>
         /// <param name="dags">an array of unique group names that you wish to delete</param>
         /// <returns>Number of DAGs deleted</returns>
-        public async Task<string> DeleteDagsAsync(string token, Content content, RedcapAction action, string[] dags)
+        public async Task<string> DeleteDagsAsync(string token, RedcapContent content, RedcapAction action, string[] dags)
         {
             var deleteDagsResult = string.Empty;
             try
@@ -567,7 +569,7 @@ namespace Redcap
         /// <param name="action">switch</param>
         /// <param name="dag">The unique group name of the Data Access Group to which you wish to switch.</param>
         /// <returns>Returns "1" when the current API user is switched to the specified Data Access Group, otherwise it returns an error message.</returns>
-        public async Task<string> SwitchDagAsync(string token, RedcapDag dag, Content content = Content.Dag, RedcapAction action = RedcapAction.Switch)
+        public async Task<string> SwitchDagAsync(string token, RedcapDag dag, RedcapContent content = RedcapContent.Dag, RedcapAction action = RedcapAction.Switch)
         {
             var switchDagResult = string.Empty;
             try
@@ -607,7 +609,7 @@ namespace Redcap
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>User-DAG assignments for the project in the format specified</returns>
-        public async Task<string> ExportUserDagAssignmentAsync(string token, Content content, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportUserDagAssignmentAsync(string token, RedcapContent content, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             var exportUserDagAssignmentResult = string.Empty;
             try
@@ -660,7 +662,7 @@ namespace Redcap
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Number of User-DAG assignments added or updated</returns>
-        public async Task<string> ImportUserDagAssignmentAsync<T>(string token, Content content, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ImportUserDagAssignmentAsync<T>(string token, RedcapContent content, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             var ImportUserDagAssignmentResults = string.Empty;
             try
@@ -725,7 +727,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.Event.GetDisplayName() },
+                    { "content", RedcapContent.Event.GetDisplayName() },
                     { "format", format.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() }
                 };
@@ -770,7 +772,7 @@ namespace Redcap
         /// <param name="arms"></param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Events for the project in the format specified</returns>
-        public async Task<string> ExportEventsAsync(string token, Content content, RedcapFormat format, string[] arms, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportEventsAsync(string token, RedcapContent content, RedcapFormat format, string[] arms, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -852,7 +854,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.Event.GetDisplayName() },
+                    { "content", RedcapContent.Event.GetDisplayName() },
                     { "action", RedcapAction.Import.GetDisplayName() },
                     { "format", format.GetDisplayName() },
                     { "override", overRideBehavior.GetDisplayName() },
@@ -899,7 +901,7 @@ namespace Redcap
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Number of Events imported</returns>
-        public async Task<string> ImportEventsAsync<T>(string token, Content content, RedcapAction action, Override overrideBehavior, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ImportEventsAsync<T>(string token, RedcapContent content, RedcapAction action, Override overrideBehavior, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -968,7 +970,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.Event.GetDisplayName() },
+                    { "content", RedcapContent.Event.GetDisplayName() },
                     { "action", RedcapAction.Delete.GetDisplayName() }
                 };
                 // Required
@@ -1011,7 +1013,7 @@ namespace Redcap
         /// <param name="action">delete</param>
         /// <param name="events">Array of unique event names</param>
         /// <returns>Number of Events deleted</returns>
-        public async Task<string> DeleteEventsAsync(string token, Content content, RedcapAction action, string[] events)
+        public async Task<string> DeleteEventsAsync(string token, RedcapContent content, RedcapAction action, string[] events)
         {
             try
             {
@@ -1088,7 +1090,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.ExportFieldNames.GetDisplayName() },
+                    { "content", RedcapContent.ExportFieldNames.GetDisplayName() },
                     { "format", format.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() }
 
@@ -1135,7 +1137,7 @@ namespace Redcap
         /// <returns>Returns a list of the export/import-specific version of field names for all fields (or for one field, if desired) in a project in the format specified and ordered by their field order . 
         /// The list that is returned will contain the three following attributes for each field/choice: 'original_field_name', 'choice_value', and 'export_field_name'. The choice_value attribute represents the raw coded value for a checkbox choice. For non-checkbox fields, the choice_value attribute will always be blank/empty. The export_field_name attribute represents the export/import-specific version of that field name.
         /// </returns>
-        public async Task<string> ExportFieldNamesAsync(string token, Content content = Content.ExportFieldNames, RedcapFormat format = RedcapFormat.json, string field = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportFieldNamesAsync(string token, RedcapContent content = RedcapContent.ExportFieldNames, RedcapFormat format = RedcapFormat.json, string field = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -1228,7 +1230,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.File.GetDisplayName() },
+                    { "content", RedcapContent.File.GetDisplayName() },
                     { "action", RedcapAction.Export.GetDisplayName() },
                     { "record", record },
                     { "field", field },
@@ -1275,7 +1277,7 @@ namespace Redcap
         /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <param name="filePath">File path which the file will be saved.</param>
         /// <returns>the file name that was exported</returns>
-        public async Task<string> ExportFileAsync(string token, Content content, RedcapAction action, string record, string field, string eventName, string repeatInstance = "1", RedcapReturnFormat onErrorFormat = RedcapReturnFormat.json, string filePath = null)
+        public async Task<string> ExportFileAsync(string token, RedcapContent content, RedcapAction action, string record, string field, string eventName, string repeatInstance = "1", RedcapReturnFormat onErrorFormat = RedcapReturnFormat.json, string filePath = null)
         {
             try
             {
@@ -1356,7 +1358,7 @@ namespace Redcap
                 var payload = new MultipartFormDataContent()
                 {
                         {new StringContent(token), "token" },
-                        {new StringContent(Content.File.GetDisplayName()) ,"content" },
+                        {new StringContent(RedcapContent.File.GetDisplayName()) ,"content" },
                         {new StringContent(RedcapAction.Import.GetDisplayName()), "action" },
                         {new StringContent(record), "record" },
                         {new StringContent(field), "field" },
@@ -1418,7 +1420,7 @@ namespace Redcap
         /// <param name="filePath">the path where the file is located</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <returns>csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</returns>
-        public async Task<string> ImportFileAsync(string token, Content content, RedcapAction action, string record, string field, string eventName, string repeatInstance, string fileName, string filePath, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ImportFileAsync(string token, RedcapContent content, RedcapAction action, string record, string field, string eventName, string repeatInstance, string fileName, string filePath, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -1501,7 +1503,7 @@ namespace Redcap
                 var payload = new MultipartFormDataContent()
                 {
                     {new StringContent(token), "token" },
-                    {new StringContent(Content.File.GetDisplayName()) ,"content" },
+                    {new StringContent(RedcapContent.File.GetDisplayName()) ,"content" },
                     {new StringContent(RedcapAction.Delete.GetDisplayName()), "action" },
                     {new StringContent(record), "record" },
                     {new StringContent(field), "field" },
@@ -1547,7 +1549,7 @@ namespace Redcap
         /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>String</returns>
-        public async Task<string> DeleteFileAsync(string token, Content content, RedcapAction action, string record, string field, string eventName, string repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> DeleteFileAsync(string token, RedcapContent content, RedcapAction action, string record, string field, string eventName, string repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -1615,7 +1617,7 @@ namespace Redcap
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// 
         /// <returns>The folder_id of the new folder created in the specified format. <br/>For example, if using format=json, the output would look similar to this: [{folder_id:45}].</returns>
-        public async Task<string> CreateFolderFileRepositoryAsync(string token, Content content, RedcapAction action, string name, RedcapFormat format, string folderId = default, string dagId = default, string roleId = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> CreateFolderFileRepositoryAsync(string token, RedcapContent content, RedcapAction action, string name, RedcapFormat format, string folderId = default, string dagId = default, string roleId = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             /*
              * Check the required parameters for empty or null
@@ -1670,7 +1672,7 @@ namespace Redcap
         /// <param name="folderId">the folder_id of a specific folder in the File Repository for which you wish to export a list of its files and sub-folders. If none is provided, the top-level directory of the File Repository will be used.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>The list of all files and folders within a given sub-folder in the File Repository in the format specified.</returns>
-        public async Task<string> ExportFilesFoldersFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.List, RedcapFormat format = RedcapFormat.json, string folderId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportFilesFoldersFileRepositoryAsync(string token, RedcapContent content = RedcapContent.FileRepository, RedcapAction action = RedcapAction.List, RedcapFormat format = RedcapFormat.json, string folderId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             /*
              * Check the required parameters for empty or null
@@ -1709,7 +1711,7 @@ namespace Redcap
         /// <param name="docId">the doc_id of the file in the File Repository</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>the contents of the file</returns>
-        public async Task<string> ExportFileFileRepositoryAsync(string token, Content content, RedcapAction action, string docId = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportFileFileRepositoryAsync(string token, RedcapContent content, RedcapAction action, string docId = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             /*
              * Check the required parameters for empty or null
@@ -1749,7 +1751,7 @@ namespace Redcap
         /// <param name="folderId">the folder_id of a specific folder in the File Repository where you wish to store the file. If none is provided, the file will be stored in the top-level directory of the File Repository.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>string</returns>
-        public async Task<string> ImportFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.Import, string file = null, string folderId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ImportFileRepositoryAsync(string token, RedcapContent content = RedcapContent.FileRepository, RedcapAction action = RedcapAction.Import, string file = null, string folderId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             /*
              * Check the required parameters for empty or null
@@ -1792,7 +1794,7 @@ namespace Redcap
         /// <param name="docId">the doc_id of the file in the File Repository</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>string</returns>
-        public async Task<string> DeleteFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.Delete, string docId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> DeleteFileRepositoryAsync(string token, RedcapContent content = RedcapContent.FileRepository, RedcapAction action = RedcapAction.Delete, string docId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             /*
              * Check the required parameters for empty or null
@@ -1840,7 +1842,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.Instrument.GetDisplayName() },
+                    { "content", RedcapContent.Instrument.GetDisplayName() },
                     { "format", format.GetDisplayName() }
                 };
                 // Execute request
@@ -1868,7 +1870,7 @@ namespace Redcap
         /// <param name="content">instrument</param>
         /// <param name="format">csv, json [default], xml</param>
         /// <returns>Instruments for the project in the format specified and will be ordered according to their order in the project.</returns>
-        public async Task<string> ExportInstrumentsAsync(string token, Content content = Content.Instrument, RedcapFormat format = RedcapFormat.json)
+        public async Task<string> ExportInstrumentsAsync(string token, RedcapContent content = RedcapContent.Instrument, RedcapFormat format = RedcapFormat.json)
         {
             try
             {
@@ -1924,7 +1926,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.Pdf.GetDisplayName() },
+                    { "content", RedcapContent.Pdf.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() }
                 };
                 // Add all optional parameters
@@ -1976,7 +1978,7 @@ namespace Redcap
         /// <param name="compactDisplay">Set to TRUE to return a compact-formatted PDF that excludes fields that have no data saved and excludes unselected multiple choice options, thus producing a smaller PDF file. If set to FALSE, all fields will be displayed normally.</param>
         /// <param name="returnFormat">csv, json [default] , xml- The returnFormat is only used with regard to the format of any error messages that might be returned.</param>
         /// <returns>A PDF file containing one or all data collection instruments from the project, in which the instruments will be blank (no data), contain data from a single record, or contain data from all records in the project, depending on the parameters passed in the API request.</returns>
-        public async Task<string> ExportPDFInstrumentsAsync(string token, Content content = Content.Pdf, string recordId = default, string eventName = default, string instrument = default, bool allRecords = false, bool compactDisplay = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportPDFInstrumentsAsync(string token, RedcapContent content = RedcapContent.Pdf, string recordId = default, string eventName = default, string instrument = default, bool allRecords = false, bool compactDisplay = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -2063,7 +2065,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.Pdf.GetDisplayName() },
+                    { "content", RedcapContent.Pdf.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() },
                     { "filePath", $@"{filePath}" }
                 };
@@ -2123,7 +2125,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.FormEventMapping.GetDisplayName() },
+                    { "content", RedcapContent.FormEventMapping.GetDisplayName() },
                     { "format", format.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() }
                 };
@@ -2164,7 +2166,7 @@ namespace Redcap
         /// <param name="arms">an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Instrument-event mappings for the project in the format specified</returns>
-        public async Task<string> ExportInstrumentMappingAsync(string token, Content content, RedcapFormat format, string[] arms = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportInstrumentMappingAsync(string token, RedcapContent content, RedcapFormat format, string[] arms = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -2234,7 +2236,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.FormEventMapping.GetDisplayName() },
+                    { "content", RedcapContent.FormEventMapping.GetDisplayName() },
                     { "format", format.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() },
                     { "data", _serializedData }
@@ -2274,7 +2276,7 @@ namespace Redcap
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Number of Instrument-Event Mappings imported</returns>
-        public async Task<string> ImportInstrumentMappingAsync<T>(string token, Content content, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ImportInstrumentMappingAsync<T>(string token, RedcapContent content, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -2326,7 +2328,7 @@ namespace Redcap
         /// <param name="endTime">To return only records that have been logged *before* a given date/time, provide a timestamp in the format YYYY-MM-DD HH:MM (e.g., '2017-01-01 17:00' for January 1, 2017 at 5:00 PM server time). If not specified, it will use the current server time.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>List of all changes made to this project, including data exports, data changes, and the creation or deletion of users.</returns>
-        public async Task<string> ExportLoggingAsync(string token, Content content, RedcapFormat format = RedcapFormat.json, LogType logType = LogType.All, string user = default, string record = default, string dag = default, string beginTime = default, string endTime = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportLoggingAsync(string token, RedcapContent content, RedcapFormat format = RedcapFormat.json, LogType logType = LogType.All, string user = default, string record = default, string dag = default, string beginTime = default, string endTime = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             var exportLoggingResults = string.Empty;
             try
@@ -2390,7 +2392,7 @@ namespace Redcap
         /// <param name="forms">an array of form names specifying specific data collection instruments for which you wish to pull metadata (by default, all metadata is pulled). NOTE: These 'forms' are not the form label values that are seen on the webpages, but instead they are the unique form names seen in Column B of the data dictionary.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
-        public async Task<string> ExportMetaDataAsync(string token, Content content, RedcapFormat format, string[] fields = default, string[] forms = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportMetaDataAsync(string token, RedcapContent content, RedcapFormat format, string[] fields = default, string[] forms = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -2456,7 +2458,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.MetaData.GetDisplayName() },
+                    { "content", RedcapContent.MetaData.GetDisplayName() },
                     { "format", format.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() }
                 };
@@ -2514,7 +2516,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.MetaData.GetDisplayName() },
+                    { "content", RedcapContent.MetaData.GetDisplayName() },
                     { "format", format.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() },
                     { "data", _serializedData }
@@ -2548,7 +2550,7 @@ namespace Redcap
         /// <param name="data">The formatted data to be imported.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Number of fields imported</returns>
-        public async Task<string> ImportMetaDataAsync<T>(string token, Content content, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ImportMetaDataAsync<T>(string token, RedcapContent content, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -2615,7 +2617,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.Project.GetDisplayName() },
+                    { "content", RedcapContent.Project.GetDisplayName() },
                     { "format", format.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() },
                     { "data", _serializedData }
@@ -2664,7 +2666,7 @@ namespace Redcap
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="odm">default: NULL - The 'odm' parameter must be an XML string in CDISC ODM XML format that contains project metadata (fields, forms, events, arms) and might optionally contain data to be imported as well. The XML contained in this parameter can come from a REDCap Project XML export file from REDCap itself, or may come from another system that is capable of exporting projects and data in CDISC ODM format. If the 'odm' parameter is included in the API request, it will use the XML to import its contents into the newly created project. This will allow you not only to create the project with the API request, but also to import all fields, forms, and project attributes (and events and arms, if longitudinal) as well as record data all at the same time.</param>
         /// <returns>When a project is created, a 32-character project-level API Token is returned (associated with both the project and user creating the project). This token could then ostensibly be used to make subsequent API calls to this project, such as for adding new events, fields, records, etc.</returns>
-        public async Task<string> CreateProjectAsync<T>(string token, Content content, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string odm = null)
+        public async Task<string> CreateProjectAsync<T>(string token, RedcapContent content, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string odm = null)
         {
             try
             {
@@ -2713,7 +2715,7 @@ namespace Redcap
         /// project_title, project_language, purpose, purpose_other, project_notes, custom_record_label, secondary_unique_field, is_longitudinal, surveys_enabled, scheduling_enabled, record_autonumbering_enabled, randomization_enabled, project_irb_number, project_grant_number, project_pi_firstname, project_pi_lastname, display_today_now_button
         /// </param>
         /// <returns>Returns the number of values accepted to be updated in the project settings (including values which remained the same before and after the import).</returns>
-        public async Task<string> ImportProjectInfoAsync(string token, Content content, RedcapFormat format, RedcapProjectInfo projectInfo)
+        public async Task<string> ImportProjectInfoAsync(string token, RedcapContent content, RedcapFormat format, RedcapProjectInfo projectInfo)
         {
             try
             {
@@ -2769,7 +2771,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.ProjectSettings.GetDisplayName() },
+                    { "content", RedcapContent.ProjectSettings.GetDisplayName() },
                     { "format", format.GetDisplayName() },
                     { "data", _serializedData }
                 };
@@ -2802,7 +2804,7 @@ namespace Redcap
         /// Attributes for the project in the format specified. For any values that are boolean, they will be represented as either a '0' (no/false) or '1' (yes/true). Also, all date/time values will be returned in Y-M-D H:M:S format. The following attributes will be returned:
         /// project_id, project_title, creation_time, production_time, in_production, project_language, purpose, purpose_other, project_notes, custom_record_label, secondary_unique_field, is_longitudinal, surveys_enabled, scheduling_enabled, record_autonumbering_enabled, randomization_enabled, ddp_enabled, project_irb_number, project_grant_number, project_pi_firstname, project_pi_lastname, display_today_now_button
         /// </returns>
-        public async Task<string> ExportProjectInfoAsync(string token, Content content = Content.Project, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportProjectInfoAsync(string token, RedcapContent content = RedcapContent.Project, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -2856,7 +2858,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.Project.GetDisplayName() },
+                    { "content", RedcapContent.Project.GetDisplayName() },
                     { "format", format.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() }
                 };
@@ -2895,7 +2897,7 @@ namespace Redcap
         /// <param name="filterLogic">String of logic text (e.g., [age] > 30) for filtering the data to be returned by this API method, in which the API will only return the records (or record-events, if a longitudinal project) where the logic evaluates as TRUE. This parameter is blank/null by default unless a value is supplied. Please note that if the filter logic contains any incorrect syntax, the API will respond with an error message. </param>
         /// <param name="exportFiles">true, false [default] - TRUE will cause the XML returned to include all files uploaded for File Upload and Signature fields for all records in the project, whereas FALSE will cause all such fields not to be included. NOTE: Setting this option to TRUE can make the export very large and may prevent it from completing if the project contains many files or very large files. </param>
         /// <returns>The entire REDCap project's metadata (and data, if specified) will be returned in CDISC ODM format as a single XML string.</returns>
-        public async Task<string> ExportProjectXmlAsync(string token, Content content, bool returnMetadataOnly = false, string[] records = default, string[] fields = default, string[] events = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = default, bool exportFiles = false)
+        public async Task<string> ExportProjectXmlAsync(string token, RedcapContent content, bool returnMetadataOnly = false, string[] records = default, string[] fields = default, string[] events = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = default, bool exportFiles = false)
         {
             try
             {
@@ -2985,7 +2987,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.ProjectXml.GetDisplayName() },
+                    { "content", RedcapContent.ProjectXml.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() }
                 };
                 // Optional
@@ -3056,7 +3058,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.GenerateNextRecordName.GetDisplayName() },
+                    { "content", RedcapContent.GenerateNextRecordName.GetDisplayName() },
                 };
                 return await this.SendPostRequestAsync(payload, _uri);
             }
@@ -3085,7 +3087,7 @@ namespace Redcap
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">generateNextRecordName</param>
         /// <returns>The maximum integer record ID + 1.</returns>
-        public async Task<string> GenerateNextRecordNameAsync(string token, Content content)
+        public async Task<string> GenerateNextRecordNameAsync(string token, RedcapContent content)
         {
             try
             {
@@ -3148,7 +3150,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.Record.GetDisplayName() },
+                    { "content", RedcapContent.Record.GetDisplayName() },
                     { "format", format.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() },
                     { "type", redcapDataType.GetDisplayName() },
@@ -3261,7 +3263,7 @@ namespace Redcap
         /// <param name="decimalCharacter">If specified, force all numbers into same decimal format. You may choose to force all data values containing a decimal to have the same decimal character, which will be applied to all calc fields and number-validated text fields. Options include comma ',' or dot/full stop '.', but if left blank/null, then it will export numbers using the fields' native decimal format. Simply provide the value of either ',' or '.' for this parameter.</param>
         /// <param name="exportBlankForGrayFormStatus">true, false [default] - specifies whether or not to export blank values for instrument complete status fields that have a gray status icon. All instrument complete status fields having a gray icon can be exported either as a blank value or as "0" (Incomplete). Blank values are recommended in a data export if the data will be re-imported into a REDCap project.</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<string> ExportRecordsAsync(string token, Content content, RedcapFormat format = RedcapFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, DateTime? dateRangeBegin = null, DateTime? dateRangeEnd = null, string csvDelimiter = ",", string decimalCharacter = ".", bool exportBlankForGrayFormStatus = false)
+        public async Task<string> ExportRecordsAsync(string token, RedcapContent content, RedcapFormat format = RedcapFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, DateTime? dateRangeBegin = null, DateTime? dateRangeEnd = null, string csvDelimiter = ",", string decimalCharacter = ".", bool exportBlankForGrayFormStatus = false)
         {
             try
             {
@@ -3378,7 +3380,7 @@ namespace Redcap
         /// <param name="filterLogic">String of logic text (e.g., [age] > 30) for filtering the data to be returned by this API method, in which the API will only return the records (or record-events, if a longitudinal project) where the logic evaluates as TRUE. This parameter is blank/null by default unless a value is supplied. Please note that if the filter logic contains any incorrect syntax, the API will respond with an error message. </param>
         /// <param name="exportBlankForGrayFormStatus">true, false [default] - specifies whether or not to export blank values for instrument complete status fields that have a gray status icon. All instrument complete status fields having a gray icon can be exported either as a blank value or as "0" (Incomplete). Blank values are recommended in a data export if the data will be re-imported into a REDCap project.</param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<string> ExportRecordAsync(string token, Content content, string record, RedcapFormat format = RedcapFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat onErrorFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportBlankForGrayFormStatus = false)
+        public async Task<string> ExportRecordAsync(string token, RedcapContent content, string record, RedcapFormat format = RedcapFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat onErrorFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportBlankForGrayFormStatus = false)
         {
             try
             {
@@ -3496,7 +3498,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.Record.GetDisplayName() },
+                    { "content", RedcapContent.Record.GetDisplayName() },
                     { "format", format.GetDisplayName() },
                     { "type", redcapDataType.GetDisplayName() },
                     { "overwriteBehavior", overwriteBehavior.ToString() },
@@ -3556,7 +3558,7 @@ namespace Redcap
         /// <param name="returnContent">count [default] - the number of records imported, ids - a list of all record IDs that were imported, auto_ids = (used only when forceAutoNumber=true) a list of pairs of all record IDs that were imported, includes the new ID created and the ID value that was sent in the API request (e.g., 323,10). </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>the content specified by returnContent</returns>
-        public async Task<string> ImportRecordsAsync<T>(string token, Content content, RedcapFormat format, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, List<T> data, string dateFormat = "", CsvDelimiter csvDelimiter = CsvDelimiter.tab, ReturnContent returnContent = ReturnContent.count, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ImportRecordsAsync<T>(string token, RedcapContent content, RedcapFormat format, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, List<T> data, string dateFormat = "", CsvDelimiter csvDelimiter = CsvDelimiter.tab, ReturnContent returnContent = ReturnContent.count, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             var importRecordsResults = string.Empty;
             try
@@ -3626,7 +3628,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.Record.GetDisplayName() },
+                    { "content", RedcapContent.Record.GetDisplayName() },
                     { "action",  RedcapAction.Delete.GetDisplayName() }
                 };
                 // Required
@@ -3666,7 +3668,7 @@ namespace Redcap
         /// <param name="arm">the arm number of the arm in which the record(s) should be deleted. 
         /// (This can only be used if the project is longitudinal with more than one arm.) NOTE: If the arm parameter is not provided, the specified records will be deleted from all arms in which they exist. Whereas, if arm is provided, they will only be deleted from the specified arm. </param>
         /// <returns>the number of records deleted or (if instrument, event, and/or instance are provided) the number of items deleted over the total records specified.</returns>
-        public async Task<string> DeleteRecordsAsync(string token, Content content, RedcapAction action, string[] records, int? arm)
+        public async Task<string> DeleteRecordsAsync(string token, RedcapContent content, RedcapAction action, string[] records, int? arm)
         {
             try
             {
@@ -3729,7 +3731,7 @@ namespace Redcap
         /// <param name="redcapEvent">the unique event name - only for longitudinal projects. NOTE: If instrument is provided for a longitudinal project, the event parameter is mandatory.</param>
         ///  <param name="repeatInstance">the repeating instance number for a repeating instrument or repeating event. NOTE: If project has repeating instruments/events, it will remove only the data for that repeating instance</param>
         /// <returns>the number of records deleted or (if instrument, event, and/or instance are provided) the number of items deleted over the total records specified.</returns>
-        public async Task<string> DeleteRecordsAsync(string token, Content content, RedcapAction action, string[] records, int? arm, RedcapInstrument instrument, RedcapEvent redcapEvent, RedcapRepeatInstance repeatInstance)
+        public async Task<string> DeleteRecordsAsync(string token, RedcapContent content, RedcapAction action, string[] records, int? arm, RedcapInstrument instrument, RedcapEvent redcapEvent, RedcapRepeatInstance repeatInstance)
         {
             try
             {
@@ -3791,7 +3793,7 @@ namespace Redcap
         /// <param name="newRecordName">new record name to which you want to rename current record.</param>
         /// <param name="arm">specific arm number in which current record exists. If null, then all records with same name across all arms on which it exists (if longitudinal with multiple arms) will be renamed to new record name, otherwise it will rename the record only in the specified arm.</param>
         /// <returns>Returns "1" if record is renamed or error message if any.</returns>
-        public async Task<string> RenameRecordAsync(string token, Content content, RedcapAction action, string record, string newRecordName, int? arm)
+        public async Task<string> RenameRecordAsync(string token, RedcapContent content, RedcapAction action, string record, string newRecordName, int? arm)
         {
             try
             {
@@ -3847,7 +3849,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.RepeatingFormsEvents.GetDisplayName() },
+                    { "content", RedcapContent.RepeatingFormsEvents.GetDisplayName() },
                     { "format", format.GetDisplayName() }
                 };
                 return await this.SendPostRequestAsync(payload, _uri);
@@ -3873,7 +3875,7 @@ namespace Redcap
         /// <param name="content">repeatingFormsEvents</param>
         /// <param name="format">csv, json [default], xml odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
         /// <returns>Repeated instruments and events for the project in the format specified and will be ordered according to their order in the project.</returns>
-        public async Task<string> ExportRepeatingInstrumentsAndEvents(string token, Content content, RedcapFormat format = RedcapFormat.json)
+        public async Task<string> ExportRepeatingInstrumentsAndEvents(string token, RedcapContent content, RedcapFormat format = RedcapFormat.json)
         {
             try
             {
@@ -3910,7 +3912,7 @@ namespace Redcap
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Repeated instruments and events for the project in the format specified and will be ordered according to their order in the project.</returns>
-        public async Task<string> ImportRepeatingInstrumentsAndEvents<T>(string token, List<T> data, Content content = Content.RepeatingFormsEvents, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ImportRepeatingInstrumentsAndEvents<T>(string token, List<T> data, RedcapContent content = RedcapContent.RepeatingFormsEvents, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -3973,7 +3975,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.Report.GetDisplayName() },
+                    { "content", RedcapContent.Report.GetDisplayName() },
                     { "report_id", reportId.ToString() },
                     { "format", format.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() }
@@ -4033,7 +4035,7 @@ namespace Redcap
         /// <param name="csvDelimiter"></param>
         /// <param name="decimalCharacter"></param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<string> ExportReportsAsync(string token, Content content, int reportId, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, string csvDelimiter = default, string decimalCharacter = default)
+        public async Task<string> ExportReportsAsync(string token, RedcapContent content, int reportId, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, string csvDelimiter = default, string decimalCharacter = default)
         {
             try
             {
@@ -4098,7 +4100,7 @@ namespace Redcap
         /// <param name="content">version</param>
         /// <param name="format">csv, json [default], xml</param>
         /// <returns>The current REDCap version number (three numbers delimited with two periods) as plain text - e.g., 4.13.18, 5.12.2, 6.0.0</returns>
-        public async Task<string> ExportRedcapVersionAsync(string token, Content content = Content.Version, RedcapFormat format = RedcapFormat.json)
+        public async Task<string> ExportRedcapVersionAsync(string token, RedcapContent content = RedcapContent.Version, RedcapFormat format = RedcapFormat.json)
         {
             try
             {
@@ -4147,7 +4149,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.Version.GetDisplayName() },
+                    { "content", RedcapContent.Version.GetDisplayName() },
                     { "format", format.GetDisplayName() }
                 };
 
@@ -4191,7 +4193,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.SurveyLink.GetDisplayName() },
+                    { "content", RedcapContent.SurveyLink.GetDisplayName() },
                     { "record", record },
                     { "instrument", instrument },
                     { "event", eventName },
@@ -4228,7 +4230,7 @@ namespace Redcap
         /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
         /// <param name="returnFormat">csv, json [default], xml - The returnFormat is only used with regard to the format of any error messages that might be returned.</param>
         /// <returns>Returns a unique survey link (i.e., a URL) in plain text format for the specified record and instrument (and event, if longitudinal).</returns>
-        public async Task<string> ExportSurveyLinkAsync(string token, Content content, string record, string instrument, string eventName, int repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportSurveyLinkAsync(string token, RedcapContent content, string record, string instrument, string eventName, int repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -4284,7 +4286,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.ParticipantList.GetDisplayName() },
+                    { "content", RedcapContent.ParticipantList.GetDisplayName() },
                     { "format", format.GetDisplayName() },
                     { "instrument", instrument },
                     { "event", eventName },
@@ -4318,7 +4320,7 @@ namespace Redcap
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Returns the list of all participants for the specified survey instrument [and event] in the desired format. The following fields are returned: email, email_occurrence, identifier, invitation_sent_status, invitation_send_time, response_status, survey_access_code, survey_link. The attribute 'email_occurrence' represents the current count that the email address has appeared in the list (because emails can be used more than once), thus email + email_occurrence represent a unique value pair. 'invitation_sent_status' is '0' if an invitation has not yet been sent to the participant, and is '1' if it has. 'invitation_send_time' is the date/time in which the next invitation will be sent, and is blank if there is no invitation that is scheduled to be sent. 'response_status' represents whether the participant has responded to the survey, in which its value is 0, 1, or 2 for 'No response', 'Partial', or 'Completed', respectively. Note: If an incorrect event_id or instrument name is used or if the instrument has not been enabled as a survey, then an error will be returned.</returns>
-        public async Task<string> ExportSurveyParticipantsAsync(string token, Content content, string instrument, string eventName, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportSurveyParticipantsAsync(string token, RedcapContent content, string instrument, string eventName, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -4372,7 +4374,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.SurveyQueueLink.GetDisplayName() },
+                    { "content", RedcapContent.SurveyQueueLink.GetDisplayName() },
                     { "record", record },
                     { "returnFormat", returnFormat.GetDisplayName() }
                 };
@@ -4403,7 +4405,7 @@ namespace Redcap
         /// <param name="record">the record ID. The name of the record in the project.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Returns a unique Survey Queue link (i.e., a URL) in plain text format for the specified record in the project.</returns>
-        public async Task<string> ExportSurveyQueueLinkAsync(string token, Content content, string record, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportSurveyQueueLinkAsync(string token, RedcapContent content, string record, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -4460,7 +4462,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.SurveyReturnCode.GetDisplayName() },
+                    { "content", RedcapContent.SurveyReturnCode.GetDisplayName() },
                     { "record", record },
                     { "instrument", instrument },
                     { "event", eventName },
@@ -4496,7 +4498,7 @@ namespace Redcap
         /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Returns a unique Return Code in plain text format for the specified record and instrument (and event, if longitudinal).</returns>
-        public async Task<string> ExportSurveyReturnCodeAsync(string token, Content content, string record, string instrument, string eventName, string repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportSurveyReturnCodeAsync(string token, RedcapContent content, string record, string instrument, string eventName, string repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -4562,7 +4564,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.User.GetDisplayName() },
+                    { "content", RedcapContent.User.GetDisplayName() },
                     { "format", format.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() }
                 };
@@ -4598,7 +4600,7 @@ namespace Redcap
         /// <returns>The method will return all the attributes below with regard to user privileges in the format specified. Please note that the 'forms' attribute is the only attribute that contains sub-elements (one for each data collection instrument), in which each form will have its own Form Rights value (see the key below to learn what each numerical value represents). Most user privilege attributes are boolean (0=No Access, 1=Access). Attributes returned:
         /// username, email, firstname, lastname, expiration, data_access_group, design, user_rights, data_access_groups, data_export, reports, stats_and_charts, manage_survey_participants, calendar, data_import_tool, data_comparison_tool, logging, file_repository, data_quality_create, data_quality_execute, api_export, api_import, mobile_app, mobile_app_download_data, record_create, record_rename, record_delete, lock_records_customization, lock_records, lock_records_all_forms, forms</returns>
         /// 
-        public async Task<string> ExportUsersAsync(string token, Content content = Content.User, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportUsersAsync(string token, RedcapContent content = RedcapContent.User, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -4685,7 +4687,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "content", Content.User.GetDisplayName() },
+                    { "content", RedcapContent.User.GetDisplayName() },
                     { "format", format.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() },
                     { "data", _serializedData }
@@ -4744,7 +4746,7 @@ namespace Redcap
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Number of users added or updated</returns>
-        public async Task<string> ImportUsersAsync<T>(string token, Content content, List<T> data, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ImportUsersAsync<T>(string token, RedcapContent content, List<T> data, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -4792,7 +4794,7 @@ namespace Redcap
         /// <param name="content">user</param>
         /// <param name="action">delete</param>
         /// <returns>Number of Users deleted</returns>
-        public async Task<string> DeleteUsersAsync(string token, List<string> users, Content content = Content.User, RedcapAction action = RedcapAction.Delete)
+        public async Task<string> DeleteUsersAsync(string token, List<string> users, RedcapContent content = RedcapContent.User, RedcapAction action = RedcapAction.Delete)
         {
             try
             {
@@ -4865,7 +4867,7 @@ namespace Redcap
         /// <example>
         /// 
         /// </example>
-        public async Task<string> ExportUserRolesAsync(string token, Content content = Content.UserRole, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportUserRolesAsync(string token, RedcapContent content = RedcapContent.UserRole, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             try
             {
@@ -4919,7 +4921,7 @@ namespace Redcap
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Number of user roles added or updated</returns>
-        public async Task<string> ImportUserRolesAsync<T>(string token, List<T> data, Content content = Content.UserRole,  RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
+        public async Task<string> ImportUserRolesAsync<T>(string token, List<T> data, RedcapContent content = RedcapContent.UserRole,  RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json)
         {
             var importUserRolesResult = string.Empty;
             try
@@ -4959,7 +4961,7 @@ namespace Redcap
         /// <param name="content">userRole</param>
         /// <param name="action">delete</param>
         /// <returns>Number of User Roles deleted</returns>
-        public async Task<string> DeleteUserRolesAsync(string token, List<string> roles, Content content = Content.UserRole, RedcapAction action = RedcapAction.Delete)
+        public async Task<string> DeleteUserRolesAsync(string token, List<string> roles, RedcapContent content = RedcapContent.UserRole, RedcapAction action = RedcapAction.Delete)
         {
             var deleteUserRolesResult = string.Empty;
             try
@@ -5010,7 +5012,7 @@ namespace Redcap
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>User-Role assignments for the project in the format specified</returns>
-        public async Task<string> ExportUserRoleAssignmentAsync(string token, Content content = Content.UserRoleMapping, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat onErrorFormat = RedcapReturnFormat.json)
+        public async Task<string> ExportUserRoleAssignmentAsync(string token, RedcapContent content = RedcapContent.UserRoleMapping, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat onErrorFormat = RedcapReturnFormat.json)
         {
             var exportUserRolesAssignmentResult = string.Empty;
             try
@@ -5066,7 +5068,7 @@ namespace Redcap
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <returns>Number of User-Role assignments added or updated</returns>
-        public async Task<string> ImportUserRoleAssignmentAsync<T>(string token, List<T> data, Content content = Content.UserRoleMapping, RedcapAction action = RedcapAction.Import, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat onErrorFormat = RedcapReturnFormat.json)
+        public async Task<string> ImportUserRoleAssignmentAsync<T>(string token, List<T> data, RedcapContent content = RedcapContent.UserRoleMapping, RedcapAction action = RedcapAction.Import, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat onErrorFormat = RedcapReturnFormat.json)
         {
             var importUserRoleAssignmentResult = string.Empty;
             try
