@@ -6,14 +6,14 @@ namespace Redcap.Models
     /// Specifies the format of error messages
     /// 
     /// The format that the response object should be if there are errors generated when executing the http request.
-    /// OnErrorFormat, 0 = json
-    /// OnErrorFormat, 1 = csv
-    /// OnErrorFormat, 2 = xml
+    /// ReturnFormat, 0 = json
+    /// ReturnFormat, 1 = csv
+    /// ReturnFormat, 2 = xml
+    /// </summary>
     /// 
     public enum RedcapReturnFormat
     {
 
-        /// </summary>
         /// <summary>
         /// Default Javascript Notation
         /// </summary>
