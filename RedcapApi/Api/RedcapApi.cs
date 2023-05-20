@@ -31,7 +31,7 @@ namespace Redcap
         /// <example>
         /// 4AAE216218B33700456A30898F2D6417
         /// </example>
-        private static string _token;
+        private string _token = default!;
 
         /// <summary>
         /// Redcap API Uri
@@ -40,12 +40,12 @@ namespace Redcap
         /// <example>
         /// https://localhost/redcap/api
         /// </example>
-        private static Uri _uri;
+        private Uri _uri = default!;
 
         /// <summary>
         /// The version of redcap that the api is currently interacting with.
         /// </summary>
-        public static string Version;
+        public string Version = default!;
         /// <summary>
         /// default constructor
         /// </summary>
