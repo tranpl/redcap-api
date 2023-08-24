@@ -3758,7 +3758,7 @@ namespace Redcap
 
                 // Optional
                 payload.Add("arm", arm?.ToString());
-                payload.Add("instrumnet", instrument.InstrumentName);
+                payload.Add("instrument", instrument.InstrumentName);
                 payload.Add("event", redcapEvent.EventName);
                 payload.Add("repeat_instance", repeatInstance.RepeatInstance.ToString());
 
