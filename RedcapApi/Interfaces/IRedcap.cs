@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Redcap.Models;
@@ -17,6 +18,7 @@ namespace Redcap.Interfaces
     public interface IRedcap
     {
         #region Arms
+
         /// <summary>
         /// From Redcap Version 4.7.0<br/><br/>
         /// Export Arms<br/><br/>
@@ -30,8 +32,9 @@ namespace Redcap.Interfaces
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="arms">an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Arms for the project in the format specified(only ones with Events available)</returns>
-        Task<string> ExportArmsAsync(string token, RedcapFormat format, string[] arms, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportArmsAsync(string token, RedcapFormat format, string[] arms, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 4.7.0<br/><br/>
@@ -47,8 +50,9 @@ namespace Redcap.Interfaces
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="arms">an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Arms for the project in the format specified(only ones with Events available)</returns>
-        Task<string> ExportArmsAsync(string token, Content content, RedcapFormat format, string[] arms, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportArmsAsync(string token, Content content, RedcapFormat format, string[] arms, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 4.7.0<br/><br/>
@@ -75,8 +79,9 @@ namespace Redcap.Interfaces
         /// {"arm_num":"3","name":"Drug C"}]
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of Arms imported</returns>
-        Task<string> ImportArmsAsync<T>(string token, Content content, Override overrideBhavior, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ImportArmsAsync<T>(string token, Content content, Override overrideBhavior, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 4.7.0<br/><br/>
@@ -102,8 +107,9 @@ namespace Redcap.Interfaces
         /// {"arm_num":"3","name":"Drug C"}]
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of Arms imported</returns>
-        Task<string> ImportArmsAsync<T>(string token, Override overrideBhavior, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat);
+        Task<string> ImportArmsAsync<T>(string token, Override overrideBhavior, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 4.7.0<br/><br/>
@@ -120,8 +126,9 @@ namespace Redcap.Interfaces
         /// <param name="content">arm</param>
         /// <param name="action">delete</param>
         /// <param name="arms">an array of arm numbers that you wish to delete</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of Events deleted</returns>
-        Task<string> DeleteArmsAsync(string token, Content content, RedcapAction action, string[] arms);
+        Task<string> DeleteArmsAsync(string token, Content content, RedcapAction action, string[] arms, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 4.7.0<br/><br/>
@@ -137,11 +144,13 @@ namespace Redcap.Interfaces
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="arms">an array of arm numbers that you wish to delete</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of Events deleted</returns>
-        Task<string> DeleteArmsAsync(string token, string[] arms);
+        Task<string> DeleteArmsAsync(string token, string[] arms, CancellationToken cancellationToken = default);
         #endregion
 
         #region Data Access Groups
+
         /// <summary>
         /// Export DAGs<br/><br/>
         /// This method allows you to export the Data Access Groups for a project
@@ -153,8 +162,9 @@ namespace Redcap.Interfaces
         /// <param name="content">dag</param>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>DAGs for the project in the format specified</returns>
-        Task<string> ExportDagsAsync(string token, Content content = Content.Dag, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportDagsAsync(string token, Content content = Content.Dag, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Import DAGs
@@ -182,8 +192,9 @@ namespace Redcap.Interfaces
         /// "New Site",
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of DAGs added or updated</returns>
-        Task<string> ImportDagsAsync<T>(string token, Content content, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ImportDagsAsync<T>(string token, Content content, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Delete DAGs <br/><br/>
@@ -196,8 +207,9 @@ namespace Redcap.Interfaces
         /// <param name="content">dag</param>
         /// <param name="action">delete</param>
         /// <param name="dags">an array of unique group names that you wish to delete</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of DAGs deleted</returns>
-        Task<string> DeleteDagsAsync(string token, Content content, RedcapAction action, string[] dags);
+        Task<string> DeleteDagsAsync(string token, Content content, RedcapAction action, string[] dags, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 11.3.1<br/><br/>
@@ -212,8 +224,9 @@ namespace Redcap.Interfaces
         /// <param name="content">dag</param>
         /// <param name="action">switch</param>
         /// <param name="dag">The unique group name of the Data Access Group to which you wish to switch.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Returns "1" when the current API user is switched to the specified Data Access Group, otherwise it returns an error message.</returns>
-        Task<string> SwitchDagAsync(string token, RedcapDag dag, Content content = Content.Dag, RedcapAction action = RedcapAction.Switch);
+        Task<string> SwitchDagAsync(string token, RedcapDag dag, Content content = Content.Dag, RedcapAction action = RedcapAction.Switch, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Export User-DAG Assignments<br/>
@@ -227,8 +240,9 @@ namespace Redcap.Interfaces
         /// <param name="content">userDagMapping</param>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>User-DAG assignments for the project in the format specified</returns>
-        Task<string> ExportUserDagAssignmentAsync(string token, Content content, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportUserDagAssignmentAsync(string token, Content content, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Import User-DAG Assignments<br/><br/>
@@ -256,11 +270,13 @@ namespace Redcap.Interfaces
         /// global_user,
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of User-DAG assignments added or updated</returns>
-        Task<string> ImportUserDagAssignmentAsync<T>(string token, Content content, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ImportUserDagAssignmentAsync<T>(string token, Content content, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
         #endregion
 
         #region Events
+
         /// <summary>
         /// From Redcap Version 4.7.0<br/><br/>
         /// 
@@ -279,9 +295,10 @@ namespace Redcap.Interfaces
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="arms"></param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Events for the project in the format specified</returns>
-        Task<string> ExportEventsAsync(string token, Content content, RedcapFormat format, string[] arms, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
-        
+        Task<string> ExportEventsAsync(string token, Content content, RedcapFormat format, string[] arms, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// From Redcap Version 4.7.0
         /// 
@@ -299,8 +316,9 @@ namespace Redcap.Interfaces
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="arms"></param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Events for the project in the format specified</returns>
-        Task<string> ExportEventsAsync(string token, RedcapFormat format, string[] arms, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportEventsAsync(string token, RedcapFormat format, string[] arms, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 6.11.0<br/><br/>
@@ -328,8 +346,9 @@ namespace Redcap.Interfaces
         /// "offset_max":"0","unique_event_name":"visit_2_arm_1"}]
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of Events imported</returns>
-        Task<string> ImportEventsAsync<T>(string token, Content content, RedcapAction action, Override overrideBehavior, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ImportEventsAsync<T>(string token, Content content, RedcapAction action, Override overrideBehavior, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 6.11.0<br/><br/>
@@ -354,9 +373,10 @@ namespace Redcap.Interfaces
         /// </param>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of Events imported</returns>
+        Task<string> ImportEventsAsync<T>(string token, Override overrideBehavior, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
-        Task<string> ImportEventsAsync<T>(string token, Override overrideBehavior, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
         /// <summary>
         /// From Redcap Version 6.11.0<br/><br/>
         /// 
@@ -372,8 +392,10 @@ namespace Redcap.Interfaces
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="events">Array of unique event names</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of Events deleted</returns>
-        Task<string> DeleteEventsAsync(string token, string[] events);
+        Task<string> DeleteEventsAsync(string token, string[] events, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// From Redcap Version 6.11.0<br/><br/>
         /// 
@@ -391,11 +413,13 @@ namespace Redcap.Interfaces
         /// <param name="content">event</param>
         /// <param name="action">delete</param>
         /// <param name="events">Array of unique event names</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of Events deleted</returns>
-        Task<string> DeleteEventsAsync(string token, Content content, RedcapAction action, string[] events);
+        Task<string> DeleteEventsAsync(string token, Content content, RedcapAction action, string[] events, CancellationToken cancellationToken = default);
         #endregion
 
         #region Field Names
+
         /// <summary>
         /// Export List of Export Field Names (i.e. variables used during exports and imports)<br/><br/>
         /// 
@@ -416,10 +440,11 @@ namespace Redcap.Interfaces
         /// <param name="field">A field's variable name. By default, all fields are returned, but if field is provided, then it will only the export field name(s) for that field. If the field name provided is invalid, it will return an error.</param>
         /// <param name="returnFormat">csv, json [default], xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'. 
         /// The list that is returned will contain the original field name (variable) of the field and also the export field name(s) of that field.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Returns a list of the export/import-specific version of field names for all fields (or for one field, if desired) in a project in the format specified and ordered by their field order . 
         /// The list that is returned will contain the three following attributes for each field/choice: 'original_field_name', 'choice_value', and 'export_field_name'. The choice_value attribute represents the raw coded value for a checkbox choice. For non-checkbox fields, the choice_value attribute will always be blank/empty. The export_field_name attribute represents the export/import-specific version of that field name.
         /// </returns>
-        Task<string> ExportFieldNamesAsync(string token, RedcapFormat format = RedcapFormat.json, string field = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportFieldNamesAsync(string token, RedcapFormat format = RedcapFormat.json, string field = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Export List of Export Field Names (i.e. variables used during exports and imports)<br/><br/>
@@ -442,14 +467,15 @@ namespace Redcap.Interfaces
         /// <param name="field">A field's variable name. By default, all fields are returned, but if field is provided, then it will only the export field name(s) for that field. If the field name provided is invalid, it will return an error.</param>
         /// <param name="returnFormat">csv, json [default], xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'. 
         /// The list that is returned will contain the original field name (variable) of the field and also the export field name(s) of that field.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Returns a list of the export/import-specific version of field names for all fields (or for one field, if desired) in a project in the format specified and ordered by their field order . 
         /// The list that is returned will contain the three following attributes for each field/choice: 'original_field_name', 'choice_value', and 'export_field_name'. The choice_value attribute represents the raw coded value for a checkbox choice. For non-checkbox fields, the choice_value attribute will always be blank/empty. The export_field_name attribute represents the export/import-specific version of that field name.
         /// </returns>
-
-        Task<string> ExportFieldNamesAsync(string token, Content content = Content.ExportFieldNames, RedcapFormat format = RedcapFormat.json, string field = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportFieldNamesAsync(string token, Content content = Content.ExportFieldNames, RedcapFormat format = RedcapFormat.json, string field = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
         #endregion
 
         #region Files
+
         /// <summary>
         /// Export a File<br/><br/>
         /// This method allows you to download a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
@@ -472,8 +498,10 @@ namespace Redcap.Interfaces
         /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <param name="filePath">File path which the file will be saved.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>the contents of the file</returns>
-        Task<string> ExportFileAsync(string token, string record, string field, string eventName, string repeatInstance = "1", RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string filePath = null);
+        Task<string> ExportFileAsync(string token, string record, string field, string eventName, string repeatInstance = "1", RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string filePath = null, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// Export a File<br/><br/>
         /// This method allows you to download a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
@@ -498,8 +526,9 @@ namespace Redcap.Interfaces
         /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <param name="filePath">File path which the file will be saved.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>the file name that was exported</returns>
-        Task<string> ExportFileAsync(string token, Content content, RedcapAction action, string record, string field, string eventName, string repeatInstance = "1", RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string filePath = null);
+        Task<string> ExportFileAsync(string token, Content content, RedcapAction action, string record, string field, string eventName, string repeatInstance = "1", RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string filePath = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Import a File <br/><br/>
@@ -517,9 +546,10 @@ namespace Redcap.Interfaces
         /// <param name="fileName">The File you be imported, contents of the file</param>
         /// <param name="filePath">the path where the file is located</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</returns>
+        Task<string> ImportFileAsync(string token, string record, string field, string eventName, string repeatInstance, string fileName, string filePath, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
-        Task<string> ImportFileAsync(string token, string record, string field, string eventName, string repeatInstance, string fileName, string filePath, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
         /// <summary>
         /// Import a File <br/><br/>
         /// This method allows you to upload a document that will be attached to an individual record for a File Upload field. Please note that this method may NOT be used for Signature fields (i.e. File Upload fields with 'signature' validation type) because a signature can only be captured and stored using the web interface. 
@@ -538,9 +568,10 @@ namespace Redcap.Interfaces
         /// <param name="fileName">The File you be imported, contents of the file</param>
         /// <param name="filePath">the path where the file is located</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</returns>
+        Task<string> ImportFileAsync(string token, Content content, RedcapAction action, string record, string field, string eventName, string repeatInstance, string fileName, string filePath, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
-        Task<string> ImportFileAsync(string token, Content content, RedcapAction action, string record, string field, string eventName, string repeatInstance, string fileName, string filePath, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
         /// <summary>
         /// Delete a File <br/><br/>
         /// This method allows you to remove a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
@@ -554,9 +585,10 @@ namespace Redcap.Interfaces
         /// <param name="eventName">the unique event name - only for longitudinal projects</param>
         /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>String</returns>
+        Task<string> DeleteFileAsync(string token, string record, string field, string eventName, string repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
-        Task<string> DeleteFileAsync(string token, string record, string field, string eventName, string repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
         /// <summary>
         /// Delete a File <br/><br/>
         /// This method allows you to remove a document that has been attached to an individual record for a File Upload field. Please note that this method may also be used for Signature fields (i.e. File Upload fields with 'signature' validation type).
@@ -572,12 +604,14 @@ namespace Redcap.Interfaces
         /// <param name="eventName">the unique event name - only for longitudinal projects</param>
         /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>String</returns>
-        Task<string> DeleteFileAsync(string token, Content content, RedcapAction action, string record, string field, string eventName, string repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> DeleteFileAsync(string token, Content content, RedcapAction action, string record, string field, string eventName, string repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         #endregion
 
         #region File Repository
+
         /// <summary>
         /// From Redcap Version 13.1 <br/><br/>
         /// 
@@ -601,9 +635,9 @@ namespace Redcap.Interfaces
         /// <param name="dagId">the dag_id of the DAG (Data Access Group) to which you wish to restrict access for this folder. If none is provided, the folder will accessible to users in all DAGs and users in no DAGs.</param>
         /// <param name="roleId">the role_id of the User Role to which you wish to restrict access for this folder. If none is provided, the folder will accessible to users in all User Roles and users in no User Roles.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
-        /// 
+        /// <param name="cancellationToken"></param>
         /// <returns>The folder_id of the new folder created in the specified format. <br/>For example, if using format=json, the output would look similar to this: [{folder_id:45}].</returns>
-        Task<string> CreateFolderFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.CreateFolder, string name = null, RedcapFormat format = RedcapFormat.json, string folderId = null, string dagId = null, string roleId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> CreateFolderFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.CreateFolder, string name = null, RedcapFormat format = RedcapFormat.json, string folderId = null, string dagId = null, string roleId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 13.1<br/>
@@ -620,8 +654,9 @@ namespace Redcap.Interfaces
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="folderId">the folder_id of a specific folder in the File Repository for which you wish to export a list of its files and sub-folders. If none is provided, the top-level directory of the File Repository will be used.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>The list of all files and folders within a given sub-folder in the File Repository in the format specified.</returns>
-        Task<string> ExportFilesFoldersFileRepositoryAsync(string token, Content content, RedcapAction action, RedcapFormat format, string folderId = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportFilesFoldersFileRepositoryAsync(string token, Content content, RedcapAction action, RedcapFormat format, string folderId = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 13.1<br/>
@@ -635,8 +670,9 @@ namespace Redcap.Interfaces
         /// <param name="action">export</param>
         /// <param name="docId">the doc_id of the file in the File Repository</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>the contents of the file</returns>
-        Task<string> ExportFileFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.Export, string docId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportFileFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.Export, string docId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 13.1<br/>
@@ -652,8 +688,9 @@ namespace Redcap.Interfaces
         /// <param name="file">the contents of the file</param>
         /// <param name="folderId">the folder_id of a specific folder in the File Repository where you wish to store the file. If none is provided, the file will be stored in the top-level directory of the File Repository.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>string</returns>
-        Task<string> ImportFileRepositoryAsync(string token, Content content, RedcapAction action, string file, string folderId = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ImportFileRepositoryAsync(string token, Content content, RedcapAction action, string file, string folderId = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 13.1<br/>
@@ -668,8 +705,9 @@ namespace Redcap.Interfaces
         /// <param name="action">delete</param>
         /// <param name="docId">the doc_id of the file in the File Repository</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>string</returns>
-        Task<string> DeleteFileRepositoryAsync(string token, Content content, RedcapAction action, string docId, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> DeleteFileRepositoryAsync(string token, Content content, RedcapAction action, string docId, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
         #endregion File Repository
         #region Instruments
 
@@ -683,8 +721,10 @@ namespace Redcap.Interfaces
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="format">csv, json [default], xml</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Instruments for the project in the format specified and will be ordered according to their order in the project.</returns>
-        Task<string> ExportInstrumentsAsync(string token, RedcapFormat format = RedcapFormat.json);
+        Task<string> ExportInstrumentsAsync(string token, RedcapFormat format = RedcapFormat.json, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// Export Instruments (Data Entry Forms)<br/>
         /// This method allows you to export a list of the data collection instruments for a project. 
@@ -696,8 +736,10 @@ namespace Redcap.Interfaces
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">instrument</param>
         /// <param name="format">csv, json [default], xml</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Instruments for the project in the format specified and will be ordered according to their order in the project.</returns>
-        Task<string> ExportInstrumentsAsync(string token, Content content = Content.Instrument, RedcapFormat format = RedcapFormat.json);
+        Task<string> ExportInstrumentsAsync(string token, Content content = Content.Instrument, RedcapFormat format = RedcapFormat.json, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// From Redcap Version 6.4.0 <br/><br/>
         /// Export PDF file of Data Collection Instruments (either as blank or with data)  <br/><br/>
@@ -714,8 +756,10 @@ namespace Redcap.Interfaces
         /// <param name="instrument">the unique instrument name as seen in the second column of the Data Dictionary. The value is blank by default, which returns all instruments. If record is not blank and instrument is blank, it will return all instruments for that record.</param>
         /// <param name="allRecord">[The value of this parameter does not matter and is ignored.] If this parameter is passed with any value, it will export all instruments (and all events, if longitudinal) with data from all records. Note: If this parameter is passed, the parameters record, event, and instrument will be ignored.</param>
         /// <param name="returnFormat">csv, json [default] , xml- The returnFormat is only used with regard to the format of any error messages that might be returned.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>A PDF file containing one or all data collection instruments from the project, in which the instruments will be blank (no data), contain data from a single record, or contain data from all records in the project, depending on the parameters passed in the API request.</returns>
-        Task<string> ExportPDFInstrumentsAsync(string token, string recordId = null, string eventName = null, string instrument = null, bool allRecord = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportPDFInstrumentsAsync(string token, string recordId = null, string eventName = null, string instrument = null, bool allRecord = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// From Redcap Version 11.4.4 <br/><br/>
         /// Export PDF file of Data Collection Instruments (either as blank or with data)<br/><br/>
@@ -734,8 +778,10 @@ namespace Redcap.Interfaces
         /// <param name="allRecords">[The value of this parameter does not matter and is ignored.] If this parameter is passed with any value, it will export all instruments (and all events, if longitudinal) with data from all records. Note: If this parameter is passed, the parameters record, event, and instrument will be ignored.</param>
         /// <param name="compactDisplay">Set to TRUE to return a compact-formatted PDF that excludes fields that have no data saved and excludes unselected multiple choice options, thus producing a smaller PDF file. If set to FALSE, all fields will be displayed normally.</param>
         /// <param name="returnFormat">csv, json [default] , xml- The returnFormat is only used with regard to the format of any error messages that might be returned.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>A PDF file containing one or all data collection instruments from the project, in which the instruments will be blank (no data), contain data from a single record, or contain data from all records in the project, depending on the parameters passed in the API request.</returns>
-        Task<string> ExportPDFInstrumentsAsync(string token, Content content = Content.Pdf, string recordId = null, string eventName = null, string instrument = null, bool allRecords = false, bool compactDisplay = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportPDFInstrumentsAsync(string token, Content content = Content.Pdf, string recordId = null, string eventName = null, string instrument = null, bool allRecords = false, bool compactDisplay = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// From Redcap Version 4.7.0 <br/><br/>
         /// 
@@ -750,8 +796,10 @@ namespace Redcap.Interfaces
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="arms">an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Instrument-event mappings for the project in the format specified</returns>
-        Task<string> ExportInstrumentMappingAsync(string token,  RedcapFormat format = RedcapFormat.json, string[] arms = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportInstrumentMappingAsync(string token,  RedcapFormat format = RedcapFormat.json, string[] arms = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// From Redcap Version 4.7.0 <br/><br/>
         /// 
@@ -767,8 +815,9 @@ namespace Redcap.Interfaces
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="arms">an array of arm numbers that you wish to pull events for (by default, all events are pulled)</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Instrument-event mappings for the project in the format specified</returns>
-        Task<string> ExportInstrumentMappingAsync(string token, Content content, RedcapFormat format, string[] arms = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportInstrumentMappingAsync(string token, Content content, RedcapFormat format, string[] arms = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// FFrom Redcap Version 4.7.0 <br/><br/>
@@ -790,8 +839,10 @@ namespace Redcap.Interfaces
         /// {"arm_num":"1","unique_event_name":"visit_2_arm_1","form":"other"}]
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of Instrument-Event Mappings imported</returns>
-        Task<string> ImportInstrumentMappingAsync<T>(string token, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ImportInstrumentMappingAsync<T>(string token, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// From Redcap Version 4.7.0 <br/><br/>
         /// 
@@ -813,11 +864,13 @@ namespace Redcap.Interfaces
         /// {"arm_num":"1","unique_event_name":"visit_2_arm_1","form":"other"}]
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of Instrument-Event Mappings imported</returns>
-        Task<string> ImportInstrumentMappingAsync<T>(string token, Content content, RedcapFormat format, List<T> data,  RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ImportInstrumentMappingAsync<T>(string token, Content content, RedcapFormat format, List<T> data,  RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
         #endregion
 
         #region Logging
+
         /// <summary>
         /// From Redcap Version 10.8 <br/>
         /// Export Logging  <br/>
@@ -837,11 +890,13 @@ namespace Redcap.Interfaces
         /// <param name="beginTime">To return only the events that have been logged *after* a given date/time, provide a timestamp in the format YYYY-MM-DD HH:MM (e.g., '2017-01-01 17:00' for January 1, 2017 at 5:00 PM server time). If not specified, it will assume no begin time.</param>
         /// <param name="endTime">To return only records that have been logged *before* a given date/time, provide a timestamp in the format YYYY-MM-DD HH:MM (e.g., '2017-01-01 17:00' for January 1, 2017 at 5:00 PM server time). If not specified, it will use the current server time.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>List of all changes made to this project, including data exports, data changes, and the creation or deletion of users.</returns>
-        Task<string> ExportLoggingAsync(string token, Content content, RedcapFormat format = RedcapFormat.json, LogType logType = LogType.All, string user = default, string record = default, string dag = default, string beginTime = default, string endTime = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportLoggingAsync(string token, Content content, RedcapFormat format = RedcapFormat.json, LogType logType = LogType.All, string user = default, string record = default, string dag = default, string beginTime = default, string endTime = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
         #endregion
 
         #region Metadata
+
         /// <summary>
         /// From Redcap Version 3.4.0+<br/><br/>
         /// Export Metadata (Data Dictionary)
@@ -855,8 +910,10 @@ namespace Redcap.Interfaces
         /// <param name="fields">an array of field names specifying specific fields you wish to pull (by default, all metadata is pulled)</param>
         /// <param name="forms">an array of form names specifying specific data collection instruments for which you wish to pull metadata (by default, all metadata is pulled). NOTE: These 'forms' are not the form label values that are seen on the webpages, but instead they are the unique form names seen in Column B of the data dictionary.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
-        Task<string> ExportMetaDataAsync(string token, RedcapFormat format, string[] fields = default, string[] forms = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportMetaDataAsync(string token, RedcapFormat format, string[] fields = default, string[] forms = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// From Redcap Version 3.4.0+<br/><br/>
         /// Export Metadata (Data Dictionary)<br/>
@@ -871,8 +928,9 @@ namespace Redcap.Interfaces
         /// <param name="fields">an array of field names specifying specific fields you wish to pull (by default, all metadata is pulled)</param>
         /// <param name="forms">an array of form names specifying specific data collection instruments for which you wish to pull metadata (by default, all metadata is pulled). NOTE: These 'forms' are not the form label values that are seen on the webpages, but instead they are the unique form names seen in Column B of the data dictionary.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Metadata from the project (i.e. Data Dictionary values) in the format specified ordered by the field order</returns>
-        Task<string> ExportMetaDataAsync(string token, Content content, RedcapFormat format, string[] fields = default, string[] forms = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportMetaDataAsync(string token, Content content, RedcapFormat format, string[] fields = default, string[] forms = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 6.11.0<br/><br/> 
@@ -889,9 +947,10 @@ namespace Redcap.Interfaces
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="data">The formatted data to be imported.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of fields imported</returns>
+        Task<string> ImportMetaDataAsync<T>(string token, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
-        Task<string> ImportMetaDataAsync<T>(string token, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
         /// <summary>
         /// From Redcap Version 6.11.0 <br/><br/>
         /// 
@@ -908,11 +967,13 @@ namespace Redcap.Interfaces
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="data">The formatted data to be imported.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of fields imported</returns>
-        Task<string> ImportMetaDataAsync<T>(string token, Content content, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ImportMetaDataAsync<T>(string token, Content content, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
         #endregion
 
         #region Projects
+
         /// <summary>
         /// From Redcap Version 6.11.0<br/><br/> 
         /// 
@@ -929,16 +990,18 @@ namespace Redcap.Interfaces
         /// <param name="token">The Super API Token specific to a user</param>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="data">
-        /// Contains the attributes of the project to be created, in which they are provided in the specified format. While the only required attributes are 'project_title' and 'purpose', the fields listed below are all the possible attributes that can be provided in the 'data' parameter. The 'purpose' attribute must have a numerical value (0=Practice/Just for fun, 1=Other, 2=Research, 3=Quality Improvement, 4=Operational Support), in which 'purpose_other' is only required to have a value (as a text string) if purpose=1. The attributes is_longitudinal (0=False, 1=True; Default=0), surveys_enabled (0=False, 1=True; Default=0), and record_autonumbering_enabled (0=False, 1=True; Default=1) are all boolean. Please note that either is_longitudinal=1 or surveys_enabled=1 does not add arms/events or surveys to the project, respectively, but it merely enables those settings which are seen at the top of the project's Project Setup page.
-        /// All available attributes:
-        /// project_title, purpose, purpose_other, project_notes, is_longitudinal, surveys_enabled, record_autonumbering_enabled
-        /// JSON Example:
-        /// [{"project_title":"My New REDCap Project","purpose":"0"}]
+        ///     Contains the attributes of the project to be created, in which they are provided in the specified format. While the only required attributes are 'project_title' and 'purpose', the fields listed below are all the possible attributes that can be provided in the 'data' parameter. The 'purpose' attribute must have a numerical value (0=Practice/Just for fun, 1=Other, 2=Research, 3=Quality Improvement, 4=Operational Support), in which 'purpose_other' is only required to have a value (as a text string) if purpose=1. The attributes is_longitudinal (0=False, 1=True; Default=0), surveys_enabled (0=False, 1=True; Default=0), and record_autonumbering_enabled (0=False, 1=True; Default=1) are all boolean. Please note that either is_longitudinal=1 or surveys_enabled=1 does not add arms/events or surveys to the project, respectively, but it merely enables those settings which are seen at the top of the project's Project Setup page.
+        ///     All available attributes:
+        ///     project_title, purpose, purpose_other, project_notes, is_longitudinal, surveys_enabled, record_autonumbering_enabled
+        ///     JSON Example:
+        ///     [{"project_title":"My New REDCap Project","purpose":"0"}]
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="odm">default: NULL - The 'odm' parameter must be an XML string in CDISC ODM XML format that contains project metadata (fields, forms, events, arms) and might optionally contain data to be imported as well. The XML contained in this parameter can come from a REDCap Project XML export file from REDCap itself, or may come from another system that is capable of exporting projects and data in CDISC ODM format. If the 'odm' parameter is included in the API request, it will use the XML to import its contents into the newly created project. This will allow you not only to create the project with the API request, but also to import all fields, forms, and project attributes (and events and arms, if longitudinal) as well as record data all at the same time.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>When a project is created, a 32-character project-level API Token is returned (associated with both the project and user creating the project). This token could then ostensibly be used to make subsequent API calls to this project, such as for adding new events, fields, records, etc.</returns>
-        Task<string> CreateProjectAsync<T>(string token, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string odm = null);
+        Task<string> CreateProjectAsync<T>(string token, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string odm = null, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// From Redcap Version 6.11.0<br/><br/> 
         /// 
@@ -957,17 +1020,18 @@ namespace Redcap.Interfaces
         /// <param name="content">project</param>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="data">
-        /// Contains the attributes of the project to be created, in which they are provided in the specified format. While the only required attributes are 'project_title' and 'purpose', the fields listed below are all the possible attributes that can be provided in the 'data' parameter. The 'purpose' attribute must have a numerical value (0=Practice/Just for fun, 1=Other, 2=Research, 3=Quality Improvement, 4=Operational Support), in which 'purpose_other' is only required to have a value (as a text string) if purpose=1. The attributes is_longitudinal (0=False, 1=True; Default=0), surveys_enabled (0=False, 1=True; Default=0), and record_autonumbering_enabled (0=False, 1=True; Default=1) are all boolean. Please note that either is_longitudinal=1 or surveys_enabled=1 does not add arms/events or surveys to the project, respectively, but it merely enables those settings which are seen at the top of the project's Project Setup page.
-        /// All available attributes:
-        /// project_title, purpose, purpose_other, project_notes, is_longitudinal, surveys_enabled, record_autonumbering_enabled
-        /// JSON Example:
-        /// [{"project_title":"My New REDCap Project","purpose":"0"}]
+        ///     Contains the attributes of the project to be created, in which they are provided in the specified format. While the only required attributes are 'project_title' and 'purpose', the fields listed below are all the possible attributes that can be provided in the 'data' parameter. The 'purpose' attribute must have a numerical value (0=Practice/Just for fun, 1=Other, 2=Research, 3=Quality Improvement, 4=Operational Support), in which 'purpose_other' is only required to have a value (as a text string) if purpose=1. The attributes is_longitudinal (0=False, 1=True; Default=0), surveys_enabled (0=False, 1=True; Default=0), and record_autonumbering_enabled (0=False, 1=True; Default=1) are all boolean. Please note that either is_longitudinal=1 or surveys_enabled=1 does not add arms/events or surveys to the project, respectively, but it merely enables those settings which are seen at the top of the project's Project Setup page.
+        ///     All available attributes:
+        ///     project_title, purpose, purpose_other, project_notes, is_longitudinal, surveys_enabled, record_autonumbering_enabled
+        ///     JSON Example:
+        ///     [{"project_title":"My New REDCap Project","purpose":"0"}]
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="odm">default: NULL - The 'odm' parameter must be an XML string in CDISC ODM XML format that contains project metadata (fields, forms, events, arms) and might optionally contain data to be imported as well. The XML contained in this parameter can come from a REDCap Project XML export file from REDCap itself, or may come from another system that is capable of exporting projects and data in CDISC ODM format. If the 'odm' parameter is included in the API request, it will use the XML to import its contents into the newly created project. This will allow you not only to create the project with the API request, but also to import all fields, forms, and project attributes (and events and arms, if longitudinal) as well as record data all at the same time.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>When a project is created, a 32-character project-level API Token is returned (associated with both the project and user creating the project). This token could then ostensibly be used to make subsequent API calls to this project, such as for adding new events, fields, records, etc.</returns>
+        Task<string> CreateProjectAsync<T>(string token, Content content, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string odm = null, CancellationToken cancellationToken = default);
 
-        Task<string> CreateProjectAsync<T>(string token, Content content, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string odm = null);
         /// <summary>
         /// Import Project Information <br/><br/>
         /// This method allows you to update some of the basic attributes of a given REDCap project, such as the project's title, if it is longitudinal, if surveys are enabled, etc. Its data format corresponds to the format in the API method Export Project Information. 
@@ -982,9 +1046,10 @@ namespace Redcap.Interfaces
         /// Attributes for the project in the format specified. For any values that are boolean, they should be represented as either a '0' (no/false) or '1' (yes/true). The following project attributes can be udpated:
         /// project_title, project_language, purpose, purpose_other, project_notes, custom_record_label, secondary_unique_field, is_longitudinal, surveys_enabled, scheduling_enabled, record_autonumbering_enabled, randomization_enabled, project_irb_number, project_grant_number, project_pi_firstname, project_pi_lastname, display_today_now_button
         /// </param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Returns the number of values accepted to be updated in the project settings (including values which remained the same before and after the import).</returns>
+        Task<string> ImportProjectInfoAsync(string token, Content content, RedcapFormat format, RedcapProjectInfo projectInfo, CancellationToken cancellationToken = default);
 
-        Task<string> ImportProjectInfoAsync(string token, Content content, RedcapFormat format, RedcapProjectInfo projectInfo);
         /// <summary>
         /// Import Project Information<br/><br/>
         /// This method allows you to update some of the basic attributes of a given REDCap project, such as the project's title, if it is longitudinal, if surveys are enabled, etc. Its data format corresponds to the format in the API method Export Project Information. 
@@ -998,8 +1063,10 @@ namespace Redcap.Interfaces
         /// Attributes for the project in the format specified. For any values that are boolean, they should be represented as either a '0' (no/false) or '1' (yes/true). The following project attributes can be udpated:
         /// project_title, project_language, purpose, purpose_other, project_notes, custom_record_label, secondary_unique_field, is_longitudinal, surveys_enabled, scheduling_enabled, record_autonumbering_enabled, randomization_enabled, project_irb_number, project_grant_number, project_pi_firstname, project_pi_lastname, display_today_now_button
         /// </param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Returns the number of values accepted to be updated in the project settings (including values which remained the same before and after the import).</returns>
-        Task<string> ImportProjectInfoAsync(string token, RedcapFormat format, RedcapProjectInfo projectInfo);
+        Task<string> ImportProjectInfoAsync(string token, RedcapFormat format, RedcapProjectInfo projectInfo, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// Export Project Information <br/><br/>
         /// This method allows you to export some of the basic attributes of a given REDCap project, such as the project's title, if it is longitudinal, if surveys are enabled, the time the project was created and moved to production, etc.
@@ -1012,12 +1079,13 @@ namespace Redcap.Interfaces
         /// <param name="content">project</param>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>
         /// Attributes for the project in the format specified. For any values that are boolean, they will be represented as either a '0' (no/false) or '1' (yes/true). Also, all date/time values will be returned in Y-M-D H:M:S format. The following attributes will be returned:
         /// project_id, project_title, creation_time, production_time, in_production, project_language, purpose, purpose_other, project_notes, custom_record_label, secondary_unique_field, is_longitudinal, surveys_enabled, scheduling_enabled, record_autonumbering_enabled, randomization_enabled, ddp_enabled, project_irb_number, project_grant_number, project_pi_firstname, project_pi_lastname, display_today_now_button
         /// </returns>
+        Task<string> ExportProjectInfoAsync(string token, Content content = Content.Project, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
-        Task<string> ExportProjectInfoAsync(string token, Content content = Content.Project, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
         /// <summary>
         /// Export Project Information <br/><br/>
         /// This method allows you to export some of the basic attributes of a given REDCap project, such as the project's title, if it is longitudinal, if surveys are enabled, the time the project was created and moved to production, etc.
@@ -1029,11 +1097,13 @@ namespace Redcap.Interfaces
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>
         /// Attributes for the project in the format specified. For any values that are boolean, they will be represented as either a '0' (no/false) or '1' (yes/true). Also, all date/time values will be returned in Y-M-D H:M:S format. The following attributes will be returned:
         /// project_id, project_title, creation_time, production_time, in_production, project_language, purpose, purpose_other, project_notes, custom_record_label, secondary_unique_field, is_longitudinal, surveys_enabled, scheduling_enabled, record_autonumbering_enabled, randomization_enabled, ddp_enabled, project_irb_number, project_grant_number, project_pi_firstname, project_pi_lastname, display_today_now_button
         /// </returns>
-        Task<string> ExportProjectInfoAsync(string token, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportProjectInfoAsync(string token, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// From Redcap Version 6.12.0<br/><br/>
         /// 
@@ -1056,9 +1126,10 @@ namespace Redcap.Interfaces
         /// <param name="exportDataAccessGroups">true, false [default] - specifies whether or not to export the 'redcap_data_access_group' field when data access groups are utilized in the project. If you do not pass in this flag, it will default to 'false'. NOTE: This flag is only viable if the user whose token is being used to make the API request is *not* in a data access group. If the user is in a group, then this flag will revert to its default value.</param>
         /// <param name="filterLogic">String of logic text (e.g., [age] > 30) for filtering the data to be returned by this API method, in which the API will only return the records (or record-events, if a longitudinal project) where the logic evaluates as TRUE. This parameter is blank/null by default unless a value is supplied. Please note that if the filter logic contains any incorrect syntax, the API will respond with an error message. </param>
         /// <param name="exportFiles">true, false [default] - TRUE will cause the XML returned to include all files uploaded for File Upload and Signature fields for all records in the project, whereas FALSE will cause all such fields not to be included. NOTE: Setting this option to TRUE can make the export very large and may prevent it from completing if the project contains many files or very large files. </param>
+        /// <param name="cancellationToken"></param>
         /// <returns>The entire REDCap project's metadata (and data, if specified) will be returned in CDISC ODM format as a single XML string.</returns>
+        Task<string> ExportProjectXmlAsync(string token, Content content = Content.MetaData, bool returnMetadataOnly = false, string[] records = null, string[] fields = null, string[] events = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportFiles = false, CancellationToken cancellationToken = default);
 
-        Task<string> ExportProjectXmlAsync(string token, Content content = Content.MetaData, bool returnMetadataOnly = false, string[] records = null, string[] fields = null, string[] events = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportFiles = false);
         /// <summary>
         /// From Redcap Version 6.12.0 <br/>
         /// 
@@ -1080,11 +1151,13 @@ namespace Redcap.Interfaces
         /// <param name="exportDataAccessGroups">true, false [default] - specifies whether or not to export the 'redcap_data_access_group' field when data access groups are utilized in the project. If you do not pass in this flag, it will default to 'false'. NOTE: This flag is only viable if the user whose token is being used to make the API request is *not* in a data access group. If the user is in a group, then this flag will revert to its default value.</param>
         /// <param name="filterLogic">String of logic text (e.g., [age] > 30) for filtering the data to be returned by this API method, in which the API will only return the records (or record-events, if a longitudinal project) where the logic evaluates as TRUE. This parameter is blank/null by default unless a value is supplied. Please note that if the filter logic contains any incorrect syntax, the API will respond with an error message. </param>
         /// <param name="exportFiles">true, false [default] - TRUE will cause the XML returned to include all files uploaded for File Upload and Signature fields for all records in the project, whereas FALSE will cause all such fields not to be included. NOTE: Setting this option to TRUE can make the export very large and may prevent it from completing if the project contains many files or very large files. </param>
+        /// <param name="cancellationToken"></param>
         /// <returns>The entire REDCap project's metadata (and data, if specified) will be returned in CDISC ODM format as a single XML string.</returns>
-        Task<string> ExportProjectXmlAsync(string token, bool returnMetadataOnly = false, string[] records = null, string[] fields = null, string[] events = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportFiles = false);
+        Task<string> ExportProjectXmlAsync(string token, bool returnMetadataOnly = false, string[] records = null, string[] fields = null, string[] events = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportFiles = false, CancellationToken cancellationToken = default);
         #endregion
 
         #region Records
+
         /// <summary>
         /// From Redcap Version 11.4.0<br/>
         /// Export Records<br/>
@@ -1114,8 +1187,10 @@ namespace Redcap.Interfaces
         /// <param name="csvDelimiter">Set the delimiter used to separate values in the CSV data file (for CSV format only). Options include: comma ',' (default), 'tab', semi-colon ';', pipe '|', or caret '^'. Simply provide the value in quotes for this parameter.</param>
         /// <param name="decimalCharacter">If specified, force all numbers into same decimal format. You may choose to force all data values containing a decimal to have the same decimal character, which will be applied to all calc fields and number-validated text fields. Options include comma ',' or dot/full stop '.', but if left blank/null, then it will export numbers using the fields' native decimal format. Simply provide the value of either ',' or '.' for this parameter.</param>
         /// <param name="exportBlankForGrayFormStatus">true, false [default] - specifies whether or not to export blank values for instrument complete status fields that have a gray status icon. All instrument complete status fields having a gray icon can be exported either as a blank value or as "0" (Incomplete). Blank values are recommended in a data export if the data will be re-imported into a REDCap project.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        Task<string> ExportRecordsAsync(string token, Content content, RedcapFormat format, RedcapDataType redcapDataType, string[] records = null, string[] fields = null,  string[] forms = null,  string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, DateTime? dateRangeBegin = null, DateTime? dateRangeEnd = null, string csvDelimiter = null, string decimalCharacter = null, bool exportBlankForGrayFormStatus = false);
+        Task<string> ExportRecordsAsync(string token, Content content, RedcapFormat format, RedcapDataType redcapDataType, string[] records = null, string[] fields = null,  string[] forms = null,  string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, DateTime? dateRangeBegin = null, DateTime? dateRangeEnd = null, string csvDelimiter = null, string decimalCharacter = null, bool exportBlankForGrayFormStatus = false, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// From Redcap Version 11.4.0<br/>
         /// Export Records<br/>
@@ -1144,8 +1219,10 @@ namespace Redcap.Interfaces
         /// <param name="csvDelimiter">Set the delimiter used to separate values in the CSV data file (for CSV format only). Options include: comma ',' (default), 'tab', semi-colon ';', pipe '|', or caret '^'. Simply provide the value in quotes for this parameter.</param>
         /// <param name="decimalCharacter">If specified, force all numbers into same decimal format. You may choose to force all data values containing a decimal to have the same decimal character, which will be applied to all calc fields and number-validated text fields. Options include comma ',' or dot/full stop '.', but if left blank/null, then it will export numbers using the fields' native decimal format. Simply provide the value of either ',' or '.' for this parameter.</param>
         /// <param name="exportBlankForGrayFormStatus">true, false [default] - specifies whether or not to export blank values for instrument complete status fields that have a gray status icon. All instrument complete status fields having a gray icon can be exported either as a blank value or as "0" (Incomplete). Blank values are recommended in a data export if the data will be re-imported into a REDCap project.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        Task<string> ExportRecordsAsync(string token, RedcapFormat format, RedcapDataType redcapDataType, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = default, DateTime? dateRangeBegin = default, DateTime? dateRangeEnd = default, string csvDelimiter = default, string decimalCharacter = default, bool exportBlankForGrayFormStatus = false);
+        Task<string> ExportRecordsAsync(string token, RedcapFormat format, RedcapDataType redcapDataType, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = default, DateTime? dateRangeBegin = default, DateTime? dateRangeEnd = default, string csvDelimiter = default, string decimalCharacter = default, bool exportBlankForGrayFormStatus = false, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// From Redcap Version 10.3.0 <br/>
         /// Import Records<br/>
@@ -1175,9 +1252,10 @@ namespace Redcap.Interfaces
         /// <param name="csvDelimiter">Set the delimiter used to separate values in the CSV data file (for CSV format only). Options include: comma ',' (default), 'tab', semi-colon ';', pipe '|', or caret '^'. Simply provide the value in quotes for this parameter.</param>
         /// <param name="returnContent">count [default] - the number of records imported, ids - a list of all record IDs that were imported, auto_ids = (used only when forceAutoNumber=true) a list of pairs of all record IDs that were imported, includes the new ID created and the ID value that was sent in the API request (e.g., 323,10). </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>the content specified by returnContent</returns>
+        Task<string> ImportRecordsAsync<T>(string token, Content content, RedcapFormat format, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, List<T> data, string dateFormat = "", CsvDelimiter csvDelimiter = CsvDelimiter.tab, ReturnContent returnContent = ReturnContent.count, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
-        Task<string> ImportRecordsAsync<T>(string token, Content content, RedcapFormat format, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, List<T> data, string dateFormat = "", CsvDelimiter csvDelimiter = CsvDelimiter.tab, ReturnContent returnContent = ReturnContent.count, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
         /// <summary>
         /// From Redcap version with version 10.3.0<br/>
         /// Import Records<br/>
@@ -1208,9 +1286,10 @@ namespace Redcap.Interfaces
         /// <param name="csvDelimiter">Set the delimiter used to separate values in the CSV data file (for CSV format only). Options include: comma ',' (default), 'tab', semi-colon ';', pipe '|', or caret '^'. Simply provide the value in quotes for this parameter.</param>
         /// <param name="returnContent">count [default] - the number of records imported, ids - a list of all record IDs that were imported, auto_ids = (used only when forceAutoNumber=true) a list of pairs of all record IDs that were imported, includes the new ID created and the ID value that was sent in the API request (e.g., 323,10). </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>the content specified by returnContent</returns>
+        Task<string> ImportRecordsAsync<T>(string token, RedcapFormat format, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, List<T> data, string dateFormat = default, CsvDelimiter csvDelimiter = CsvDelimiter.tab, ReturnContent returnContent = ReturnContent.count, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
-        Task<string> ImportRecordsAsync<T>(string token, RedcapFormat format, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, List<T> data, string dateFormat = default, CsvDelimiter csvDelimiter = CsvDelimiter.tab, ReturnContent returnContent = ReturnContent.count, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
         /// <summary>
         /// Delete Records<br/>
         /// This method allows you to delete one or more records from a project in a single API request.
@@ -1228,9 +1307,10 @@ namespace Redcap.Interfaces
         /// <param name="instrument"></param>
         /// <param name="redcapEvent"></param>
         /// <param name="repeatInstance"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns>the number of records deleted or (if instrument, event, and/or instance are provided) the number of items deleted over the total records specified.</returns>
+        Task<string> DeleteRecordsAsync(string token, Content content, RedcapAction action, string[] records, int? arm, RedcapInstrument instrument, RedcapEvent redcapEvent, RedcapRepeatInstance repeatInstance, CancellationToken cancellationToken = default);
 
-        Task<string> DeleteRecordsAsync(string token, Content content, RedcapAction action, string[] records, int? arm, RedcapInstrument instrument, RedcapEvent redcapEvent, RedcapRepeatInstance repeatInstance);
         /// <summary>
         /// Delete Records<br/>
         /// This method allows you to delete one or more records from a project in a single API request.
@@ -1245,9 +1325,10 @@ namespace Redcap.Interfaces
         /// <param name="records">an array of record names specifying specific records you wish to delete</param>
         /// <param name="arm">the arm number of the arm in which the record(s) should be deleted. 
         /// (This can only be used if the project is longitudinal with more than one arm.) NOTE: If the arm parameter is not provided, the specified records will be deleted from all arms in which they exist. Whereas, if arm is provided, they will only be deleted from the specified arm. </param>
+        /// <param name="cancellationToken"></param>
         /// <returns>the number of records deleted or (if instrument, event, and/or instance are provided) the number of items deleted over the total records specified.</returns>
+        Task<string> DeleteRecordsAsync(string token, Content content, RedcapAction action, string[] records, int? arm, CancellationToken cancellationToken = default);
 
-        Task<string> DeleteRecordsAsync(string token, Content content, RedcapAction action, string[] records, int? arm);
         /// <summary>
         /// Delete Records<br/>
         /// This method allows you to delete one or more records from a project in a single API request.
@@ -1260,9 +1341,10 @@ namespace Redcap.Interfaces
         /// <param name="records">an array of record names specifying specific records you wish to delete</param>
         /// <param name="arm">the arm number of the arm in which the record(s) should be deleted. 
         /// (This can only be used if the project is longitudinal with more than one arm.) NOTE: If the arm parameter is not provided, the specified records will be deleted from all arms in which they exist. Whereas, if arm is provided, they will only be deleted from the specified arm. </param>
+        /// <param name="cancellationToken"></param>
         /// <returns>the number of records deleted or (if instrument, event, and/or instance are provided) the number of items deleted over the total records specified.</returns>
+        Task<string> DeleteRecordsAsync(string token, string[] records, int? arm, CancellationToken cancellationToken = default);
 
-        Task<string> DeleteRecordsAsync(string token, string[] records, int? arm);
         /// <summary>
         /// From Redcap Version 11.3.3<br/>
         /// 
@@ -1279,9 +1361,9 @@ namespace Redcap.Interfaces
         /// <param name="record">record name of the current record which you want to rename to new name.</param> 
         /// <param name="newRecordName">new record name to which you want to rename current record.</param>
         /// <param name="arm">specific arm number in which current record exists. If null, then all records with same name across all arms on which it exists (if longitudinal with multiple arms) will be renamed to new record name, otherwise it will rename the record only in the specified arm.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Returns "1" if record is renamed or error message if any.</returns>
-
-        Task<string> RenameRecordAsync(string token, Content content, RedcapAction action, string record, string newRecordName, int? arm);
+        Task<string> RenameRecordAsync(string token, Content content, RedcapAction action, string record, string newRecordName, int? arm, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 6.18.0<br/>
@@ -1297,8 +1379,9 @@ namespace Redcap.Interfaces
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">generateNextRecordName</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>The maximum integer record ID + 1.</returns>
-        Task<string> GenerateNextRecordNameAsync(string token, Content content = Content.GenerateNextRecordName);
+        Task<string> GenerateNextRecordNameAsync(string token, Content content = Content.GenerateNextRecordName, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 6.18.0 <br/>
@@ -1313,12 +1396,13 @@ namespace Redcap.Interfaces
         /// To use this method, you must have API Export privileges in the project.
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>The maximum integer record ID + 1.</returns>
-
-        Task<string> GenerateNextRecordNameAsync(string token);
+        Task<string> GenerateNextRecordNameAsync(string token, CancellationToken cancellationToken = default);
         #endregion
 
         #region Repeating Instruments and Events
+
         /// <summary>
         /// From Redcap Version 8.2.0 <br/>
         /// 
@@ -1328,9 +1412,9 @@ namespace Redcap.Interfaces
         /// </summary>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="format">csv, json [default], xml odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Repeated instruments and events for the project in the format specified and will be ordered according to their order in the project.</returns>
-
-        Task<string> ExportRepeatingInstrumentsAndEvents(string token, RedcapFormat format = RedcapFormat.json);
+        Task<string> ExportRepeatingInstrumentsAndEvents(string token, RedcapFormat format = RedcapFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 8.2.0 <br/>
@@ -1342,8 +1426,10 @@ namespace Redcap.Interfaces
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">repeatingFormsEvents</param>
         /// <param name="format">csv, json [default], xml odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Repeated instruments and events for the project in the format specified and will be ordered according to their order in the project.</returns>
-        Task<string> ExportRepeatingInstrumentsAndEvents(string token, Content content = Content.RepeatingFormsEvents, RedcapFormat format = RedcapFormat.json);
+        Task<string> ExportRepeatingInstrumentsAndEvents(string token, Content content = Content.RepeatingFormsEvents, RedcapFormat format = RedcapFormat.json, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// From Redcap Version 8.10.0 <br/>
         /// 
@@ -1355,12 +1441,13 @@ namespace Redcap.Interfaces
         /// <param name="content">repeatingFormsEvents</param>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of repeated isntruments or repeated events that have been imported</returns>
-
-        Task<string> ImportRepeatingInstrumentsAndEvents<T>(string token, List<T> data, Content content = Content.RepeatingFormsEvents, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ImportRepeatingInstrumentsAndEvents<T>(string token, List<T> data, Content content = Content.RepeatingFormsEvents, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
         #endregion
 
         #region Export Reports
+
         /// <summary>
         /// Export Reports<br/>
         /// This method allows you to export the data set of a report created on a project's 'Data Exports, Reports, and Stats' page.
@@ -1379,9 +1466,10 @@ namespace Redcap.Interfaces
         /// <param name="exportCheckboxLabel">true, false [default] - specifies the format of checkbox field values specifically when exporting the data as labels (i.e., when rawOrLabel=label). When exporting labels, by default (without providing the exportCheckboxLabel flag or if exportCheckboxLabel=false), all checkboxes will either have a value 'Checked' if they are checked or 'Unchecked' if not checked. But if exportCheckboxLabel is set to true, it will instead export the checkbox value as the checkbox option's label (e.g., 'Choice 1') if checked or it will be blank/empty (no value) if not checked. If rawOrLabel=false, then the exportCheckboxLabel flag is ignored.</param>
         /// <param name="csvDelimiter"></param>
         /// <param name="decimalCharacter"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
+        Task<string> ExportReportsAsync(string token, int reportId, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, string csvDelimiter = default, string decimalCharacter = default, CancellationToken cancellationToken = default);
 
-        Task<string> ExportReportsAsync(string token, int reportId, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, string csvDelimiter = default, string decimalCharacter = default);
         /// <summary>
         /// Export Reports<br/>
         /// This method allows you to export the data set of a report created on a project's 'Data Exports, Reports, and Stats' page.
@@ -1401,13 +1489,14 @@ namespace Redcap.Interfaces
         /// <param name="exportCheckboxLabel">true, false [default] - specifies the format of checkbox field values specifically when exporting the data as labels (i.e., when rawOrLabel=label). When exporting labels, by default (without providing the exportCheckboxLabel flag or if exportCheckboxLabel=false), all checkboxes will either have a value 'Checked' if they are checked or 'Unchecked' if not checked. But if exportCheckboxLabel is set to true, it will instead export the checkbox value as the checkbox option's label (e.g., 'Choice 1') if checked or it will be blank/empty (no value) if not checked. If rawOrLabel=false, then the exportCheckboxLabel flag is ignored.</param>
         /// <param name="csvDelimiter"></param>
         /// <param name="decimalCharacter"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-
-        Task<string> ExportReportsAsync(string token, Content content, int reportId, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, string csvDelimiter = default, string decimalCharacter = default);
+        Task<string> ExportReportsAsync(string token, Content content, int reportId, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, string csvDelimiter = default, string decimalCharacter = default, CancellationToken cancellationToken = default);
 
         #endregion
 
         #region REDCap
+
         /// <summary>
         /// Export REDCap Version<br/>
         /// This method returns the current REDCap version number as plain text (e.g., 4.13.18, 5.12.2, 6.0.0).
@@ -1419,8 +1508,10 @@ namespace Redcap.Interfaces
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">version</param>
         /// <param name="format">csv, json [default], xml</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>The current REDCap version number (three numbers delimited with two periods) as plain text - e.g., 4.13.18, 5.12.2, 6.0.0</returns>
-        Task<string> ExportRedcapVersionAsync(string token, Content content = Content.Version, RedcapFormat format = RedcapFormat.json);
+        Task<string> ExportRedcapVersionAsync(string token, Content content = Content.Version, RedcapFormat format = RedcapFormat.json, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// Export REDCap Version<br/>
         /// This method returns the current REDCap version number as plain text (e.g., 4.13.18, 5.12.2, 6.0.0).
@@ -1431,11 +1522,13 @@ namespace Redcap.Interfaces
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="format">csv, json [default], xml</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>The current REDCap version number (three numbers delimited with two periods) as plain text - e.g., 4.13.18, 5.12.2, 6.0.0</returns>
-        Task<string> ExportRedcapVersionAsync(string token, RedcapFormat format = RedcapFormat.json);
+        Task<string> ExportRedcapVersionAsync(string token, RedcapFormat format = RedcapFormat.json, CancellationToken cancellationToken = default);
         #endregion
 
         #region Surveys
+
         /// <summary>
         /// From Redcap Version 6.4.0<br/>
         /// Export a Survey Link for a Participant
@@ -1451,9 +1544,10 @@ namespace Redcap.Interfaces
         /// <param name="eventName">the unique event name (for longitudinal projects only).</param>
         /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
         /// <param name="returnFormat">csv, json [default], xml - The returnFormat is only used with regard to the format of any error messages that might be returned.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Returns a unique survey link (i.e., a URL) in plain text format for the specified record and instrument (and event, if longitudinal).</returns>
+        Task<string> ExportSurveyLinkAsync(string token, string record, string instrument, string eventName, int repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
-        Task<string> ExportSurveyLinkAsync(string token, string record, string instrument, string eventName, int repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
         /// <summary>
         /// From Redcap Version 6.4.0<br/>
         /// Export a Survey Link for a Participant<br/>
@@ -1470,9 +1564,10 @@ namespace Redcap.Interfaces
         /// <param name="eventName">the unique event name (for longitudinal projects only).</param>
         /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
         /// <param name="returnFormat">csv, json [default], xml - The returnFormat is only used with regard to the format of any error messages that might be returned.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Returns a unique survey link (i.e., a URL) in plain text format for the specified record and instrument (and event, if longitudinal).</returns>
+        Task<string> ExportSurveyLinkAsync(string token, Content content, string record, string instrument, string eventName, int repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
-        Task<string> ExportSurveyLinkAsync(string token, Content content, string record, string instrument, string eventName, int repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
         /// <summary>
         /// Export a Survey Participant List<br/>
         /// This method returns the list of all participants for a specific survey instrument (and for a specific event, if a longitudinal project). If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the specified data collection instrument has not been enabled as a survey in the project, an error will be returned.
@@ -1487,9 +1582,10 @@ namespace Redcap.Interfaces
         /// <param name="eventName">the unique event name (for longitudinal projects only).</param>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Returns the list of all participants for the specified survey instrument [and event] in the desired format. The following fields are returned: email, email_occurrence, identifier, invitation_sent_status, invitation_send_time, response_status, survey_access_code, survey_link. The attribute 'email_occurrence' represents the current count that the email address has appeared in the list (because emails can be used more than once), thus email + email_occurrence represent a unique value pair. 'invitation_sent_status' is '0' if an invitation has not yet been sent to the participant, and is '1' if it has. 'invitation_send_time' is the date/time in which the next invitation will be sent, and is blank if there is no invitation that is scheduled to be sent. 'response_status' represents whether the participant has responded to the survey, in which its value is 0, 1, or 2 for 'No response', 'Partial', or 'Completed', respectively. Note: If an incorrect event_id or instrument name is used or if the instrument has not been enabled as a survey, then an error will be returned.</returns>
+        Task<string> ExportSurveyParticipantsAsync(string token, Content content, string instrument, string eventName, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
-        Task<string> ExportSurveyParticipantsAsync(string token, Content content, string instrument, string eventName, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
         /// <summary>
         /// Export a Survey Participant List<br/>
         /// This method returns the list of all participants for a specific survey instrument (and for a specific event, if a longitudinal project). If the user does not have 'Manage Survey Participants' privileges, they will not be able to use this method, and an error will be returned. If the specified data collection instrument has not been enabled as a survey in the project, an error will be returned.
@@ -1503,8 +1599,10 @@ namespace Redcap.Interfaces
         /// <param name="eventName">the unique event name (for longitudinal projects only).</param>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Returns the list of all participants for the specified survey instrument [and event] in the desired format. The following fields are returned: email, email_occurrence, identifier, invitation_sent_status, invitation_send_time, response_status, survey_access_code, survey_link. The attribute 'email_occurrence' represents the current count that the email address has appeared in the list (because emails can be used more than once), thus email + email_occurrence represent a unique value pair. 'invitation_sent_status' is '0' if an invitation has not yet been sent to the participant, and is '1' if it has. 'invitation_send_time' is the date/time in which the next invitation will be sent, and is blank if there is no invitation that is scheduled to be sent. 'response_status' represents whether the participant has responded to the survey, in which its value is 0, 1, or 2 for 'No response', 'Partial', or 'Completed', respectively. Note: If an incorrect event_id or instrument name is used or if the instrument has not been enabled as a survey, then an error will be returned.</returns>
-        Task<string> ExportSurveyParticipantsAsync(string token, string instrument, string eventName, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportSurveyParticipantsAsync(string token, string instrument, string eventName, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// From Redcap Version 6.4.0<br/> 
         /// 
@@ -1518,9 +1616,10 @@ namespace Redcap.Interfaces
         /// <param name="content">surveyQueueLink</param>
         /// <param name="record">the record ID. The name of the record in the project.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Returns a unique Survey Queue link (i.e., a URL) in plain text format for the specified record in the project.</returns>
+        Task<string> ExportSurveyQueueLinkAsync(string token, Content content, string record, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
-        Task<string> ExportSurveyQueueLinkAsync(string token, Content content, string record, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
         /// <summary>
         /// From Redcap Version 6.4.0<br/>
         /// 
@@ -1533,8 +1632,10 @@ namespace Redcap.Interfaces
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="record">the record ID. The name of the record in the project.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Returns a unique Survey Queue link (i.e., a URL) in plain text format for the specified record in the project.</returns>
-        Task<string> ExportSurveyQueueLinkAsync(string token, string record, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportSurveyQueueLinkAsync(string token, string record, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// From Redcap Version 6.4.0<br/>
         /// Export a Survey Return Code for a Participant<br/>
@@ -1550,9 +1651,10 @@ namespace Redcap.Interfaces
         /// <param name="eventName">the unique event name (for longitudinal projects only).</param>
         /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Returns a unique Return Code in plain text format for the specified record and instrument (and event, if longitudinal).</returns>
+        Task<string> ExportSurveyReturnCodeAsync(string token, Content content, string record, string instrument, string eventName, string repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
-        Task<string> ExportSurveyReturnCodeAsync(string token, Content content, string record, string instrument, string eventName, string repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
         /// <summary>
         /// From Redcap Version 6.4.0<br/>
         /// Export a Survey Return Code for a Participant<br/>
@@ -1567,11 +1669,13 @@ namespace Redcap.Interfaces
         /// <param name="eventName">the unique event name (for longitudinal projects only).</param>
         /// <param name="repeatInstance">(only for projects with repeating instruments/events) The repeat instance number of the repeating event (if longitudinal) or the repeating instrument (if classic or longitudinal). Default value is '1'.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Returns a unique Return Code in plain text format for the specified record and instrument (and event, if longitudinal).</returns>
-        Task<string> ExportSurveyReturnCodeAsync(string token, string record, string instrument, string eventName, string repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportSurveyReturnCodeAsync(string token, string record, string instrument, string eventName, string repeatInstance, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
         #endregion
 
         #region Users & User Privileges
+
         /// <summary>
         /// From Redcap Version 4.7.0 <br/>
         /// 
@@ -1588,10 +1692,12 @@ namespace Redcap.Interfaces
         /// <param name="content">user</param>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>The method will return all the attributes below with regard to user privileges in the format specified. Please note that the 'forms' attribute is the only attribute that contains sub-elements (one for each data collection instrument), in which each form will have its own Form Rights value (see the key below to learn what each numerical value represents). Most user privilege attributes are boolean (0=No Access, 1=Access). Attributes returned:
         /// username, email, firstname, lastname, expiration, data_access_group, design, user_rights, data_access_groups, data_export, reports, stats_and_charts, manage_survey_participants, calendar, data_import_tool, data_comparison_tool, logging, file_repository, data_quality_create, data_quality_execute, api_export, api_import, mobile_app, mobile_app_download_data, record_create, record_rename, record_delete, lock_records_customization, lock_records, lock_records_all_forms, forms</returns>
         /// 
-        Task<string> ExportUsersAsync(string token, Content content = Content.User, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportUsersAsync(string token, Content content = Content.User, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// From Redcap Version 4.7.0<br/>
         /// 
@@ -1607,10 +1713,10 @@ namespace Redcap.Interfaces
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>The method will return all the attributes below with regard to user privileges in the format specified. Please note that the 'forms' attribute is the only attribute that contains sub-elements (one for each data collection instrument), in which each form will have its own Form Rights value (see the key below to learn what each numerical value represents). Most user privilege attributes are boolean (0=No Access, 1=Access). Attributes returned:
         /// username, email, firstname, lastname, expiration, data_access_group, design, user_rights, data_access_groups, data_export, reports, stats_and_charts, manage_survey_participants, calendar, data_import_tool, data_comparison_tool, logging, file_repository, data_quality_create, data_quality_execute, api_export, api_import, mobile_app, mobile_app_download_data, record_create, record_rename, record_delete, lock_records_customization, lock_records, lock_records_all_forms, forms</returns>
-
-        Task<string> ExportUsersAsync(string token, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportUsersAsync(string token, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 4.7.0<br/><br/>
@@ -1652,9 +1758,9 @@ namespace Redcap.Interfaces
         /// </example>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of users added or updated</returns>
-
-        Task<string> ImportUsersAsync<T>(string token, Content content, List<T> data, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ImportUsersAsync<T>(string token, Content content, List<T> data, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 4.7.0<br/> 
@@ -1695,11 +1801,13 @@ namespace Redcap.Interfaces
         /// </example>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of users added or updated</returns>
-        Task<string> ImportUsersAsync<T>(string token, List<T> data, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ImportUsersAsync<T>(string token, List<T> data, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
         #endregion
 
         #region User Roles
+
         /// <summary>
         /// From Redcap Version 11.3.0<br/><br/>
         /// 
@@ -1713,6 +1821,7 @@ namespace Redcap.Interfaces
         /// <param name="content">userRole</param>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>The method will return all the attributes below with regard to user roles privileges in the format specified. Please note that the 'forms' attribute is the only attribute that contains sub-elements (one for each data collection instrument), in which each form will have its own Form Rights value (see the key below to learn what each numerical value represents). 
         /// Most user role privilege attributes are boolean (0=No Access, 1=Access). Attributes returned:
         /// unique_role_name, role_label, design, user_rights, data_access_groups, data_export, reports, stats_and_charts, manage_survey_participants, calendar, data_import_tool, data_comparison_tool, logging, file_repository, data_quality_create, data_quality_execute, api_export, api_import, mobile_app, mobile_app_download_data, record_create, record_rename, record_delete, lock_records_customization, lock_records, lock_records_all_forms, forms
@@ -1734,7 +1843,8 @@ namespace Redcap.Interfaces
         /// <example>
         /// 
         /// </example>
-        Task<string> ExportUserRolesAsync(string token, Content content = Content.UserRole, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
+        Task<string> ExportUserRolesAsync(string token, Content content = Content.UserRole, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// From Redcap Version 11.3.0<br/><br/>
         /// 
@@ -1756,9 +1866,10 @@ namespace Redcap.Interfaces
         /// <param name="content">userRole</param>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of user roles added or updated</returns>
+        Task<string> ImportUserRolesAsync<T>(string token, List<T> data, Content content = Content.UserRole, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
-        Task<string> ImportUserRolesAsync<T>(string token, List<T> data, Content content = Content.UserRole, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json);
         /// <summary>
         /// From Redcap Version 11.3.0<br/><br/>
         /// 
@@ -1772,8 +1883,9 @@ namespace Redcap.Interfaces
         /// <param name="roles">an array of unique rolenames that you wish to delete</param>
         /// <param name="content">userRole</param>
         /// <param name="action">delete</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Number of User Roles deleted</returns>
-        Task<string> DeleteUserRolesAsync(string token, List<string> roles, Content content = Content.UserRole, RedcapAction action = RedcapAction.Delete);
+        Task<string> DeleteUserRolesAsync(string token, List<string> roles, Content content = Content.UserRole, RedcapAction action = RedcapAction.Delete, CancellationToken cancellationToken = default);
         #endregion
     }
 }

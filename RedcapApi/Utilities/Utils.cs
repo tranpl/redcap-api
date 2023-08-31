@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Redcap.Http;
@@ -45,6 +46,7 @@ namespace Redcap.Utilities
 
             return returnvalue;
         }
+
         /// <summary>
         /// Extension method reads a stream and saves content to a local file.
         /// </summary>
@@ -53,8 +55,9 @@ namespace Redcap.Utilities
         /// <param name="path"></param>
         /// <param name="overwrite"></param>
         /// <param name="fileExtension"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns>HttpContent</returns>
-        public static Task ReadAsFileAsync(this HttpContent httpContent, string fileName, string path, bool overwrite, string fileExtension = "pdf")
+        public static Task ReadAsFileAsync(this HttpContent httpContent, string fileName, string path, bool overwrite, string fileExtension = "pdf", CancellationToken cancellationToken = default)
         {
 
             if (!overwrite && File.Exists(Path.Combine(fileName + fileExtension?.SingleOrDefault(), path)))
@@ -78,8 +81,7 @@ namespace Redcap.Utilities
                     {
                         filestream.Flush();
                         filestream.Dispose();
-                    }
-                );
+                    }, cancellationToken);
             }
             catch (Exception Ex)
             {
@@ -543,6 +545,7 @@ namespace Redcap.Utilities
                 return null;
             }
         }
+
         /// <summary>
         /// Method to send http request using MultipartFormDataContent
         /// Requests with attachments
@@ -550,15 +553,16 @@ namespace Redcap.Utilities
         /// <param name="redcapApi"></param>
         /// <param name="payload">data</param>
         /// <param name="uri">URI of the api instance</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>string</returns>
-        public static async Task<string> SendPostRequestAsync(this RedcapApi redcapApi, MultipartFormDataContent payload, Uri uri)
+        public static async Task<string> SendPostRequestAsync(this RedcapApi redcapApi, MultipartFormDataContent payload, Uri uri, CancellationToken cancellationToken = default)
         {
             try
             {
                 using (var handler = GetHttpHandler())
                 using (var client = new HttpClient(handler))
                 {
-                    using (var response = await client.PostAsync(uri, payload))
+                    using (var response = await client.PostAsync(uri, payload, cancellationToken))
                     {
                         if (response.IsSuccessStatusCode)
                         {
@@ -581,77 +585,73 @@ namespace Redcap.Utilities
         /// <param name="redcapApi"></param>
         /// <param name="payload">data</param>
         /// <param name="uri">URI of the api instance</param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public static async Task<string> SendPostRequestAsync(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri)
+        public static async Task<string> SendPostRequestAsync(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, CancellationToken cancellationToken = default)
         {
             try
             {
-                string _responseMessage = Empty;
+                string _responseMessage;
 
-                using (var handler = GetHttpHandler())
-                using (var client = new HttpClient(handler))
+                using var handler = GetHttpHandler();
+                using var client = new HttpClient(handler);
+                
+                // extract the filepath
+                var pathValue = payload.FirstOrDefault(x => x.Key == "filePath").Value;
+                var pathkey = payload.FirstOrDefault(x => x.Key == "filePath").Key;
+
+                if (!string.IsNullOrEmpty(pathkey))
                 {
-
-                    // extract the filepath
-                    var pathValue = payload.Where(x => x.Key == "filePath").FirstOrDefault().Value;
-                    var pathkey = payload.Where(x => x.Key == "filePath").FirstOrDefault().Key;
-
-                    if (!string.IsNullOrEmpty(pathkey))
-                    {
-                        // the actual payload does not contain a 'filePath' key
-                        payload.Remove(pathkey);
-                    }
-
-                    using (var content = new CustomFormUrlEncodedContent(payload))
-                    {
-                        using (var response = await client.PostAsync(uri, content))
-                        {
-                            if (response.IsSuccessStatusCode)
-                            {
-                                // Get the filename so we can save with the name
-                                var headers = response.Content.Headers;
-                                var fileName = headers.ContentType?.Parameters.Select(x => x.Value).FirstOrDefault();
-                                if (!string.IsNullOrEmpty(fileName))
-                                {
-                                    var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-                                    {
-                                        FileName = fileName
-                                    };
-                                }
-
-
-                                if (!string.IsNullOrEmpty(pathValue))
-                                {
-                                    var fileExtension = payload.Where(x => x.Key == "content" && x.Value == "pdf").SingleOrDefault().Value;
-                                    if (!string.IsNullOrEmpty(fileExtension))
-                                    {
-                                        // pdf 
-                                        fileName = payload.Where(x => x.Key == "instrument").SingleOrDefault().Value;
-                                        // to do , make extensions for various types
-                                        // save the file to a specified location using an extension method
-                                        await response.Content.ReadAsFileAsync(fileName, pathValue, true, fileExtension);
-
-                                    }
-                                    else
-                                    {
-                                        await response.Content.ReadAsFileAsync(fileName, pathValue, true, fileExtension);
-
-                                    }
-                                    _responseMessage = fileName;
-                                }
-                                else
-                                {
-                                    _responseMessage = await response.Content.ReadAsStringAsync();
-                                }
-                            }
-                            else
-                            {
-                                _responseMessage = await response.Content.ReadAsStringAsync();
-                            }
-                        }
-                    }
-                    return _responseMessage;
+                    // the actual payload does not contain a 'filePath' key
+                    payload.Remove(pathkey);
                 }
+
+                using var content = new CustomFormUrlEncodedContent(payload);
+                using var response = await client.PostAsync(uri, content, cancellationToken);
+                if (response.IsSuccessStatusCode)
+                {
+                    // Get the filename so we can save with the name
+                    var headers = response.Content.Headers;
+                    var fileName = headers.ContentType?.Parameters.Select(x => x.Value).FirstOrDefault();
+                    if (!string.IsNullOrEmpty(fileName))
+                    {
+                        var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                        {
+                            FileName = fileName
+                        };
+                    }
+
+
+                    if (!string.IsNullOrEmpty(pathValue))
+                    {
+                        var fileExtension = payload.SingleOrDefault(x => x.Key == "content" && x.Value == "pdf").Value;
+                        if (!string.IsNullOrEmpty(fileExtension))
+                        {
+                            // pdf 
+                            fileName = payload.SingleOrDefault(x => x.Key == "instrument").Value;
+                            // to do , make extensions for various types
+                            // save the file to a specified location using an extension method
+                            await response.Content.ReadAsFileAsync(fileName, pathValue, true, fileExtension, cancellationToken: cancellationToken);
+
+                        }
+                        else
+                        {
+                            await response.Content.ReadAsFileAsync(fileName, pathValue, true, fileExtension, cancellationToken: cancellationToken);
+
+                        }
+                        _responseMessage = fileName;
+                    }
+                    else
+                    {
+                        _responseMessage = await response.Content.ReadAsStringAsync();
+                    }
+                }
+                else
+                {
+                    _responseMessage = await response.Content.ReadAsStringAsync();
+                }
+
+                return _responseMessage;
             }
             catch (Exception Ex)
             {
@@ -666,23 +666,17 @@ namespace Redcap.Utilities
         /// <param name="payload">data </param>
         /// <param name="uri">URI of the api instance</param>
         /// <returns>string</returns>
-        public static async Task<string> SendPostRequest(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri)
+        public static async Task<string> SendPostRequest(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, CancellationToken cancellationToken = default)
         {
-            string responseString;
-            using (var handler = GetHttpHandler())
-            using (var client = new HttpClient(handler))
-            {
-                // Encode the values for payload
-                using (var content = new FormUrlEncodedContent(payload))
-                {
-                    using (var response = await client.PostAsync(uri, content))
-                    {
-                        // check the response and make sure its successful
-                        response.EnsureSuccessStatusCode();
-                        responseString = await response.Content.ReadAsStringAsync();
-                    }
-                }
-            }
+            using var handler = GetHttpHandler();
+            using var client = new HttpClient(handler);
+            // Encode the values for payload
+            using var content = new FormUrlEncodedContent(payload);
+            using var response = await client.PostAsync(uri, content, cancellationToken);
+            // check the response and make sure its successful
+            response.EnsureSuccessStatusCode();
+            var responseString = await response.Content.ReadAsStringAsync();
+
             return responseString;
         }
         /// <summary>
@@ -693,7 +687,7 @@ namespace Redcap.Utilities
         /// <param name="arms"></param>
         /// <param name="delimiters"></param>
         /// <returns>List of string</returns>
-        public static async Task<List<string>> ExtractArmsAsync<T>(this RedcapApi redcapApi, string arms, char[] delimiters)
+        public static async Task<List<string>> ExtractArmsAsync<T>(this RedcapApi redcapApi, string arms, char[] delimiters, CancellationToken cancellationToken = default)
         {
             if (!String.IsNullOrEmpty(arms))
             {
