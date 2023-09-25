@@ -665,6 +665,7 @@ namespace Redcap.Utilities
         /// <param name="redcapApi"></param>
         /// <param name="payload">data </param>
         /// <param name="uri">URI of the api instance</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>string</returns>
         public static async Task<string> SendPostRequest(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, CancellationToken cancellationToken = default)
         {
@@ -686,6 +687,7 @@ namespace Redcap.Utilities
         /// <param name="redcapApi"></param>
         /// <param name="arms"></param>
         /// <param name="delimiters"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns>List of string</returns>
         public static async Task<List<string>> ExtractArmsAsync<T>(this RedcapApi redcapApi, string arms, char[] delimiters, CancellationToken cancellationToken = default)
         {
