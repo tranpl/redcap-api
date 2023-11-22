@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Redcap.Http;
+using Redcap.Models;
+using Serilog;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
@@ -9,12 +12,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Redcap.Http;
-using Redcap.Models;
-
-using Serilog;
-
 using static System.String;
 
 namespace Redcap.Utilities
@@ -595,7 +592,7 @@ namespace Redcap.Utilities
 
                 using var handler = GetHttpHandler();
                 using var client = new HttpClient(handler);
-                
+
                 // extract the filepath
                 var pathValue = payload.FirstOrDefault(x => x.Key == "filePath").Value;
                 var pathkey = payload.FirstOrDefault(x => x.Key == "filePath").Key;
