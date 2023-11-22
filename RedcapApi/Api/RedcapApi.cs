@@ -1,19 +1,15 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Redcap.Interfaces;
+using Redcap.Models;
+using Redcap.Utilities;
+using Serilog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Newtonsoft.Json;
-
-using Redcap.Interfaces;
-using Redcap.Models;
-using Redcap.Utilities;
-
-using Serilog;
-
 using static System.String;
 
 namespace Redcap
@@ -506,7 +502,7 @@ namespace Redcap
                         { "data", _serializedData }
                     };
                 // Execute request
-                importDagsResults =  await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
+                importDagsResults = await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
                 return importDagsResults;
             }
             catch (Exception Ex)
@@ -5029,7 +5025,7 @@ namespace Redcap
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Number of user roles added or updated</returns>
-        public async Task<string> ImportUserRolesAsync<T>(string token, List<T> data, Content content = Content.UserRole,  RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default)
+        public async Task<string> ImportUserRolesAsync<T>(string token, List<T> data, Content content = Content.UserRole, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default)
         {
             var importUserRolesResult = string.Empty;
             try
