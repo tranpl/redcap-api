@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Authors>Michael Tran</Authors>
     <Company>Virginia Commonwealth University</Company>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -43,7 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Serilog" Version="3.0.1" />
+    <PackageReference Include="Serilog" Version="3.1.1" />
     <PackageReference Include="System.ComponentModel" Version="4.3.0" />
   </ItemGroup>
 </Project>

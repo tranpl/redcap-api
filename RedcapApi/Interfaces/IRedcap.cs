@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Redcap.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Redcap.Models;
 
 namespace Redcap.Interfaces
 {
@@ -798,7 +797,7 @@ namespace Redcap.Interfaces
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Instrument-event mappings for the project in the format specified</returns>
-        Task<string> ExportInstrumentMappingAsync(string token,  RedcapFormat format = RedcapFormat.json, string[] arms = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
+        Task<string> ExportInstrumentMappingAsync(string token, RedcapFormat format = RedcapFormat.json, string[] arms = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 4.7.0 <br/><br/>
@@ -866,7 +865,7 @@ namespace Redcap.Interfaces
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Number of Instrument-Event Mappings imported</returns>
-        Task<string> ImportInstrumentMappingAsync<T>(string token, Content content, RedcapFormat format, List<T> data,  RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
+        Task<string> ImportInstrumentMappingAsync<T>(string token, Content content, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default);
         #endregion
 
         #region Logging
@@ -1189,7 +1188,7 @@ namespace Redcap.Interfaces
         /// <param name="exportBlankForGrayFormStatus">true, false [default] - specifies whether or not to export blank values for instrument complete status fields that have a gray status icon. All instrument complete status fields having a gray icon can be exported either as a blank value or as "0" (Incomplete). Blank values are recommended in a data export if the data will be re-imported into a REDCap project.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        Task<string> ExportRecordsAsync(string token, Content content, RedcapFormat format, RedcapDataType redcapDataType, string[] records = null, string[] fields = null,  string[] forms = null,  string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, DateTime? dateRangeBegin = null, DateTime? dateRangeEnd = null, string csvDelimiter = null, string decimalCharacter = null, bool exportBlankForGrayFormStatus = false, CancellationToken cancellationToken = default);
+        Task<string> ExportRecordsAsync(string token, Content content, RedcapFormat format, RedcapDataType redcapDataType, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, DateTime? dateRangeBegin = null, DateTime? dateRangeEnd = null, string csvDelimiter = null, string decimalCharacter = null, bool exportBlankForGrayFormStatus = false, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// From Redcap Version 11.4.0<br/>
