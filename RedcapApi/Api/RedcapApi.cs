@@ -2765,6 +2765,7 @@ namespace Redcap
             try
             {
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -2904,6 +2905,7 @@ namespace Redcap
             try
             {
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -2939,6 +2941,7 @@ namespace Redcap
             try
             {
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
