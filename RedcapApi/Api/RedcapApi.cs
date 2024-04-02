@@ -1,15 +1,13 @@
 ﻿using Newtonsoft.Json;
+
 using Redcap.Interfaces;
 using Redcap.Models;
 using Redcap.Utilities;
+
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net.Http;
+
 using System.Net.Http.Headers;
-using System.Threading;
-using System.Threading.Tasks;
+
 using static System.String;
 
 namespace Redcap
@@ -89,13 +87,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
-                /*
-                 * Request payload
-                 */
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -118,13 +111,9 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
-
         }
 
         /// <summary>
@@ -147,13 +136,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
-                /*
-                 * Request payload
-                 */
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -176,9 +160,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -215,10 +196,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                     {
@@ -230,18 +209,13 @@ namespace Redcap
                         { "returnFormat", returnFormat.GetDisplayName() },
                         { "data", _serializedData }
                     };
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
-
         }
 
         /// <summary>
@@ -260,7 +234,7 @@ namespace Redcap
         /// <typeparam name="T"></typeparam>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">arm</param>
-        /// <param name="overrideBhavior">0 - false [default], 1 - true — You may use override=1 as a 'delete all + import' action in order to erase all existing Arms in the project while importing new Arms. If override=0, then you can only add new Arms or rename existing ones. </param>
+        /// <param name="overrideBehavior">0 - false [default], 1 - true — You may use override=1 as a 'delete all + import' action in order to erase all existing Arms in the project while importing new Arms. If override=0, then you can only add new Arms or rename existing ones. </param>
         /// <param name="action">import</param>
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="data">Contains the attributes 'arm_num' (referring to the arm number) and 'name' (referring to the arm's name) of each arm to be created/modified, in which they are provided in the specified format. 
@@ -271,14 +245,12 @@ namespace Redcap
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Number of Arms imported</returns>
-        public async Task<string> ImportArmsAsync<T>(string token, Content content, Override overrideBhavior, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default)
+        public async Task<string> ImportArmsAsync<T>(string token, Content content, Override overrideBehavior, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default)
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                     {
@@ -286,22 +258,70 @@ namespace Redcap
                         { "content", content.GetDisplayName() },
                         { "action", action.GetDisplayName() },
                         { "format", format.GetDisplayName() },
-                        { "override", overrideBhavior.GetDisplayName() },
+                        { "override", overrideBehavior.GetDisplayName() },
                         { "returnFormat", returnFormat.GetDisplayName() },
                         { "data", _serializedData }
                     };
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
 
+        }
+        /// <summary>
+        /// From Redcap Version 4.7.0<br/><br/>
+        /// 
+        /// Import Arms<br/><br/>
+        /// This method allows you to import Arms into a project or to rename existing Arms in a project. 
+        /// You may use the parameter override=1 as a 'delete all + import' action in order to erase all existing Arms in the project while importing new Arms. 
+        /// Notice: Because of the 'override' parameter's destructive nature, this method may only use override=1 for projects in Development status.
+        /// NOTE: This only works for longitudinal projects. 
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// To use this method, you must have API Import/Update privileges *and* Project Design/Setup privileges in the project.
+        /// </remarks>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">arm</param>
+        /// <param name="overrideBehavior">0 - false [default], 1 - true — You may use override=1 as a 'delete all + import' action in order to erase all existing Arms in the project while importing new Arms. If override=0, then you can only add new Arms or rename existing ones. </param>
+        /// <param name="action">import</param>
+        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="data">Contains the attributes 'arm_num' (referring to the arm number) and 'name' (referring to the arm's name) of each arm to be created/modified, in which they are provided in the specified format. 
+        /// [{"arm_num":"1","name":"Drug A"},
+        /// {"arm_num":"2","name":"Drug B"},
+        /// {"arm_num":"3","name":"Drug C"}]
+        /// </param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'xml'.</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>Number of Arms imported</returns>
+        public async Task<string> ImportArmsAsync<T>(string token, Content content, Override overrideBehavior, RedcapAction action, RedcapFormat format, List<RedcapArm> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                this.CheckToken(token);
+
+                var _serializedData = JsonConvert.SerializeObject(data);
+                var payload = new Dictionary<string, string>
+                    {
+                        { "token", token },
+                        { "content", content.GetDisplayName() },
+                        { "action", action.GetDisplayName() },
+                        { "format", format.GetDisplayName() },
+                        { "override", overrideBehavior.GetDisplayName() },
+                        { "returnFormat", returnFormat.GetDisplayName() },
+                        { "data", _serializedData }
+                    };
+                return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return Ex.Message;
+            }
         }
 
         /// <summary>
@@ -323,13 +343,11 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 if (arms.Length < 1)
                 {
-                    throw new ArgumentNullException($"No arm to delete, please specify arm");
+                    throw new InvalidOperationException($"No arm to delete, please specify arm");
                 }
                 var payload = new Dictionary<string, string>
                 {
@@ -343,14 +361,10 @@ namespace Redcap
                     payload.Add($"arms[{i}]", arms[i]);
 
                 }
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -378,14 +392,11 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 if (arms.Length < 1)
                 {
-                    throw new ArgumentNullException($"No arm to delete, please specify arm");
-
+                    throw new InvalidOperationException($"No arm to delete, please specify arm");
                 }
                 var payload = new Dictionary<string, string>
                 {
@@ -399,14 +410,10 @@ namespace Redcap
                     payload.Add($"arms[{i}]", arms[i]);
 
                 }
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -432,7 +439,6 @@ namespace Redcap
             var exportDagsResults = string.Empty;
             try
             {
-                // Check for presence of token
                 this.CheckToken(token);
 
                 // Request payload
@@ -445,7 +451,6 @@ namespace Redcap
                     };
                 exportDagsResults = await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
                 return exportDagsResults;
-
             }
             catch (Exception Ex)
             {
@@ -487,7 +492,6 @@ namespace Redcap
             var importDagsResults = string.Empty;
             try
             {
-                // Check for presence of token
                 this.CheckToken(token);
 
                 var _serializedData = JsonConvert.SerializeObject(data);
@@ -500,7 +504,6 @@ namespace Redcap
                         { "returnFormat", returnFormat.GetDisplayName() },
                         { "data", _serializedData }
                     };
-                // Execute request
                 importDagsResults = await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
                 return importDagsResults;
             }
@@ -529,10 +532,8 @@ namespace Redcap
             var deleteDagsResult = string.Empty;
             try
             {
-                // Check for presence of token
                 this.CheckToken(token);
 
-                // Check for any dags
                 if (dags.Length < 1)
                 {
                     throw new InvalidOperationException($"No dags to delete.");
@@ -548,7 +549,6 @@ namespace Redcap
                 {
                     payload.Add($"dags[{i}]", dags[i]);
                 }
-                // Execute request
                 deleteDagsResult = await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
                 return deleteDagsResult;
             }
@@ -579,7 +579,6 @@ namespace Redcap
             var switchDagResult = string.Empty;
             try
             {
-                // Check for presence of token
                 this.CheckToken(token);
 
                 var payload = new Dictionary<string, string>
@@ -589,7 +588,6 @@ namespace Redcap
                     { "content", content.GetDisplayName() },
                     { "action", action.GetDisplayName() }
                 };
-                // Execute request
                 switchDagResult = await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
                 return switchDagResult;
             }
@@ -598,7 +596,6 @@ namespace Redcap
                 Log.Error($"{Ex.Message}");
                 return switchDagResult;
             }
-
         }
 
         /// <summary>
@@ -620,10 +617,8 @@ namespace Redcap
             var exportUserDagAssignmentResult = string.Empty;
             try
             {
-                // Check for presence of token
                 this.CheckToken(token);
 
-                // Request payload
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -633,7 +628,6 @@ namespace Redcap
                 };
                 exportUserDagAssignmentResult = await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
                 return exportUserDagAssignmentResult;
-
             }
             catch (Exception Ex)
             {
@@ -675,8 +669,12 @@ namespace Redcap
             var ImportUserDagAssignmentResults = string.Empty;
             try
             {
-                // Check for presence of token
                 this.CheckToken(token);
+
+                if(data.Count < 1)
+                {
+                    throw new InvalidOperationException($"No data to import, please specify data to import.");
+                }   
 
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
@@ -688,7 +686,6 @@ namespace Redcap
                         { "returnFormat", returnFormat.GetDisplayName() },
                         { "data", _serializedData }
                     };
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
@@ -724,14 +721,11 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 if (arms.Length < 1)
                 {
-                    throw new ArgumentNullException($"Please specify the arm you wish to export the events from.");
-
+                    throw new InvalidOperationException($"Please specify the arm you wish to export the events from.");
                 }
                 var payload = new Dictionary<string, string>
                 {
@@ -749,14 +743,10 @@ namespace Redcap
 
                     }
                 }
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -786,15 +776,13 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 if (arms.Length < 1)
                 {
-                    throw new ArgumentNullException($"Please specify the arm you wish to export the events from.");
+                    throw new InvalidOperationException($"Please specify the arm you wish to export the events from.");
+                }   
 
-                }
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -811,14 +799,10 @@ namespace Redcap
 
                     }
                 }
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -853,10 +837,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 if (data.Count < 1)
                 {
                     throw new ArgumentNullException($"Events can not be empty or null");
@@ -872,18 +854,13 @@ namespace Redcap
                     { "returnFormat", returnFormat.GetDisplayName() },
                     { "data", _serializedData }
                 };
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
-
         }
 
         /// <summary>
@@ -917,10 +894,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 if (data.Count < 1)
                 {
                     throw new ArgumentNullException($"Events can not be empty or null");
@@ -936,18 +911,13 @@ namespace Redcap
                     { "returnFormat", returnFormat.GetDisplayName() },
                     { "data", _serializedData }
                 };
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
-
         }
 
         /// <summary>
@@ -971,13 +941,11 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 if (events.Length < 1)
                 {
-                    throw new ArgumentNullException($"No events to delete...");
+                    throw new InvalidOperationException($"No events to delete...");
                 }
 
                 var payload = new Dictionary<string, string>
@@ -995,14 +963,10 @@ namespace Redcap
 
                     }
                 }
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -1031,10 +995,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 if (events.Length < 1)
                 {
                     throw new InvalidOperationException($"No events to delete...");
@@ -1055,14 +1017,10 @@ namespace Redcap
 
                     }
                 }
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -1098,10 +1056,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -1114,14 +1070,10 @@ namespace Redcap
                 {
                     payload.Add("field", field);
                 }
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -1157,10 +1109,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -1173,14 +1123,10 @@ namespace Redcap
                 {
                     payload.Add("field", field);
                 }
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -1216,10 +1162,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 if (IsNullOrEmpty(filePath))
                 {
                     throw new ArgumentNullException($"Must contain a file path to save the file.");
@@ -1255,18 +1199,13 @@ namespace Redcap
                     { "returnFormat", returnFormat.GetDisplayName() },
                     { "repeat_instance", repeatInstance  }
                 };
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
-
         }
 
         /// <summary>
@@ -1299,10 +1238,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 if (IsNullOrEmpty(filePath))
                 {
                     throw new ArgumentNullException($"Must contain a file path to save the file.");
@@ -1331,14 +1268,10 @@ namespace Redcap
                 {
                     payload.Add("repeat_instance", repeatInstance);
                 }
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -1366,10 +1299,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var _fileName = fileName;
                 var _filePath = filePath;
                 var _binaryFile = Path.Combine(_filePath, _fileName);
@@ -1393,11 +1324,9 @@ namespace Redcap
                 {
                     repeatInstance = "1";
                     payload.Add(new StringContent(repeatInstance), "repeat_instance");
-
                 }
                 if (IsNullOrEmpty(_fileName) || IsNullOrEmpty(_filePath))
                 {
-
                     throw new InvalidOperationException($"file can not be empty or null");
                 }
                 else
@@ -1411,13 +1340,9 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
-
         }
 
         /// <summary>
@@ -1444,10 +1369,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var _fileName = fileName;
                 var _filePath = filePath;
                 var _binaryFile = Path.Combine(_filePath, _fileName);
@@ -1489,13 +1412,9 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
-
         }
 
         /// <summary>
@@ -1517,10 +1436,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var payload = new MultipartFormDataContent()
                 {
                     {new StringContent(token), "token" },
@@ -1546,9 +1463,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -1575,10 +1489,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var payload = new MultipartFormDataContent()
                 {
                     {new StringContent(token), "token" },
@@ -1604,9 +1516,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -1641,42 +1550,42 @@ namespace Redcap
         /// <returns>The folder_id of the new folder created in the specified format. <br/>For example, if using format=json, the output would look similar to this: [{folder_id:45}].</returns>
         public async Task<string> CreateFolderFileRepositoryAsync(string token, Content content, RedcapAction action, string name, RedcapFormat format, string folderId = default, string dagId = default, string roleId = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default)
         {
-            /*
-             * Check the required parameters for empty or null
-             */
-            if (IsNullOrEmpty(token))
+            try
             {
-                throw new ArgumentNullException("Please provide a valid Redcap token.");
-            }
-            if (IsNullOrEmpty(name))
-            {
-                throw new ArgumentNullException("Please provide a valid name for the folder to create in the Repository.");
-            }
-            var payload = new Dictionary<string, string>
-            {
-                { "token", token },
-                { "content", content.GetDisplayName() },
-                { "action", action.GetDisplayName() },
-                { "format", format.GetDisplayName() },
-                { "returnFormat", returnFormat.GetDisplayName() }
-            };
-            // Optional
-            if (!IsNullOrEmpty(folderId))
-            {
-                payload.Add("folder_id", folderId);
-            }
-            if (!IsNullOrEmpty(dagId))
-            {
-                payload.Add("dag_id", dagId);
-            }
-            if (!IsNullOrEmpty(roleId))
-            {
-                payload.Add("role_id", roleId);
-            }
+                this.CheckToken(token);
 
-            // Execute send request
-            return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
-
+                if (IsNullOrEmpty(name))
+                {
+                    throw new ArgumentNullException("Please provide a valid name for the folder to create in the Repository.");
+                }
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "action", action.GetDisplayName() },
+                    { "format", format.GetDisplayName() },
+                    { "returnFormat", returnFormat.GetDisplayName() }
+                };
+                // Optional
+                if (!IsNullOrEmpty(folderId))
+                {
+                    payload.Add("folder_id", folderId);
+                }
+                if (!IsNullOrEmpty(dagId))
+                {
+                    payload.Add("dag_id", dagId);
+                }
+                if (!IsNullOrEmpty(roleId))
+                {
+                    payload.Add("role_id", roleId);
+                }
+                return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return Ex.Message;
+            }
         }
 
         /// <summary>
@@ -1698,29 +1607,31 @@ namespace Redcap
         /// <returns>The list of all files and folders within a given sub-folder in the File Repository in the format specified.</returns>
         public async Task<string> ExportFilesFoldersFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.List, RedcapFormat format = RedcapFormat.json, string folderId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default)
         {
-            /*
-             * Check the required parameters for empty or null
-             */
-            if (IsNullOrEmpty(token))
+            try
             {
-                throw new ArgumentNullException("Please provide a valid Redcap token.");
-            }
-            var payload = new Dictionary<string, string>
-            {
-                { "token", token },
-                { "content", content.GetDisplayName() },
-                { "action", action.GetDisplayName() },
-                { "format", format.GetDisplayName() },
-                { "returnFormat", returnFormat.GetDisplayName() }
-            };
-            // Optional
-            if (!IsNullOrEmpty(folderId))
-            {
-                payload.Add("folder_id", folderId);
-            }
+                this.CheckToken(token);
 
-            // Execute send request
-            return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "action", action.GetDisplayName() },
+                    { "format", format.GetDisplayName() },
+                    { "returnFormat", returnFormat.GetDisplayName() }
+                };
+                // Optional
+                if (!IsNullOrEmpty(folderId))
+                {
+                    payload.Add("folder_id", folderId);
+                }
+                return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
+
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return Ex.Message;
+            }
         }
 
         /// <summary>
@@ -1739,28 +1650,30 @@ namespace Redcap
         /// <returns>the contents of the file</returns>
         public async Task<string> ExportFileFileRepositoryAsync(string token, Content content, RedcapAction action, string docId = default, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default)
         {
-            /*
-             * Check the required parameters for empty or null
-             */
-            if (IsNullOrEmpty(token))
+            try
             {
-                throw new ArgumentNullException("Please provide a valid Redcap token.");
-            }
-            var payload = new Dictionary<string, string>
-            {
-                { "token", token },
-                { "content", content.GetDisplayName() },
-                { "action", action.GetDisplayName() },
-                { "returnFormat", returnFormat.GetDisplayName() }
-            };
-            // Optional
-            if (!IsNullOrEmpty(docId))
-            {
-                payload.Add("doc_id", docId);
-            }
+                this.CheckToken(token);
 
-            // Execute send request
-            return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "action", action.GetDisplayName() },
+                    { "returnFormat", returnFormat.GetDisplayName() }
+                };
+                // Optional
+                if (!IsNullOrEmpty(docId))
+                {
+                    payload.Add("doc_id", docId);
+                }
+                return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
+
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return Ex.Message;
+            }
         }
 
         /// <summary>
@@ -1781,32 +1694,33 @@ namespace Redcap
         /// <returns>string</returns>
         public async Task<string> ImportFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.Import, string file = null, string folderId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default)
         {
-            /*
-             * Check the required parameters for empty or null
-             */
-            if (IsNullOrEmpty(token))
+            try
             {
-                throw new ArgumentNullException("Please provide a valid Redcap token.");
-            }
-            if (IsNullOrEmpty(file))
-            {
-                throw new ArgumentNullException("Please provide a file to import.");
-            }
-            var payload = new Dictionary<string, string>
-            {
-                { "token", token },
-                { "content", content.GetDisplayName() },
-                { "action", action.GetDisplayName() },
-                { "returnFormat", returnFormat.GetDisplayName() }
-            };
-            // Optional
-            if (!IsNullOrEmpty(folderId))
-            {
-                payload.Add("folder_id", folderId);
-            }
+                this.CheckToken(token);
 
-            // Execute send request
-            return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
+                if (IsNullOrEmpty(file))
+                {
+                    throw new ArgumentNullException("Please provide a file to import.");
+                }
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "action", action.GetDisplayName() },
+                    { "returnFormat", returnFormat.GetDisplayName() }
+                };
+                // Optional
+                if (!IsNullOrEmpty(folderId))
+                {
+                    payload.Add("folder_id", folderId);
+                }
+                return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
+            }
+            catch (Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return Ex.Message;
+            }
         }
 
         /// <summary>
@@ -1826,26 +1740,28 @@ namespace Redcap
         /// <returns>string</returns>
         public async Task<string> DeleteFileRepositoryAsync(string token, Content content = Content.FileRepository, RedcapAction action = RedcapAction.Delete, string docId = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default)
         {
-            /*
-             * Check the required parameters for empty or null
-             */
-            if (IsNullOrEmpty(token))
+            try
             {
-                throw new ArgumentNullException("Please provide a valid Redcap token.");
+                this.CheckToken(token);
+
+                if (IsNullOrEmpty(docId))
+                {
+                    throw new ArgumentNullException("Please provide a document id to delete.");
+                }
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "content", content.GetDisplayName() },
+                    { "action", action.GetDisplayName() },
+                    { "returnFormat", returnFormat.GetDisplayName() }
+                };
+                return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
-            if (IsNullOrEmpty(docId))
+            catch (Exception Ex)
             {
-                throw new ArgumentNullException("Please provide a document id to delete.");
+                Log.Error($"{Ex.Message}");
+                return Ex.Message;
             }
-            var payload = new Dictionary<string, string>
-            {
-                { "token", token },
-                { "content", content.GetDisplayName() },
-                { "action", action.GetDisplayName() },
-                { "returnFormat", returnFormat.GetDisplayName() }
-            };
-            // Execute send request
-            return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
         }
         #endregion File Repository
         #region Instruments
@@ -1866,24 +1782,18 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
                     { "content", Content.Instrument.GetDisplayName() },
                     { "format", format.GetDisplayName() }
                 };
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -1906,24 +1816,18 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
                     { "content", content.GetDisplayName() },
                     { "format", format.GetDisplayName() }
                 };
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -1951,9 +1855,6 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
 
                 var payload = new Dictionary<string, string>
@@ -1979,14 +1880,10 @@ namespace Redcap
                 {
                     payload.Add("allRecords", allRecord.ToString());
                 }
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -2016,9 +1913,6 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
 
                 var payload = new Dictionary<string, string>
@@ -2048,14 +1942,10 @@ namespace Redcap
                 {
                     payload.Add("compactDisplay", compactDisplay.ToString());
                 }
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -2085,10 +1975,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 /*
                  * FilePath check..
                  */
@@ -2121,14 +2009,10 @@ namespace Redcap
                 {
                     payload.Add("allRecords", allRecord.ToString());
                 }
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -2154,10 +2038,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -2173,14 +2055,10 @@ namespace Redcap
                         payload.Add($"arms[{i}]", arms[i]);
                     }
                 }
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -2207,10 +2085,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -2226,14 +2102,10 @@ namespace Redcap
                         payload.Add($"arms[{i}]", arms[i]);
                     }
                 }
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -2265,9 +2137,6 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
 
                 var _serializedData = JsonConvert.SerializeObject(data);
@@ -2279,14 +2148,10 @@ namespace Redcap
                     { "returnFormat", returnFormat.GetDisplayName() },
                     { "data", _serializedData }
                 };
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -2319,9 +2184,6 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
 
                 var _serializedData = JsonConvert.SerializeObject(data);
@@ -2333,14 +2195,10 @@ namespace Redcap
                     { "returnFormat", returnFormat.GetDisplayName() },
                     { "data", _serializedData }
                 };
-                // Execute request
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -2374,7 +2232,6 @@ namespace Redcap
             var exportLoggingResults = string.Empty;
             try
             {
-                // Check for presence of token
                 this.CheckToken(token);
 
                 var payload = new Dictionary<string, string>
@@ -2439,10 +2296,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -2469,9 +2324,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -2496,10 +2348,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -2526,9 +2376,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -2555,10 +2402,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                 {
@@ -2572,9 +2417,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -2604,10 +2446,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                 {
@@ -2621,9 +2461,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -2663,10 +2500,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                 {
@@ -2684,13 +2519,9 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
-
         }
 
         /// <summary>
@@ -2727,10 +2558,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
+
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                 {
@@ -2748,13 +2577,9 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
-
         }
 
         /// <summary>
@@ -2777,9 +2602,6 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
 
                 var _serializedData = JsonConvert.SerializeObject(projectInfo);
@@ -2794,13 +2616,9 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
-
         }
 
         /// <summary>
@@ -2822,9 +2640,6 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
 
                 var _serializedData = JsonConvert.SerializeObject(projectInfo);
@@ -2839,13 +2654,9 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
-
         }
 
         /// <summary>
@@ -2869,9 +2680,6 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
 
                 var payload = new Dictionary<string, string>
@@ -2885,9 +2693,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -2913,9 +2718,6 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
 
                 var payload = new Dictionary<string, string>
@@ -2929,9 +2731,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -2965,11 +2764,7 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
-
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -3009,9 +2804,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -3044,11 +2836,7 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check for presence of token
-                 */
                 this.CheckToken(token);
-
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -3088,9 +2876,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -3118,9 +2903,6 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
                 this.CheckToken(token);
                 var payload = new Dictionary<string, string>
                 {
@@ -3131,9 +2913,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -3159,9 +2938,6 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
                 this.CheckToken(token);
                 var payload = new Dictionary<string, string>
                 {
@@ -3172,9 +2948,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -3244,7 +3017,6 @@ namespace Redcap
                 {
                     payload.Add("events", await this.ConvertArraytoString(events));
                 }
-
                 // Pertains to CSV data only
                 var _rawOrLabelValue = rawOrLabelHeaders.ToString();
                 if (!IsNullOrEmpty(_rawOrLabelValue))
@@ -3289,17 +3061,12 @@ namespace Redcap
                 }
 
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
-
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
-
         }
 
         /// <summary>
@@ -3333,7 +3100,7 @@ namespace Redcap
         /// <param name="exportBlankForGrayFormStatus">true, false [default] - specifies whether or not to export blank values for instrument complete status fields that have a gray status icon. All instrument complete status fields having a gray icon can be exported either as a blank value or as "0" (Incomplete). Blank values are recommended in a data export if the data will be re-imported into a REDCap project.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<string> ExportRecordsAsync(string token, Content content, RedcapFormat format = RedcapFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, DateTime? dateRangeBegin = null, DateTime? dateRangeEnd = null, string csvDelimiter = ",", string decimalCharacter = ".", bool exportBlankForGrayFormStatus = false, CancellationToken cancellationToken = default)
+        public async Task<string> ExportRecordsAsync(string token, Content content, RedcapFormat format = RedcapFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] records = null, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, DateTime? dateRangeBegin = null, DateTime? dateRangeEnd = null, CsvDelimiter csvDelimiter = CsvDelimiter.comma, DecimalCharacter decimalCharacter = DecimalCharacter.none, bool exportBlankForGrayFormStatus = false, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -3401,27 +3168,22 @@ namespace Redcap
                 {
                     payload.Add("dateRangeEnd", dateRangeEnd.Value.ToString("yyyy-MM-dd hh:mm:ss"));
                 }
-                if (!IsNullOrEmpty(csvDelimiter))
+                if (format == RedcapFormat.csv)
                 {
-                    payload.Add("csvDelimiter", csvDelimiter);
+                    payload.Add("csvDelimiter", csvDelimiter.ToString());
                 }
-                if (!IsNullOrEmpty(decimalCharacter))
+                if(decimalCharacter != DecimalCharacter.none)
                 {
-                    payload.Add("decimalCharacter", decimalCharacter);
+                    payload.Add("decimalCharacter", decimalCharacter.ToString());
                 }
 
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
-
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
-
         }
 
         /// <summary>
@@ -3448,10 +3210,14 @@ namespace Redcap
         /// <param name="exportSurveyFields">true, false [default] - specifies whether or not to export the survey identifier field (e.g., 'redcap_survey_identifier') or survey timestamp fields (e.g., instrument+'_timestamp') when surveys are utilized in the project. If you do not pass in this flag, it will default to 'false'. If set to 'true', it will return the redcap_survey_identifier field and also the survey timestamp field for a particular survey when at least one field from that survey is being exported. NOTE: If the survey identifier field or survey timestamp fields are imported via API data import, they will simply be ignored since they are not real fields in the project but rather are pseudo-fields.</param>
         /// <param name="exportDataAccessGroups">true, false [default] - specifies whether or not to export the 'redcap_data_access_group' field when data access groups are utilized in the project. If you do not pass in this flag, it will default to 'false'. NOTE: This flag is only viable if the user whose token is being used to make the API request is *not* in a data access group. If the user is in a group, then this flag will revert to its default value.</param>
         /// <param name="filterLogic">String of logic text (e.g., [age] > 30) for filtering the data to be returned by this API method, in which the API will only return the records (or record-events, if a longitudinal project) where the logic evaluates as TRUE. This parameter is blank/null by default unless a value is supplied. Please note that if the filter logic contains any incorrect syntax, the API will respond with an error message. </param>
+        /// <param name="dateRangeBegin">null [default] To return only records that have been created or modified *after* a given date/time, provide a timestamp in the format YYYY-MM-DD HH:MM:SS (e.g., '2017-01-01 00:00:00' for January 1, 2017 at midnight server time). If not specified, it will assume no begin time.</param>
+        /// <param name="dateRangeEnd">null [default] To return only records that have been created or modified *before* a given date/time, provide a timestamp in the format YYYY-MM-DD HH:MM:SS (e.g., '2017-01-01 00:00:00' for January 1, 2017 at midnight server time). If not specified, it will use the current server time.</param>
+        /// <param name="csvDelimiter">comma [default] Set the delimiter used to separate values in the CSV data file (for CSV format only). Options include: comma ',' (default), 'tab', semi-colon ';', pipe '|', or caret '^'. Simply provide the value in quotes for this parameter.</param>
+        /// <param name="decimalCharacter">dot [default] If specified, force all numbers into same decimal format. You may choose to force all data values containing a decimal to have the same decimal character, which will be applied to all calc fields and number-validated text fields. Options include comma ',' or dot/full stop '.', but if left blank/null, then it will export numbers using the fields' native decimal format. Simply provide the value of either ',' or '.' for this parameter.</param>
         /// <param name="exportBlankForGrayFormStatus">true, false [default] - specifies whether or not to export blank values for instrument complete status fields that have a gray status icon. All instrument complete status fields having a gray icon can be exported either as a blank value or as "0" (Incomplete). Blank values are recommended in a data export if the data will be re-imported into a REDCap project.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<string> ExportRecordAsync(string token, Content content, string record, RedcapFormat format = RedcapFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat onErrorFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, bool exportBlankForGrayFormStatus = false, CancellationToken cancellationToken = default)
+        public async Task<string> ExportRecordAsync(string token, Content content, string record, RedcapFormat format = RedcapFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat onErrorFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, DateTime? dateRangeBegin = default, DateTime? dateRangeEnd = default, CsvDelimiter csvDelimiter = CsvDelimiter.comma, DecimalCharacter decimalCharacter = DecimalCharacter.dot, bool exportBlankForGrayFormStatus = false, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -3508,23 +3274,36 @@ namespace Redcap
                 {
                     payload.Add("filterLogic", filterLogic);
                 }
+                if (dateRangeBegin.HasValue)
+                {
+                    payload.Add("dateRangeBegin", dateRangeBegin.Value.ToString("yyyy-MM-dd hh:mm:ss"));
+                }
+                if (dateRangeEnd.HasValue)
+                {
+                    payload.Add("dateRangeEnd", dateRangeEnd.Value.ToString("yyyy-MM-dd hh:mm:ss"));
+                }
+
+                if (format == RedcapFormat.csv)
+                {
+                    payload.Add("csvDelimiter", csvDelimiter.ToString());
+                }
+                if (decimalCharacter != DecimalCharacter.none)
+                {
+                    payload.Add("decimalCharacter", decimalCharacter.ToString());
+                }
+
                 // Optional (defaults to false)
                 if (exportBlankForGrayFormStatus)
                 {
                     payload.Add("exportBlankForGrayFormStatus", exportBlankForGrayFormStatus.ToString());
                 }
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
-
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
-
         }
 
 
@@ -3565,8 +3344,8 @@ namespace Redcap
             try
             {
                 this.CheckToken(token);
-                var _serializedData = JsonConvert.SerializeObject(data);
 
+                var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -3592,9 +3371,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -3637,8 +3413,8 @@ namespace Redcap
             try
             {
                 this.CheckToken(token);
-                var _serializedData = JsonConvert.SerializeObject(data);
 
+                var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -3688,13 +3464,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
-                if (IsNullOrEmpty(token))
-                {
-                    throw new ArgumentNullException("Please provide a valid Redcap token.");
-                }
+                this.CheckToken(token);
+
                 if (records?.Length < 1)
                 {
                     throw new ArgumentNullException("Please provide the records you would like to remove.");
@@ -3713,15 +3484,10 @@ namespace Redcap
 
                 // Optional
                 payload.Add("arm", arm?.ToString());
-
-
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -3747,13 +3513,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
-                if (IsNullOrEmpty(token))
-                {
-                    throw new ArgumentNullException("Please provide a valid Redcap token.");
-                }
+                this.CheckToken(token);
+
                 if (records?.Length < 1)
                 {
                     throw new ArgumentNullException("Please provide the records you would like to remove.");
@@ -3764,8 +3525,6 @@ namespace Redcap
                     { "content", content.GetDisplayName() },
                     { "action",  action.GetDisplayName() }
                 };
-                // Required
-                //payload.Add("records", await this.ConvertArraytoString(records));
                 for (var i = 0; i < records.Length; i++)
                 {
                     payload.Add($"records[{i}]", records[i]);
@@ -3773,15 +3532,10 @@ namespace Redcap
 
                 // Optional
                 payload.Add("arm", arm?.ToString());
-
-
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -3811,13 +3565,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
-                if (IsNullOrEmpty(token))
-                {
-                    throw new ArgumentNullException("Please provide a valid Redcap token.");
-                }
+                this.CheckToken(token);
+
                 if (records?.Length < 1)
                 {
                     throw new ArgumentNullException("Please provide the records you would like to remove.");
@@ -3844,9 +3593,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -3874,13 +3620,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
-                if (IsNullOrEmpty(token))
-                {
-                    throw new ArgumentNullException("Please provide a valid Redcap token.");
-                }
+                this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -3890,14 +3631,10 @@ namespace Redcap
 
                 // Optional
                 payload.Add("arm", arm?.ToString());
-
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -3920,10 +3657,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -3934,9 +3669,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -3958,10 +3690,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -3972,9 +3702,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -3997,13 +3724,9 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
                 this.CheckToken(token);
 
                 var _serializedData = JsonConvert.SerializeObject(data);
-
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4016,9 +3739,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4051,10 +3771,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4090,9 +3808,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4123,10 +3838,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4162,9 +3875,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4189,10 +3899,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4204,9 +3912,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4228,10 +3933,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4243,9 +3946,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4274,10 +3974,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4293,9 +3991,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4323,10 +4018,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4342,9 +4035,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4369,10 +4059,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4387,9 +4075,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4415,9 +4100,6 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
                 this.CheckToken(token);
                 var payload = new Dictionary<string, string>
                 {
@@ -4433,9 +4115,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4459,10 +4138,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4475,9 +4152,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4502,10 +4176,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
                 this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4518,9 +4190,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4546,13 +4215,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
-                if (IsNullOrEmpty(token))
-                {
-                    throw new ArgumentNullException("Please provide a valid Redcap token.");
-                }
+                this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4568,9 +4232,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4597,13 +4258,7 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
-                if (IsNullOrEmpty(token))
-                {
-                    throw new ArgumentNullException("Please provide a valid Redcap token.");
-                }
+                this.CheckToken(token);
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4614,14 +4269,10 @@ namespace Redcap
                     { "repeat_instance", repeatInstance},
                     { "returnFormat", returnFormat.GetDisplayName() }
                 };
-
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4651,13 +4302,7 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
-                if (IsNullOrEmpty(token))
-                {
-                    throw new ArgumentNullException("Please provide a valid Redcap token.");
-                }
+                this.CheckToken(token);
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4665,14 +4310,10 @@ namespace Redcap
                     { "format", format.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() }
                 };
-
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4702,13 +4343,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
-                if (IsNullOrEmpty(token))
-                {
-                    throw new ArgumentNullException("Please provide a valid Redcap token.");
-                }
+                this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4721,9 +4357,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4774,14 +4407,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
-                if (IsNullOrEmpty(token))
-                {
-                    throw new ArgumentNullException("Please provide a valid Redcap token.");
-                }
-                // Handle formats
+                this.CheckToken(token);
+
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                 {
@@ -4791,14 +4418,10 @@ namespace Redcap
                     { "returnFormat", returnFormat.GetDisplayName() },
                     { "data", _serializedData }
                 };
-
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4850,14 +4473,8 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
-                if (IsNullOrEmpty(token))
-                {
-                    throw new ArgumentNullException("Please provide a valid Redcap token.");
-                }
-                // Handle formats
+                this.CheckToken(token);
+
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                 {
@@ -4872,9 +4489,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4899,13 +4513,7 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
-                if (IsNullOrEmpty(token))
-                {
-                    throw new ArgumentNullException("Please provide a valid Redcap token.");
-                }
+                this.CheckToken(token);
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4917,14 +4525,10 @@ namespace Redcap
                 {
                     payload.Add($"users[{i}]", users[i]);
                 }
-
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -4973,14 +4577,7 @@ namespace Redcap
         {
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
-                if (IsNullOrEmpty(token))
-                {
-                    throw new ArgumentNullException("Please provide a valid Redcap token.");
-                }
-
+                this.CheckToken(token);
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4988,14 +4585,10 @@ namespace Redcap
                     { "format",  format.GetDisplayName() },
                     { "returnFormat",  returnFormat.GetDisplayName() }
                 };
-
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
@@ -5029,6 +4622,8 @@ namespace Redcap
             var importUserRolesResult = string.Empty;
             try
             {
+                this.CheckToken(token);
+
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                     {
@@ -5038,7 +4633,6 @@ namespace Redcap
                         { "returnFormat", returnFormat.ToString() },
                         { "data", _serializedData }
                     };
-                // Execute request
                 importUserRolesResult = await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
                 return importUserRolesResult;
             }
@@ -5047,7 +4641,6 @@ namespace Redcap
                 Log.Error($"{Ex.Message}");
                 return importUserRolesResult;
             }
-
         }
 
         /// <summary>
@@ -5070,13 +4663,8 @@ namespace Redcap
             var deleteUserRolesResult = string.Empty;
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
-                if (IsNullOrEmpty(token))
-                {
-                    throw new ArgumentNullException("Please provide a valid Redcap token.");
-                }
+                this.CheckToken(token);
+
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -5094,9 +4682,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return deleteUserRolesResult;
             }
@@ -5122,13 +4707,7 @@ namespace Redcap
             var exportUserRolesAssignmentResult = string.Empty;
             try
             {
-                /*
-                 * Check the required parameters for empty or null
-                 */
-                if (IsNullOrEmpty(token))
-                {
-                    throw new ArgumentNullException("Please provide a valid Redcap token.");
-                }
+                this.CheckToken(token);
 
                 var payload = new Dictionary<string, string>
                 {
@@ -5143,9 +4722,6 @@ namespace Redcap
             }
             catch (Exception Ex)
             {
-                /*
-                 * We'll just log the error and return the error message.
-                 */
                 Log.Error($"{Ex.Message}");
                 return exportUserRolesAssignmentResult;
             }
@@ -5179,6 +4755,8 @@ namespace Redcap
             var importUserRoleAssignmentResult = string.Empty;
             try
             {
+                this.CheckToken(token);
+
                 var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                 {
@@ -5188,7 +4766,7 @@ namespace Redcap
                     { "returnFormat", onErrorFormat.ToString() },
                     { "data", _serializedData }
                 };
-                // Execute request
+
                 importUserRoleAssignmentResult = await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
                 return importUserRoleAssignmentResult;
             }
