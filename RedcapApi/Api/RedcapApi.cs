@@ -2983,7 +2983,7 @@ namespace Redcap
         /// <param name="exportBlankForGrayFormStatus">true, false [default] - specifies whether or not to export blank values for instrument complete status fields that have a gray status icon. All instrument complete status fields having a gray icon can be exported either as a blank value or as "0" (Incomplete). Blank values are recommended in a data export if the data will be re-imported into a REDCap project.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<string> ExportRecordsAsync(string token, RedcapFormat format = RedcapFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] records = default, string[] fields = default, string[] forms = default, string[] events = default, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, DateTime? dateRangeBegin = default, DateTime? dateRangeEnd = default, string csvDelimiter = default, string decimalCharacter = default, bool exportBlankForGrayFormStatus = false, CancellationToken cancellationToken = default)
+        public async Task<string> ExportRecordsAsync(string token, RedcapFormat format = RedcapFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] records = default, string[] fields = default, string[] forms = default, string[] events = default, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, DateTime? dateRangeBegin = default, DateTime? dateRangeEnd = default, CsvDelimiter csvDelimiter = CsvDelimiter.comma, DecimalCharacter decimalCharacter = DecimalCharacter.none, bool exportBlankForGrayFormStatus = false, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -2997,7 +2997,6 @@ namespace Redcap
                     { "returnFormat", returnFormat.GetDisplayName() },
                     { "type", redcapDataType.GetDisplayName() },
                     {"exportBlankForGrayFormStatus", exportBlankForGrayFormStatus.ToString() }
-
                 };
 
                 // Optional
@@ -3051,13 +3050,13 @@ namespace Redcap
                 {
                     payload.Add("dateRangeEnd", dateRangeEnd.Value.ToString("yyyy-MM-dd hh:mm:ss"));
                 }
-                if (!IsNullOrEmpty(csvDelimiter))
+                if (format == RedcapFormat.csv)
                 {
-                    payload.Add("csvDelimiter", csvDelimiter);
+                    payload.Add("csvDelimiter", csvDelimiter.ToString());
                 }
-                if (!IsNullOrEmpty(decimalCharacter))
+                if (decimalCharacter != DecimalCharacter.none)
                 {
-                    payload.Add("decimalCharacter", decimalCharacter);
+                    payload.Add("decimalCharacter", decimalCharacter.ToString());
                 }
 
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken);
@@ -3217,7 +3216,7 @@ namespace Redcap
         /// <param name="exportBlankForGrayFormStatus">true, false [default] - specifies whether or not to export blank values for instrument complete status fields that have a gray status icon. All instrument complete status fields having a gray icon can be exported either as a blank value or as "0" (Incomplete). Blank values are recommended in a data export if the data will be re-imported into a REDCap project.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Data from the project in the format and type specified ordered by the record (primary key of project) and then by event id</returns>
-        public async Task<string> ExportRecordAsync(string token, Content content, string record, RedcapFormat format = RedcapFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat onErrorFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, DateTime? dateRangeBegin = default, DateTime? dateRangeEnd = default, CsvDelimiter csvDelimiter = CsvDelimiter.comma, DecimalCharacter decimalCharacter = DecimalCharacter.dot, bool exportBlankForGrayFormStatus = false, CancellationToken cancellationToken = default)
+        public async Task<string> ExportRecordAsync(string token, Content content, string record, RedcapFormat format = RedcapFormat.json, RedcapDataType redcapDataType = RedcapDataType.flat, string[] fields = null, string[] forms = null, string[] events = null, RawOrLabel rawOrLabel = RawOrLabel.raw, RawOrLabelHeaders rawOrLabelHeaders = RawOrLabelHeaders.raw, bool exportCheckboxLabel = false, RedcapReturnFormat onErrorFormat = RedcapReturnFormat.json, bool exportSurveyFields = false, bool exportDataAccessGroups = false, string filterLogic = null, DateTime? dateRangeBegin = default, DateTime? dateRangeEnd = default, CsvDelimiter csvDelimiter = CsvDelimiter.comma, DecimalCharacter decimalCharacter = DecimalCharacter.none, bool exportBlankForGrayFormStatus = false, CancellationToken cancellationToken = default)
         {
             try
             {
