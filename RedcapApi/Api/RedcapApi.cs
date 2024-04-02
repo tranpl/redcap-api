@@ -330,7 +330,6 @@ namespace Redcap
                 if (arms.Length < 1)
                 {
                     throw new ArgumentNullException($"No arm to delete, please specify arm");
-
                 }
                 var payload = new Dictionary<string, string>
                 {

@@ -80,21 +80,21 @@ __Install directly in Package Manager Console or Command Line Interface__
 ```C#
 Package Manager
 
-Install-Package RedcapAPI -Version 1.3.2
+Install-Package RedcapAPI -Version 1.3.4
 
 ```
 
 ```C#
 .NET CLI
 
-dotnet add package RedcapAPI --version 1.3.2
+dotnet add package RedcapAPI --version 1.3.4
 
  ```
 
 ```C#
 Paket CLI
 
-paket add RedcapAPI --version 1.3.2
+paket add RedcapAPI --version 1.3.4
 
 ```
 

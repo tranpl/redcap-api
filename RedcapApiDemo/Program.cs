@@ -1,39 +1,18 @@
 ﻿using Newtonsoft.Json;
+
 using Redcap;
 using Redcap.Models;
+using RedcapApiDemo.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Tynamix.ObjectFiller;
 
 namespace RedcapApiDemo
 {
-    /// <summary>
-    /// A class that represents the demopgrahics form for the demographics template.
-    /// Add additional properties that you've added to the redcap instrument as needed.
-    /// </summary>
-    public class Demographic
-    {
-        [JsonRequired]
-        [JsonProperty("record_id")]
-        public string RecordId { get; set; }
-
-        [JsonProperty("first_name")]
-        public string FirstName { get; set; }
-
-        [JsonProperty("last_name")]
-        public string LastName { get; set; }
-        [JsonProperty("bio")]
-        public string Bio { get; set; }
-
-        /// <summary>
-        /// Test file uploads
-        /// </summary>
-        [JsonProperty("upload_file")]
-        public string UploadFile { get; set; }
-    }
     class Program
     {
         static Random rand = new Random();
