@@ -22,7 +22,6 @@ namespace RedcapApi.Tests
         public void Setup()
         {
             _redcapApi = new Redcap.RedcapApi("http://localhost/redcap/api/");
-
         }
         [Test]
         [TestCase("1", "form_1")]
