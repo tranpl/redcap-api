@@ -1,7 +1,6 @@
 using NUnit.Framework;
 
 using Redcap.Models;
-using Redcap.Utilities;
 
 using System.Text.Json;
 namespace RedcapApi.Tests
