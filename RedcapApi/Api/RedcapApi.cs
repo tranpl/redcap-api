@@ -3020,10 +3020,10 @@ namespace Redcap
                     payload.Add("events", await this.ConvertArraytoString(events));
                 }
                 // Pertains to CSV data only
-                var _rawOrLabelValue = rawOrLabelHeaders.ToString();
-                if (!IsNullOrEmpty(_rawOrLabelValue))
+                var _rawOrLabel = rawOrLabel.ToString();
+                if (!IsNullOrEmpty(_rawOrLabel))
                 {
-                    payload.Add("rawOrLabel", _rawOrLabelValue);
+                    payload.Add("rawOrLabel", _rawOrLabel);
                 }
                 // Optional (defaults to false)
                 if (exportCheckboxLabel)
@@ -3137,10 +3137,10 @@ namespace Redcap
                 }
 
                 // Pertains to CSV data only
-                var _rawOrLabelValue = rawOrLabelHeaders.ToString();
-                if (!IsNullOrEmpty(_rawOrLabelValue))
+                var _rawOrLabel = rawOrLabel.ToString();
+                if (!IsNullOrEmpty(_rawOrLabel))
                 {
-                    payload.Add("rawOrLabel", _rawOrLabelValue);
+                    payload.Add("rawOrLabel", _rawOrLabel);
                 }
                 // Optional (defaults to false)
                 if (exportCheckboxLabel)
@@ -3251,10 +3251,10 @@ namespace Redcap
                 /*
                  * Pertains to CSV data only
                  */
-                var _rawOrLabelValue = rawOrLabelHeaders.ToString();
-                if (!IsNullOrEmpty(_rawOrLabelValue))
+                var _rawOrLabel = rawOrLabel.ToString();
+                if (!IsNullOrEmpty(_rawOrLabel))
                 {
-                    payload.Add("rawOrLabel", _rawOrLabelValue);
+                    payload.Add("rawOrLabel", _rawOrLabel);
                 }
                 // Optional (defaults to false)
                 if (exportCheckboxLabel)
