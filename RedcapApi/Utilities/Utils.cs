@@ -1,17 +1,13 @@
 ﻿using Redcap.Http;
 using Redcap.Models;
+
 using Serilog;
-using System;
-using System.Collections.Generic;
+
 using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+
 using static System.String;
 
 namespace Redcap.Utilities
@@ -513,8 +509,10 @@ namespace Redcap.Utilities
         /// <param name="redcapApi"></param>
         /// <param name="payload">data</param>
         /// <param name="uri">URI of the api instance</param>
+        /// <param name="cancellationToken"></param>
+        /// <param name="timeOutSeconds"></param>
         /// <returns>Stream</returns>
-        public static async Task<Stream> GetStreamContentAsync(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri)
+        public static async Task<Stream> GetStreamContentAsync(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             try
             {
@@ -522,9 +520,11 @@ namespace Redcap.Utilities
                 using (var handler = GetHttpHandler())
                 using (var client = new HttpClient(handler))
                 {
+                    TimeSpan tsTimeOut = TimeSpan.FromTicks(timeOutSeconds * TimeSpan.TicksPerSecond);
+                    client.Timeout = tsTimeOut;
                     // Encode the values for payload
                     var content = new FormUrlEncodedContent(payload);
-                    using (var response = await client.PostAsync(uri, content))
+                    using (var response = await client.PostAsync(uri, content, cancellationToken))
                     {
                         if (response.IsSuccessStatusCode)
                         {
@@ -532,7 +532,6 @@ namespace Redcap.Utilities
                             return stream;
                         }
                     }
-
                 }
                 return null;
             }
@@ -551,14 +550,18 @@ namespace Redcap.Utilities
         /// <param name="payload">data</param>
         /// <param name="uri">URI of the api instance</param>
         /// <param name="cancellationToken"></param>
+        /// <param name="timeOutSeconds">100</param>
         /// <returns>string</returns>
-        public static async Task<string> SendPostRequestAsync(this RedcapApi redcapApi, MultipartFormDataContent payload, Uri uri, CancellationToken cancellationToken = default)
+        public static async Task<string> SendPostRequestAsync(this RedcapApi redcapApi, MultipartFormDataContent payload, Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             try
             {
                 using (var handler = GetHttpHandler())
                 using (var client = new HttpClient(handler))
                 {
+                    TimeSpan tsTimeOut = TimeSpan.FromTicks(timeOutSeconds * TimeSpan.TicksPerSecond);
+                    client.Timeout = tsTimeOut;
+
                     using (var response = await client.PostAsync(uri, payload, cancellationToken))
                     {
                         if (response.IsSuccessStatusCode)
@@ -583,8 +586,9 @@ namespace Redcap.Utilities
         /// <param name="payload">data</param>
         /// <param name="uri">URI of the api instance</param>
         /// <param name="cancellationToken"></param>
+        /// <param name="timeOutSeconds">100</param>
         /// <returns></returns>
-        public static async Task<string> SendPostRequestAsync(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, CancellationToken cancellationToken = default)
+        public static async Task<string> SendPostRequestAsync(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             try
             {
@@ -592,6 +596,9 @@ namespace Redcap.Utilities
 
                 using var handler = GetHttpHandler();
                 using var client = new HttpClient(handler);
+
+                TimeSpan tsTimeOut = TimeSpan.FromTicks(timeOutSeconds * TimeSpan.TicksPerSecond);
+                client.Timeout = tsTimeOut;
 
                 // extract the filepath
                 var pathValue = payload.FirstOrDefault(x => x.Key == "filePath").Value;
@@ -663,11 +670,16 @@ namespace Redcap.Utilities
         /// <param name="payload">data </param>
         /// <param name="uri">URI of the api instance</param>
         /// <param name="cancellationToken"></param>
+        /// <param name="timeOutSeconds">100</param>
         /// <returns>string</returns>
-        public static async Task<string> SendPostRequest(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, CancellationToken cancellationToken = default)
+        public static async Task<string> SendPostRequest(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             using var handler = GetHttpHandler();
             using var client = new HttpClient(handler);
+
+            TimeSpan tsTimeOut = TimeSpan.FromTicks(timeOutSeconds * TimeSpan.TicksPerSecond);
+            client.Timeout = tsTimeOut;
+
             // Encode the values for payload
             using var content = new FormUrlEncodedContent(payload);
             using var response = await client.PostAsync(uri, content, cancellationToken);
