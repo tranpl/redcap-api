@@ -1,4 +1,4 @@
-[![Build Status](https://dev.azure.com/cctrbic/redcap-api/_apis/build/status/cctrbic.redcap-api?branchName=master)](https://dev.azure.com/cctrbic/redcap-api/_build/latest?definitionId=122&branchName=master)
+[![Build Status](https://dev.azure.com/cctrbic/redcap-api/_apis/build/status/redcap-api?branchName=master)](https://dev.azure.com/cctrbic/redcap-api/_build/latest?definitionId=122&branchName=master)
 
 [![NuGet](https://img.shields.io/nuget/dt/RedcapApi.svg?style=for-the-badge)](https://www.nuget.org/packages/RedcapAPI) 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=for-the-badge)](https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md)
@@ -80,21 +80,21 @@ __Install directly in Package Manager Console or Command Line Interface__
 ```C#
 Package Manager
 
-Install-Package RedcapAPI -Version 1.3.0
+Install-Package RedcapAPI -Version 1.3.4
 
 ```
 
 ```C#
 .NET CLI
 
-dotnet add package RedcapAPI --version 1.3.0
+dotnet add package RedcapAPI --version 1.3.4
 
  ```
 
 ```C#
 Paket CLI
 
-paket add RedcapAPI --version 1.3.0
+paket add RedcapAPI --version 1.3.4
 
 ```
 

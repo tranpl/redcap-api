@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Redcap", "RedcapApi\Redcap.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedcapApiDemo", "RedcapApiDemo\RedcapApiDemo.csproj", "{CBAF5212-0D5F-44F1-A7C5-F1B0ED7AF43E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedcapApi.Tests", "RedcapApi.Tests\RedcapApi.Tests.csproj", "{2B308D43-933A-4628-AE1E-777137951DA8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{CBAF5212-0D5F-44F1-A7C5-F1B0ED7AF43E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBAF5212-0D5F-44F1-A7C5-F1B0ED7AF43E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBAF5212-0D5F-44F1-A7C5-F1B0ED7AF43E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B308D43-933A-4628-AE1E-777137951DA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B308D43-933A-4628-AE1E-777137951DA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B308D43-933A-4628-AE1E-777137951DA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B308D43-933A-4628-AE1E-777137951DA8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
