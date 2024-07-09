@@ -3401,7 +3401,6 @@ namespace Redcap
                 this.CheckToken(token);
 
                 var _serializedData = JsonConvert.SerializeObject(data);
-                var _backgroundProcess = backgroundProcess ? "1" : "0";
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -3410,7 +3409,7 @@ namespace Redcap
                     { "type", redcapDataType.GetDisplayName() },
                     { "overwriteBehavior", overwriteBehavior.ToString() },
                     { "forceAutoNumber", forceAutoNumber.ToString() },
-                    { "backgroundProcess", _backgroundProcess },
+                    { "backgroundProcess", backgroundProcess.ToString() },
                     { "csvDelimiter", csvDelimiter.ToString() },
                     { "data", _serializedData },
                     { "returnFormat", returnFormat.GetDisplayName() }
@@ -3474,7 +3473,6 @@ namespace Redcap
                 this.CheckToken(token);
 
                 var _serializedData = JsonConvert.SerializeObject(data);
-                var _backgroundProcess = backgroundProcess ? "1" : "0";
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -3483,7 +3481,7 @@ namespace Redcap
                     { "type", redcapDataType.GetDisplayName() },
                     { "overwriteBehavior", overwriteBehavior.ToString() },
                     { "forceAutoNumber", forceAutoNumber.ToString() },
-                    { "backgroundProcess", _backgroundProcess },
+                    { "backgroundProcess", backgroundProcess.ToString() },
                     { "csvDelimiter", csvDelimiter.ToString() },
                     { "data", _serializedData },
                     { "returnFormat", returnFormat.GetDisplayName() }
