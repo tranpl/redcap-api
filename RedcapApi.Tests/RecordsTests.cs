@@ -11,6 +11,7 @@ namespace RedcapApi.Tests
         public string first_name { get; set; }
         public string last_name { get; set; }
     }
+    [Ignore("Integration test")]
     [TestFixture]
     public class RecordsTest
     {
