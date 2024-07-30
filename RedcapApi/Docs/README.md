@@ -3,17 +3,15 @@
 [![NuGet](https://img.shields.io/nuget/dt/RedcapApi.svg?style=for-the-badge)](https://www.nuget.org/packages/RedcapAPI) 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=for-the-badge)](https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md)
 
-Project Feedback, using REDCap of course: https://redcap.vcu.edu/surveys/?s=KJLHWRTJYA
-
 # REDCap API Library for .NET
-The REDCap Api Library for .NET provides the ability to interact with REDCap programmatically using various .NET languages(C#,F#,VB.NET);
+The REDCap Api Library provides the ability to interact with REDCap programmatically using various .NET languages(C#,F#,VB.NET);
 
 __Prerequisites__
 1.  Local redcap instance installed (visit https://project-redcap.org) if you need to download files(assuming you have access)
 2.  Create a new project with "Demographics" for the template; this gives you a basic project to work with.
 3.  Create an api token for yourself, replace that with the tokens you see on the "RedcapApiTests.cs" files, and others
 4.  You'll may need to add a field type of "file_upload" so that you can test the file upload interface of the API
-5.  Build the solution, then run the tests
+5.  Build the solution, then run the demo project to see the results.
 
 __API METHODS SUPPORTED (Not all listed)__
 * ExportLoggingAsync
@@ -47,32 +45,26 @@ thats provided for convenience.
 __Sample / Example__
 ```C# 
 
-using System;
 using Newtonsoft.Json;
 using Redcap;
-using Redcap.Models;
 
 namespace RedcapApiDemo
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
-            Console.WriteLine("Redcap Api Demo Started!");
-            // Use your own API Token here...
             var apiToken = "3D57A7FA57C8A43F6C8803A84BB3957B";
-            var redcap_api = new RedcapApi("https://localhost/redcap/api/");
-
-            Console.WriteLine("Exporting all records from project.");
-            var result = redcap_api.ExportRecordsAsync(apiToken).Result;
-
-            var data = JsonConvert.DeserializeObject(result);
-            Console.WriteLine(data);
+            var redcap_api = new RedcapApi("http://localhost/redcap/api/");
+            var result = await redcap_api.ExportRecordsAsync(apiToken);
+            var records = JsonConvert.DeserializeObject(result);
+            Console.WriteLine(records);
             Console.ReadLine();
-
+            return 0;
         }
     }
 }
+
 
 ```
 
@@ -80,21 +72,21 @@ __Install directly in Package Manager Console or Command Line Interface__
 ```C#
 Package Manager
 
-Install-Package RedcapAPI -Version 1.3.4
+Install-Package RedcapAPI -Version 1.3.6
 
 ```
 
 ```C#
 .NET CLI
 
-dotnet add package RedcapAPI --version 1.3.4
+dotnet add package RedcapAPI --version 1.3.6
 
  ```
 
 ```C#
 Paket CLI
 
-paket add RedcapAPI --version 1.3.4
+paket add RedcapAPI --version 1.3.6
 
 ```
 
@@ -105,7 +97,3 @@ A console project has been included with the source code to get started. Some ex
 __Test Project__
 
 A project with associated test cases is included. Make sure to change the api token
-
-# Please Cite Us
-Publications resulting from the use of this software should cite the Wright Center's Clinical and Translational Science Award (CTSA) grant #UL1TR002649, National Center for Advancing Translational Sciences, NIH.
-
