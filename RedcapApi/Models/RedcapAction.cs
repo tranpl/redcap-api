@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Redcap.Models
 {
@@ -51,6 +47,12 @@ namespace Redcap.Models
         /// Rename
         /// </summary>
         [Display(Name = "rename")]
-        Rename
+        Rename,
+
+        /// <summary>
+        /// Randomize
+        /// </summary>
+        [Display(Name = "randomize")]
+        Randomize
     }
 }
