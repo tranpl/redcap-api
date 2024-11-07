@@ -3732,21 +3732,19 @@ namespace Redcap
                     { "action", action.GetDisplayName() },
                     { "content", Content.Record.GetDisplayName() },
                     { "record", record },
-                    { "randomizationId", randomizationId },
+                    { "randomization_id", randomizationId },
                     { "format", format.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() },
                     { "returnAlt", returnAlt.ToString() },
                 };
-
-                // Optional
-                return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken, timeOutSeconds);
+                var res = await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken, timeOutSeconds);
+                return res;
             }
             catch(Exception Ex)
             {
                 Log.Error($"{Ex.Message}");
                 return Ex.Message;
             }
-
         }
 
         #endregion Records
