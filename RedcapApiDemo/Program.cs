@@ -2,7 +2,9 @@
 
 using Redcap;
 using Redcap.Models;
+
 using RedcapApiDemo.Models;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -138,7 +140,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             Console.WriteLine("Please make sure you include a working redcap api token.");
             Console.WriteLine("Enter your redcap instance uri, example: http://localhost/redcap");
             _uri = Console.ReadLine();
-            if (string.IsNullOrEmpty(_uri))
+            if(string.IsNullOrEmpty(_uri))
             {
                 // provide a default one here..
                 _uri = "http://localhost/redcap";
@@ -147,9 +149,9 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             Console.WriteLine("Enter your api token for the project to test: ");
             var token = Console.ReadLine();
 
-            if (string.IsNullOrEmpty(token))
+            if(string.IsNullOrEmpty(token))
             {
-                _token = "DF70F2EC94AE05021F66423B386095BD";
+                _token = "BFB6C6194FCEA7300170D076903B3EC7";
             }
             else
             {
@@ -163,13 +165,13 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             Console.ReadLine();
 
             Console.WriteLine("Creating a new instance of RedcapApi");
-            var redcap_api_2_0_0 = new RedcapApi(_uri);
+            var redcap_api = new RedcapApi(_uri);
             Console.WriteLine($"Using {_uri.ToString()} for redcap api endpoint.");
 
             #region ExportLoggingAsync()
             Console.WriteLine("Calling ExportLoggingAsync() . . .");
             Console.WriteLine($"Exporting logs for User . . .");
-            var ExportLoggingAsync = await redcap_api_2_0_0.ExportLoggingAsync(_token, Content.Log, RedcapFormat.json, LogType.User);
+            var ExportLoggingAsync = await redcap_api.ExportLoggingAsync(_token, Content.Log, RedcapFormat.json, LogType.User);
             Console.WriteLine($"ExportLoggingAsync Results: {JsonConvert.DeserializeObject(ExportLoggingAsync)}");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();
@@ -180,7 +182,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             Console.WriteLine("Calling ImportDagsAsync() . . .");
             Console.WriteLine($"Importing Dags . . .");
             var dags = CreateDags(5);
-            var ImportDagsAsyncResult = await redcap_api_2_0_0.ImportDagsAsync(_token, Content.Dag, RedcapAction.Import, RedcapFormat.json, dags);
+            var ImportDagsAsyncResult = await redcap_api.ImportDagsAsync(_token, Content.Dag, RedcapAction.Import, RedcapFormat.json, dags);
             Console.WriteLine($"ImportDagsAsync Results: {JsonConvert.DeserializeObject(ImportDagsAsyncResult)}");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();
@@ -190,7 +192,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             #region ExportDagsAsync()
             Console.WriteLine("Calling ExportDagsAsync() . . .");
             Console.WriteLine($"Exporting Dags . . .");
-            var ExportDagsAsyncResult = await redcap_api_2_0_0.ExportDagsAsync(_token, Content.Dag, RedcapFormat.json);
+            var ExportDagsAsyncResult = await redcap_api.ExportDagsAsync(_token, Content.Dag, RedcapFormat.json);
             Console.WriteLine($"ExportDagsAsync Results: {JsonConvert.DeserializeObject(ExportDagsAsyncResult)}");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();
@@ -200,7 +202,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             Console.WriteLine("Calling DeleteDagsAsync() . . .");
             Console.WriteLine($"Deleting Dags . . .");
             var dagsToDelete = JsonConvert.DeserializeObject<List<RedcapDag>>(ExportDagsAsyncResult).Select(x => x.UniqueGroupName).ToArray();
-            var DeleteDagsAsyncResult = await redcap_api_2_0_0.DeleteDagsAsync(_token, Content.Dag, RedcapAction.Delete, dagsToDelete);
+            var DeleteDagsAsyncResult = await redcap_api.DeleteDagsAsync(_token, Content.Dag, RedcapAction.Delete, dagsToDelete);
             Console.WriteLine($"DeleteDagsAsync Results: {JsonConvert.DeserializeObject(DeleteDagsAsyncResult)}");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();
@@ -212,7 +214,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             var importDemographicsData = CreateDemographics(includeBio: true, 5);
             Console.WriteLine("Serializing the data . . .");
             Console.WriteLine($"Importing record {string.Join(",", importDemographicsData.Select(x => x.RecordId).ToList())} . . .");
-            var ImportRecordsAsync = await redcap_api_2_0_0.ImportRecordsAsync(_token, Content.Record, RedcapFormat.json, RedcapDataType.flat, OverwriteBehavior.normal, forceAutoNumber: true, backgroundProcess: true, importDemographicsData, "MDY", CsvDelimiter.tab, ReturnContent.count, RedcapReturnFormat.json);
+            var ImportRecordsAsync = await redcap_api.ImportRecordsAsync(_token, Content.Record, RedcapFormat.json, RedcapDataType.flat, OverwriteBehavior.normal, forceAutoNumber: true, backgroundProcess: true, importDemographicsData, "MDY", CsvDelimiter.tab, ReturnContent.count, RedcapReturnFormat.json);
             var ImportRecordsAsyncData = JsonConvert.DeserializeObject(ImportRecordsAsync);
             Console.WriteLine($"ImportRecordsAsync Result: {ImportRecordsAsyncData}");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
@@ -224,7 +226,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             Console.WriteLine($"Using records from the imported method..");
             var recordsToExport = importDemographicsData.Select(x => x.RecordId).ToArray();
             var instrumentName = new string[] { "demographics" };
-            var ExportRecordsAsyncResult = await redcap_api_2_0_0.ExportRecordsAsync(_token, Content.Record, RedcapFormat.json, RedcapDataType.flat, recordsToExport, null, instrumentName);
+            var ExportRecordsAsyncResult = await redcap_api.ExportRecordsAsync(_token, Content.Record, RedcapFormat.json, RedcapDataType.flat, recordsToExport, null, instrumentName);
             Console.WriteLine($"ExportRecordsAsyncResult: {ExportRecordsAsyncResult}");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();
@@ -234,7 +236,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             Console.WriteLine("Calling DeleteRecordsAsync() . . .");
             var records = importDemographicsData.Select(x => x.RecordId).ToArray();
             Console.WriteLine($"Deleting record {string.Join(",", recordsToExport)} . . .");
-            var DeleteRecordsAsync = await redcap_api_2_0_0.DeleteRecordsAsync(_token, Content.Record, RedcapAction.Delete, recordsToExport, 1);
+            var DeleteRecordsAsync = await redcap_api.DeleteRecordsAsync(_token, Content.Record, RedcapAction.Delete, recordsToExport, 1);
             var DeleteRecordsAsyncData = JsonConvert.DeserializeObject(DeleteRecordsAsync);
             Console.WriteLine($"DeleteRecordsAsync Result: {DeleteRecordsAsyncData}");
 
@@ -247,13 +249,25 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             var recordToRename = importDemographicsData.Select(x => x.RecordId).SingleOrDefault();
             Console.WriteLine($"Renaming record {recordToRename} . . .");
             var newRecordName = "2";
-            var RenameRecordAsyncResult = await redcap_api_2_0_0.RenameRecordAsync(_token, Content.Record, RedcapAction.Rename,recordToRename, newRecordName, 1);
+            var RenameRecordAsyncResult = await redcap_api.RenameRecordAsync(_token, Content.Record, RedcapAction.Rename,recordToRename, newRecordName, 1);
             var RenameRecordAsyncData = JsonConvert.DeserializeObject(RenameRecordAsyncResult);
             Console.WriteLine($"RenameRecordAsync Result: {DeleteRecordsAsyncData}");
 
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();
             #endregion RenameRecordAsync()
+
+            #region RandomizeRecord
+            Console.WriteLine("Calling RandomizeRecord() Make sure project is randomization ready with tables etc. . . .");
+            var record = "3";
+            var randomizationId = "2";
+            var randomizationResult = await redcap_api.RandomizeRecord(_token, Content.Record, RedcapAction.Randomize, record, randomizationId, RedcapFormat.json, RedcapReturnFormat.json);
+            var randomizationData = JsonConvert.DeserializeObject(randomizationResult);
+            Console.WriteLine($"RandomizeRecord Result: {randomizationData}");
+            Console.WriteLine("----------------------------Press Enter to Continue-------------");
+            Console.ReadLine();
+
+            #endregion RandomizeRecord
 
 
 
@@ -265,7 +279,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             redcapUsers.Add(redcapUser1);
             redcapUsers.Add(redcapUser2);
             Console.WriteLine($"Importing  {redcapUsers.Count} user. . .");
-            var ImportUsersAsyncResult = await redcap_api_2_0_0.ImportUsersAsync(_token, redcapUsers, RedcapFormat.json, RedcapReturnFormat.json);
+            var ImportUsersAsyncResult = await redcap_api.ImportUsersAsync(_token, redcapUsers, RedcapFormat.json, RedcapReturnFormat.json);
             var ImportUsersAsyncData = JsonConvert.DeserializeObject(ImportUsersAsyncResult);
             Console.WriteLine($"ImportUsersAsync Result: {ImportUsersAsyncData}");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
@@ -276,7 +290,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             #region ExportArmsAsync()
             var arms = new string[] { };
             Console.WriteLine("Calling ExportArmsAsync()");
-            var ExportArmsAsyncResult = await redcap_api_2_0_0.ExportArmsAsync(_token, Content.Arm, RedcapFormat.json, arms, RedcapReturnFormat.json);
+            var ExportArmsAsyncResult = await redcap_api.ExportArmsAsync(_token, Content.Arm, RedcapFormat.json, arms, RedcapReturnFormat.json);
             Console.WriteLine($"ExportArmsAsyncResult: {JsonConvert.DeserializeObject(ExportArmsAsyncResult)}");
             #endregion ExportArmsAsync()
 
@@ -286,7 +300,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             #region ImportArmsAsync()
             var ImportArmsAsyncData = CreateArms(count: 3);
             Console.WriteLine("Calling ImportArmsAsync()");
-            var ImportArmsAsyncResult = await redcap_api_2_0_0.ImportArmsAsync(_token, Content.Arm, Override.False, RedcapAction.Import, RedcapFormat.json, ImportArmsAsyncData, RedcapReturnFormat.json);
+            var ImportArmsAsyncResult = await redcap_api.ImportArmsAsync(_token, Content.Arm, Override.False, RedcapAction.Import, RedcapFormat.json, ImportArmsAsyncData, RedcapReturnFormat.json);
             Console.WriteLine($"ImportArmsAsyncResult: {JsonConvert.DeserializeObject(ImportArmsAsyncResult)}");
             #endregion ImportArmsAsync()
 
@@ -296,7 +310,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             #region DeleteArmsAsync()
             var DeleteArmsAsyncData = ImportArmsAsyncData.Select(x => x.ArmNumber).ToArray();
             Console.WriteLine("Calling DeleteArmsAsync()");
-            var DeleteArmsAsyncResult = await redcap_api_2_0_0.DeleteArmsAsync(_token, Content.Arm, RedcapAction.Delete, DeleteArmsAsyncData);
+            var DeleteArmsAsyncResult = await redcap_api.DeleteArmsAsync(_token, Content.Arm, RedcapAction.Delete, DeleteArmsAsyncData);
             Console.WriteLine($"DeleteArmsAsyncResult: {JsonConvert.DeserializeObject(DeleteArmsAsyncResult)}");
             #endregion DeleteArmsAsync()
 
@@ -306,7 +320,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             #region ExportEventsAsync()
             var ExportEventsAsyncData = new string[] { "1" };
             Console.WriteLine("Calling ExportEventsAsync()");
-            var ExportEventsAsyncResult = await redcap_api_2_0_0.ExportEventsAsync(_token, Content.Event, RedcapFormat.json, ExportEventsAsyncData, RedcapReturnFormat.json);
+            var ExportEventsAsyncResult = await redcap_api.ExportEventsAsync(_token, Content.Event, RedcapFormat.json, ExportEventsAsyncData, RedcapReturnFormat.json);
             Console.WriteLine($"ExportEventsAsyncResult: {JsonConvert.DeserializeObject(ExportEventsAsyncResult)}");
             #endregion ExportEventsAsync()
 
@@ -335,7 +349,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
                     CustomEventLabel = "hello clinical"
                 }
             };
-            var ImportEventsAsyncResult = await redcap_api_2_0_0.ImportEventsAsync(_token, Content.Event, RedcapAction.Import, Override.False, RedcapFormat.json, eventList, RedcapReturnFormat.json);
+            var ImportEventsAsyncResult = await redcap_api.ImportEventsAsync(_token, Content.Event, RedcapAction.Import, Override.False, RedcapFormat.json, eventList, RedcapReturnFormat.json);
             Console.WriteLine($"ImportEventsAsyncResult: {ImportEventsAsyncResult}");
             #endregion ImportEventsAsync()
 
@@ -346,7 +360,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             #region DeleteEventsAsync()
             var DeleteEventsAsyncData = new string[] { "baseline_arm_1" };
             Console.WriteLine("Calling DeleteEventsAsync()");
-            var DeleteEventsAsyncResult = await redcap_api_2_0_0.DeleteEventsAsync(_token, Content.Event, RedcapAction.Delete, DeleteEventsAsyncData);
+            var DeleteEventsAsyncResult = await redcap_api.DeleteEventsAsync(_token, Content.Event, RedcapAction.Delete, DeleteEventsAsyncData);
             Console.WriteLine($"DeleteEventsAsyncResult: {DeleteEventsAsyncResult}");
             #endregion DeleteEventsAsync()
 
@@ -357,7 +371,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             #region SwitchDagAsync()
             var SwitchDagAsyncData = new RedcapDag { GroupName = "testGroup", UniqueGroupName = "unique_name" };
             Console.WriteLine("Calling SwitchDagAsync()");
-            var SwitchDagAsyncResult = await redcap_api_2_0_0.SwitchDagAsync(_token, SwitchDagAsyncData, Content.Dag, RedcapAction.Switch);
+            var SwitchDagAsyncResult = await redcap_api.SwitchDagAsync(_token, SwitchDagAsyncData, Content.Dag, RedcapAction.Switch);
             Console.WriteLine($"SwitchDagAsyncResult: {SwitchDagAsyncResult}");
             #endregion SwitchDagAsync()
 
@@ -368,7 +382,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
 
             #region ExportFieldNamesAsync()
             Console.WriteLine("Calling ExportFieldNamesAsync(), first_name");
-            var ExportFieldNamesAsyncResult = await redcap_api_2_0_0.ExportFieldNamesAsync(_token, Content.ExportFieldNames, RedcapFormat.json, "first_name", RedcapReturnFormat.json);
+            var ExportFieldNamesAsyncResult = await redcap_api.ExportFieldNamesAsync(_token, Content.ExportFieldNames, RedcapFormat.json, "first_name", RedcapReturnFormat.json);
             Console.WriteLine($"ExportFieldNamesAsyncResult: {ExportFieldNamesAsyncResult}");
             #endregion ExportFieldNamesAsync()
 
@@ -384,7 +398,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             var parent = Directory.GetParent(parentDirectory).FullName;
             var filePath = Directory.GetParent(parent).FullName + @"\Docs\";
             Console.WriteLine($"Calling ImportFileAsync(), {fileName}");
-            var ImportFileAsyncResult = await redcap_api_2_0_0.ImportFileAsync(_token, Content.File, RedcapAction.Import, recordId, fieldName, eventName, null, fileName, filePath, RedcapReturnFormat.json);
+            var ImportFileAsyncResult = await redcap_api.ImportFileAsync(_token, Content.File, RedcapAction.Import, recordId, fieldName, eventName, null, fileName, filePath, RedcapReturnFormat.json);
             Console.WriteLine($"ImportFileAsyncResult: {ImportFileAsyncResult}");
             #endregion ImportFileAsync()
 
@@ -394,7 +408,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
 
             #region ExportFileAsync()
             Console.WriteLine($"Calling ExportFileAsync(), {fileName} for field name {fieldName}, not save the file.");
-            var ExportFileAsyncResult = await redcap_api_2_0_0.ExportFileAsync(_token, Content.File, RedcapAction.Export, recordId, fieldName, eventName, null, RedcapReturnFormat.json);
+            var ExportFileAsyncResult = await redcap_api.ExportFileAsync(_token, Content.File, RedcapAction.Export, recordId, fieldName, eventName, null, RedcapReturnFormat.json);
             Console.WriteLine($"ExportFileAsyncResult: {ExportFileAsyncResult}");
             #endregion ExportFileAsync()
 
@@ -404,7 +418,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             #region ExportFileAsync()
             var filedDownloadPath = @"C:\redcap_download_files";
             Console.WriteLine($"Calling ExportFileAsync(), {fileName} for field name {fieldName}, saving the file.");
-            var ExportFileAsyncResult2 = await redcap_api_2_0_0.ExportFileAsync(_token, Content.File, RedcapAction.Export, recordId, fieldName, eventName, null, RedcapReturnFormat.json, filedDownloadPath);
+            var ExportFileAsyncResult2 = await redcap_api.ExportFileAsync(_token, Content.File, RedcapAction.Export, recordId, fieldName, eventName, null, RedcapReturnFormat.json, filedDownloadPath);
             Console.WriteLine($"ExportFileAsyncResult2: {ExportFileAsyncResult2}");
             #endregion ExportFileAsync()
 
@@ -413,7 +427,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
 
             #region DeleteFileAsync()
             Console.WriteLine($"Calling DeleteFileAsync(), deleting file: {fileName} for field: {fieldName}");
-            var DeleteFileAsyncResult = await redcap_api_2_0_0.DeleteFileAsync(_token, Content.File, RedcapAction.Delete, recordId, fieldName, eventName, "1", RedcapReturnFormat.json);
+            var DeleteFileAsyncResult = await redcap_api.DeleteFileAsync(_token, Content.File, RedcapAction.Delete, recordId, fieldName, eventName, "1", RedcapReturnFormat.json);
             Console.WriteLine($"DeleteFileAsyncResult: {DeleteFileAsyncResult}");
             #endregion DeleteFileAsync()
 
@@ -422,7 +436,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
 
             #region ExportInstrumentsAsync()
             Console.WriteLine($"Calling DeleteFileAsync()");
-            var ExportInstrumentsAsyncResult = await redcap_api_2_0_0.ExportInstrumentsAsync(_token, Content.Instrument, RedcapFormat.json);
+            var ExportInstrumentsAsyncResult = await redcap_api.ExportInstrumentsAsync(_token, Content.Instrument, RedcapFormat.json);
             Console.WriteLine($"ExportInstrumentsAsyncResult: {ExportInstrumentsAsyncResult}");
             #endregion ExportInstrumentsAsync()
 
@@ -431,7 +445,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
 
             #region ExportPDFInstrumentsAsync()
             Console.WriteLine($"Calling ExportPDFInstrumentsAsync(), returns raw");
-            var ExportPDFInstrumentsAsyncResult = await redcap_api_2_0_0.ExportPDFInstrumentsAsync(_token, Content.Pdf, recordId, eventName, "demographics", true);
+            var ExportPDFInstrumentsAsyncResult = await redcap_api.ExportPDFInstrumentsAsync(_token, Content.Pdf, recordId, eventName, "demographics", true);
             Console.WriteLine($"ExportInstrumentsAsyncResult: {JsonConvert.SerializeObject(ExportPDFInstrumentsAsyncResult)}");
             #endregion ExportPDFInstrumentsAsync()
 
@@ -440,7 +454,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
 
             #region ExportPDFInstrumentsAsync()
             Console.WriteLine($"Calling ExportPDFInstrumentsAsync(), saving pdf file to {filedDownloadPath}");
-            var ExportPDFInstrumentsAsyncResult2 = await redcap_api_2_0_0.ExportPDFInstrumentsAsync(_token, recordId, eventName, "demographics", true, filedDownloadPath, RedcapReturnFormat.json);
+            var ExportPDFInstrumentsAsyncResult2 = await redcap_api.ExportPDFInstrumentsAsync(_token, recordId, eventName, "demographics", true, filedDownloadPath, RedcapReturnFormat.json);
             Console.WriteLine($"ExportPDFInstrumentsAsyncResult2: {ExportPDFInstrumentsAsyncResult2}");
             #endregion ExportPDFInstrumentsAsync()
 
@@ -460,7 +474,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             #region ImportInstrumentMappingAsync()
             var importInstrumentMappingData = new List<FormEventMapping> { new FormEventMapping { arm_num = "1", unique_event_name = "clinical_arm_1", form = "demographics" } };
             Console.WriteLine($"Calling ImportInstrumentMappingAsync()");
-            var ImportInstrumentMappingAsyncResult = await redcap_api_2_0_0.ImportInstrumentMappingAsync(_token, Content.FormEventMapping, RedcapFormat.json, importInstrumentMappingData, RedcapReturnFormat.json);
+            var ImportInstrumentMappingAsyncResult = await redcap_api.ImportInstrumentMappingAsync(_token, Content.FormEventMapping, RedcapFormat.json, importInstrumentMappingData, RedcapReturnFormat.json);
             Console.WriteLine($"ImportInstrumentMappingAsyncResult: {ImportInstrumentMappingAsyncResult}");
             #endregion ImportInstrumentMappingAsync()
 
@@ -469,7 +483,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
 
             #region ExportMetaDataAsync()
             Console.WriteLine($"Calling ExportMetaDataAsync()");
-            var ExportMetaDataAsyncResult = await redcap_api_2_0_0.ExportMetaDataAsync(_token, Content.MetaData, RedcapFormat.json, null, null, RedcapReturnFormat.json);
+            var ExportMetaDataAsyncResult = await redcap_api.ExportMetaDataAsync(_token, Content.MetaData, RedcapFormat.json, null, null, RedcapReturnFormat.json);
             Console.WriteLine($"ExportMetaDataAsyncResult: {ExportMetaDataAsyncResult}");
             #endregion ExportMetaDataAsync()
 
@@ -493,7 +507,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             var projectData = new List<RedcapProject> { new RedcapProject { project_title = "Amazing Project ", purpose = ProjectPurpose.Other, purpose_other = "Test" } };
             Console.WriteLine($"Calling CreateProjectAsync(), creating a new project with Amazing Project as title, purpose 1 (other) ");
             Console.WriteLine($"-----------------------Notice the use of SUPER TOKEN------------------------");
-            var CreateProjectAsyncResult = await redcap_api_2_0_0.CreateProjectAsync(_superToken, Content.Project, RedcapFormat.json, projectData, RedcapReturnFormat.json, null);
+            var CreateProjectAsyncResult = await redcap_api.CreateProjectAsync(_superToken, Content.Project, RedcapFormat.json, projectData, RedcapReturnFormat.json, null);
             Console.WriteLine($"CreateProjectAsyncResult: {CreateProjectAsyncResult}");
             #endregion CreateProjectAsync()
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
@@ -502,7 +516,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             #region ImportProjectInfoAsync()
             var projectInfo = new RedcapProjectInfo { ProjectTitle = "Updated Amazing Project ", Purpose = ProjectPurpose.QualityImprovement, SurveysEnabled = 1 };
             Console.WriteLine($"Calling ImportProjectInfoAsync()");
-            var ImportProjectInfoAsyncResult = await redcap_api_2_0_0.ImportProjectInfoAsync(_token, Content.ProjectSettings, RedcapFormat.json, projectInfo);
+            var ImportProjectInfoAsyncResult = await redcap_api.ImportProjectInfoAsync(_token, Content.ProjectSettings, RedcapFormat.json, projectInfo);
             Console.WriteLine($"ImportProjectInfoAsyncResult: {ImportProjectInfoAsyncResult}");
             #endregion ImportProjectInfoAsync()
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
@@ -510,7 +524,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
 
             #region ExportProjectInfoAsync()
             Console.WriteLine($"Calling ExportProjectInfoAsync()");
-            var ExportProjectInfoAsyncResult = await redcap_api_2_0_0.ExportProjectInfoAsync(_token, Content.ProjectSettings, RedcapFormat.json);
+            var ExportProjectInfoAsyncResult = await redcap_api.ExportProjectInfoAsync(_token, Content.ProjectSettings, RedcapFormat.json);
             Console.WriteLine($"ExportProjectInfoAsyncResult: {ExportProjectInfoAsyncResult}");
             #endregion ExportProjectInfoAsync()
 
@@ -524,7 +538,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             person.RecordId = id;
             person.FirstName = Names[rand.Next(Names.Length)];
             person.LastName = Places[rand.Next(Places.Length)];
-            if (includeBio)
+            if(includeBio)
             {
                 person.Bio = VeryLargeText;
             }
@@ -533,13 +547,13 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
         public static List<Demographic> CreateDemographics(bool includeBio = false, int count = 1)
         {
             var demographics = new List<Demographic>();
-            for (var i = 1; i <= count; i++)
+            for(var i = 1; i <= count; i++)
             {
                 var _demographicFiller = new Filler<Demographic>();
-                
+
                 _demographicFiller.Setup().OnProperty(x => x.RecordId).Use(i.ToString());
                 var _demographic = _demographicFiller.Create();
-                if (includeBio)
+                if(includeBio)
                 {
                     _demographic.Bio = VeryLargeText;
                 }
@@ -552,7 +566,7 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
         {
 
             var arms = new List<RedcapArm>();
-            for (var i = 0; i < count; i++)
+            for(var i = 0; i < count; i++)
             {
                 var _demographicFiller = new Filler<RedcapArm>();
                 _demographicFiller.Setup().OnProperty(x => x.ArmNumber).Use(i.ToString());
@@ -561,7 +575,8 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             }
             return arms;
         }
-        public static List<RedcapDag> CreateDags(int count = 1){
+        public static List<RedcapDag> CreateDags(int count = 1)
+        {
 
             var dags = new List<RedcapDag>();
             for(var i = 0; i < count; i++)
