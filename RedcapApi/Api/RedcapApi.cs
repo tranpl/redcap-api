@@ -1091,7 +1091,6 @@ namespace Redcap
             }
         }
 
-
         /// <summary>
         /// Export List of Export Field Names (i.e. variables used during exports and imports)<br/><br/>
         /// 
@@ -2932,51 +2931,6 @@ namespace Redcap
         #region Records
 
         /// <summary>
-        /// From Redcap 14.7.0 <br/>
-        /// Randomize Record <br/>
-        /// This method allows the current API user to randomize a record.
-        /// </summary>
-        /// <remarks>
-        /// To use this method you must have the Randomize privilege in the project.
-        /// </remarks>
-        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
-        /// <param name="content">record</param>
-        /// <param name="record">The record name (id) of the record to randomize. The record must already exist and contain all necessary stratification information.</param>
-        /// <param name="randomizationId">The unique id of the randomization (viewable on the Randomization page for users with Design permissions, or on the API Playground page). Corresponds to a specific target field and event.</param>
-        /// <param name="format">csv, json [default], xml, odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
-        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'csv'.</param>
-        /// <param name="returnAlt">false [default], true - return the value for the alternative target field, i.e. the randomization number for open allocations. Note: with concealed allocations only the value '*' will be returned, not the real allocation group (which would break the blinding).</param>
-        /// <param name="cancellationToken"></param>
-        /// <param name="timeOutSeconds">Number of seconds before the http request times out.</param>
-        /// <returns>Performs the specified randomization for the record and returns the value for the target randomization field (plus optionally the alternative target value), or an error message on failure (such as if the record does not exist or if stratification information is missing).</returns>
-        public async Task<string> RandomizeRecord(string token, Content content, string record, string randomizationId, RedcapFormat format, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool returnAlt = false, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
-        {
-            try
-            {
-                this.CheckToken(token);
-
-                var payload = new Dictionary<string, string>
-                {
-                    { "token", token },
-                    { "content", Content.Record.GetDisplayName() },
-                    { "record", record },
-                    { "randomizationId", randomizationId },
-                    { "format", format.GetDisplayName() },
-                    { "returnFormat", returnFormat.GetDisplayName() },
-                    { "returnAlt", returnAlt.ToString() },
-                };
-
-                // Optional
-                return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken, timeOutSeconds);
-            }
-            catch(Exception Ex)
-            {
-                Log.Error($"{Ex.Message}");
-                return Ex.Message;
-            }
-
-        }
-        /// <summary>
         /// From Redcap Version 6.18.0 <br/>
         /// Generate Next Record Name<br/>
         /// To be used by projects with record auto-numbering enabled, this method exports the next potential record ID for a project. It generates the next record name by determining the current maximum numerical record ID and then incrementing it by one.
@@ -3404,7 +3358,6 @@ namespace Redcap
             }
         }
 
-
         /// <summary>
         /// From Redcap version with version 10.3.0<br/>
         /// Import Records<br/>
@@ -3747,6 +3700,55 @@ namespace Redcap
                 return Ex.Message;
             }
         }
+
+        /// <summary>
+        /// From Redcap 14.7.0 <br/>
+        /// Randomize Record <br/>
+        /// This method allows the current API user to randomize a record.
+        /// </summary>
+        /// <remarks>
+        /// To use this method you must have the Randomize privilege in the project.
+        /// </remarks>
+        /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
+        /// <param name="content">record</param>
+        /// <param name="action">randomize</param>
+        /// <param name="record">The record name (id) of the record to randomize. The record must already exist and contain all necessary stratification information.</param>
+        /// <param name="randomizationId">The unique id of the randomization (viewable on the Randomization page for users with Design permissions, or on the API Playground page). Corresponds to a specific target field and event.</param>
+        /// <param name="format">csv, json [default], xml, odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'csv'.</param>
+        /// <param name="returnAlt">false [default], true - return the value for the alternative target field, i.e. the randomization number for open allocations. Note: with concealed allocations only the value '*' will be returned, not the real allocation group (which would break the blinding).</param>
+        /// <param name="cancellationToken"></param>
+        /// <param name="timeOutSeconds">Number of seconds before the http request times out.</param>
+        /// <returns>Performs the specified randomization for the record and returns the value for the target randomization field (plus optionally the alternative target value), or an error message on failure (such as if the record does not exist or if stratification information is missing).</returns>
+        public async Task<string> RandomizeRecord(string token, Content content, RedcapAction action, string record, string randomizationId, RedcapFormat format, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, bool returnAlt = false, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+        {
+            try
+            {
+                this.CheckToken(token);
+
+                var payload = new Dictionary<string, string>
+                {
+                    { "token", token },
+                    { "action", action.GetDisplayName() },
+                    { "content", Content.Record.GetDisplayName() },
+                    { "record", record },
+                    { "randomizationId", randomizationId },
+                    { "format", format.GetDisplayName() },
+                    { "returnFormat", returnFormat.GetDisplayName() },
+                    { "returnAlt", returnAlt.ToString() },
+                };
+
+                // Optional
+                return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken, timeOutSeconds);
+            }
+            catch(Exception Ex)
+            {
+                Log.Error($"{Ex.Message}");
+                return Ex.Message;
+            }
+
+        }
+
         #endregion Records
         #region Repeating Instruments and Events
 
