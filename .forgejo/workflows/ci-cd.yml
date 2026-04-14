@@ -1,0 +1,63 @@
+name: Forgejo CI/CD
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - master
+      - main
+
+jobs:
+  ci:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: https://github.com/actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: https://github.com/actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore RedcapApi.sln
+
+      - name: Build
+        run: dotnet build RedcapApi.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test RedcapApi.Tests/RedcapApi.Tests.csproj --configuration Release --no-build --verbosity normal
+
+  cd:
+    name: Pack and Publish NuGet
+    runs-on: ubuntu-latest
+    needs: ci
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout
+        uses: https://github.com/actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: https://github.com/actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Pack
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          VERSION="${TAG_NAME#v}"
+          dotnet pack RedcapApi/Redcap.csproj --configuration Release --output ./artifacts /p:Version="$VERSION"
+
+      - name: Publish to NuGet
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: dotnet nuget push "./artifacts/*.nupkg" --api-key "$NUGET_API_KEY" --source "https://api.nuget.org/v3/index.json" --skip-duplicate
