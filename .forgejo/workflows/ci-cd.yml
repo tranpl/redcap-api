@@ -16,15 +16,12 @@ jobs:
   ci:
     name: Build and Test
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:8.0
 
     steps:
-      - name: Checkout
-        uses: https://github.com/actions/checkout@v4
-
-      - name: Setup .NET 8
-        uses: https://github.com/actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
+      - name: Verify workspace checkout
+        run: test -f RedcapApi.sln
 
       - name: Restore
         run: dotnet restore RedcapApi.sln
@@ -40,15 +37,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: ci
     if: startsWith(github.ref, 'refs/tags/v')
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:8.0
 
     steps:
-      - name: Checkout
-        uses: https://github.com/actions/checkout@v4
-
-      - name: Setup .NET 8
-        uses: https://github.com/actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
+      - name: Verify workspace checkout
+        run: test -f RedcapApi.sln
 
       - name: Pack
         env:
