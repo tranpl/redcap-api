@@ -42,11 +42,32 @@ namespace Redcap.Models
         [Display(Name = "exportFieldNames")]
         ExportFieldNames,
         /// <summary>
+        /// App Rights Check Content
+        /// </summary>
+        [Display(Name = "appRightsCheck")]
+        AppRightsCheck,
+        /// <summary>
         /// File Content
         /// </summary>
         /// 
         [Display(Name = "file")]
         File,
+        /// <summary>
+        /// File Size Content
+        /// </summary>
+        [Display(Name = "filesize")]
+        FileSize,
+        /// <summary>
+        /// File Info Content
+        /// </summary>
+        [Display(Name = "fileinfo")]
+        FileInfo,
+
+        /// <summary>
+        /// Attachment Content
+        /// </summary>
+        [Display(Name = "attachment")]
+        Attachment,
 
         /// <summary>
         /// File Repository
@@ -61,6 +82,11 @@ namespace Redcap.Models
         /// 
         [Display(Name = "metadata")]
         MetaData,
+        /// <summary>
+        /// Field Validation Content
+        /// </summary>
+        [Display(Name = "fieldValidation")]
+        FieldValidation,
         /// <summary>
         /// Instrument Content
         /// </summary>
@@ -91,6 +117,11 @@ namespace Redcap.Models
         /// 
         [Display(Name = "project_settings")]
         ProjectSettings,
+        /// <summary>
+        /// Project Migration Content
+        /// </summary>
+        [Display(Name = "projectMigration")]
+        ProjectMigration,
         /// <summary>
         /// Project Xml Content
         /// </summary>
@@ -128,11 +159,34 @@ namespace Redcap.Models
         [Display(Name = "version")]
         Version,
         /// <summary>
+        /// Auth Key Content
+        /// </summary>
+        [Display(Name = "authkey")]
+        AuthKey,
+
+        /// <summary>
+        /// Tableau Content
+        /// </summary>
+        [Display(Name = "tableau")]
+        Tableau,
+
+        /// <summary>
+        /// MyCap Content
+        /// </summary>
+        [Display(Name = "mycap")]
+        MyCap,
+        /// <summary>
         /// Survey Link Content
         /// </summary>
         /// 
         [Display(Name = "surveyLink")]
         SurveyLink,
+        /// <summary>
+        /// Survey Access Code Content
+        /// </summary>
+        /// 
+        [Display(Name = "surveyAccessCode")]
+        SurveyAccessCode,
         /// <summary>
         /// Participant List Content
         /// </summary>

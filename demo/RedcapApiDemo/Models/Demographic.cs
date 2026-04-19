@@ -17,13 +17,14 @@ namespace RedcapApiDemo.Models
 
         [JsonProperty("last_name")]
         public string LastName { get; set; }
-        [JsonProperty("bio")]
+
+        [JsonProperty("bio", NullValueHandling = NullValueHandling.Ignore)]
         public string Bio { get; set; }
 
         /// <summary>
         /// Test file uploads
         /// </summary>
-        [JsonProperty("upload_file")]
+        [JsonProperty("file_upload", NullValueHandling = NullValueHandling.Ignore)]
         public string UploadFile { get; set; }
     }
 
