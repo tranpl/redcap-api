@@ -23,7 +23,7 @@ __Prerequisites__
 1.  Local redcap instance installed (visit https://project-redcap.org) if you need to download files(assuming you have access)
 2.  Create a new project with "Demographics" for the template; this gives you a basic project to work with.
 3.  Create an api token for yourself, replace that with the tokens you see on the "RedcapApiTests.cs" files, and others
-4.  You'll may need to add a field type of "file_upload" so that you can test the file upload interface of the API
+4.  You may need to add a field type of "file_upload" so that you can test the file upload interface of the API
 5.  Build the solution, then run the demo project to see the results.
 
 __Highlights__
