@@ -8,6 +8,20 @@ Project Feedback, using REDCap of course: https://redcap.vcu.edu/surveys/?s=KJLH
 # REDCap API Library for .NET
 The REDCap Api Library for .NET provides the ability to interact with REDCap programmatically using various .NET languages(C#,F#,VB.NET);
 
+## What's New in 2.0.0
+
+Version 2.0.0 is a cleanup and parity release focused on bringing the library in line with documented REDCap API behavior while modernizing the repository structure.
+
+- Full documented `help.php` endpoint parity audit against REDCap 17.0.2
+- Added `ExportSurveyAccessCodeAsync`
+- Added interface coverage for randomization and user role mapping endpoints
+- Added `combineCheckboxOptions` support for record export methods
+- Added `delete_logging` support for record deletion methods
+- Added ODM format support where REDCap supports it
+- Expanded `Content` coverage for newer REDCap content values
+- Fixed `ExportProjectXmlAsync` default content mapping
+- Reorganized the repository into conventional `.NET` folders: `src`, `tests`, and `demo`
+
 __Prerequisites__
 1.  Local redcap instance installed (visit https://project-redcap.org) if you need to download files(assuming you have access)
 2.  Create a new project with "Demographics" for the template; this gives you a basic project to work with.
@@ -15,34 +29,28 @@ __Prerequisites__
 4.  You'll may need to add a field type of "file_upload" so that you can test the file upload interface of the API
 5.  Build the solution, then run the tests
 
-__API METHODS SUPPORTED (Not all listed)__
-* ExportLoggingAsync
-* ExportDagsAsync
-* ImportDagsAsync
-* DeleteDagsAsync
-* ExportArmsAsync
-* ImportArmsAsync
-* DeleteArmsAsync
-* ExportEventAsync
-* ImportEventAsync  
-* ExportFileAsync
-* ImportFileAsync
-* DeleteFileAsync
-* ExportMetaDataAsync
-* ExportRecordsAsync
-* ImportRecordsAsync
-* ExportRedcapVersionAsync
-* ExportUsersAsync
+__Highlights__
+* Export and import records, metadata, users, roles, DAGs, events, instruments, reports, and files
+* Project export, project XML export, project settings import, and next record name generation
+* Survey link, survey queue link, survey return code, survey participants, and survey access code support
+* File repository create/list/export/import/delete support
+* Repeating instruments/events import and export support
+* Randomize record support
 
 __Usage__:
 
 1. dotnet restore
-2. Add reference to the library in your project, or download from nuget into project
+2. Add a reference to the package or project
 3. Add "using Redcap" namespace
 4. Add "using Redcap.Models" for convenience
-5. Replace the demo api token with your test project or you can import the data dictionary in \Docs
-thats provided for convenience.
-6. Feel free to contribute 
+5. Use the sample data dictionary in `src/RedcapApi/Docs` if you want a quick test project setup
+6. The repository is organized as follows:
+
+    - `src/RedcapApi` - library source
+    - `tests/RedcapApi.Tests` - test project
+    - `demo/RedcapApiDemo` - demo console app
+
+7. Feel free to contribute
 
 __Sample / Example__
 ```C# 
@@ -80,21 +88,21 @@ __Install directly in Package Manager Console or Command Line Interface__
 ```C#
 Package Manager
 
-Install-Package RedcapAPI -Version 1.3.4
+Install-Package RedcapAPI -Version 2.0.0
 
 ```
 
 ```C#
 .NET CLI
 
-dotnet add package RedcapAPI --version 1.3.4
+dotnet add package RedcapAPI --version 2.0.0
 
  ```
 
 ```C#
 Paket CLI
 
-paket add RedcapAPI --version 1.3.4
+paket add RedcapAPI --version 2.0.0
 
 ```
 

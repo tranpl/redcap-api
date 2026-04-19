@@ -7,7 +7,8 @@ namespace Redcap.Models
     /// 
     /// Format, 0 = json
     /// Format, 1 = csv [default]
-    /// Format, 2 = xml 
+    /// Format, 2 = xml
+    /// Format, 3 = odm
     /// </summary>
     /// 
     public enum RedcapFormat
@@ -31,6 +32,12 @@ namespace Redcap.Models
         /// </summary>
         /// 
         [Display(Name = "xml")]
-        xml = 2
+        xml = 2,
+        /// <summary>
+        /// CDISC ODM XML format (ODM version 1.3.1)
+        /// </summary>
+        /// 
+        [Display(Name = "odm")]
+        odm = 3
     }
 }
