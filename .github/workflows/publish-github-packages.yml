@@ -3,6 +3,9 @@ name: Publish NuGet Package
 on:
   release:
     types: [published]
+  push:
+    tags:
+      - "v*"
   workflow_dispatch:
 
 jobs:
@@ -32,4 +35,4 @@ jobs:
         run: dotnet pack src/RedcapApi/RedcapApi.csproj -c Release --no-build -o ./artifacts
 
       - name: Publish To GitHub Packages
-        run: dotnet nuget push ./artifacts/*.nupkg --source https://nuget.pkg.github.com/cctrbic/index.json --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+        run: dotnet nuget push ./artifacts/*.nupkg --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
