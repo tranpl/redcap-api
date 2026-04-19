@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Redcap", "RedcapApi\Redcap.csproj", "{E34E88C8-D30F-4924-8108-8E84D14C2E9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Redcap", "src\RedcapApi\RedcapApi.csproj", "{E34E88C8-D30F-4924-8108-8E84D14C2E9A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedcapApiDemo", "RedcapApiDemo\RedcapApiDemo.csproj", "{CBAF5212-0D5F-44F1-A7C5-F1B0ED7AF43E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedcapApiDemo", "demo\RedcapApiDemo\RedcapApiDemo.csproj", "{CBAF5212-0D5F-44F1-A7C5-F1B0ED7AF43E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedcapApi.Tests", "RedcapApi.Tests\RedcapApi.Tests.csproj", "{2B308D43-933A-4628-AE1E-777137951DA8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedcapApi.Tests", "tests\RedcapApi.Tests\RedcapApi.Tests.csproj", "{2B308D43-933A-4628-AE1E-777137951DA8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
