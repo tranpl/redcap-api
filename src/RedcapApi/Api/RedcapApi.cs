@@ -84,46 +84,102 @@ namespace Redcap
             Utils.UseInsecureCertificate = useInsecureCertificates;
         }
 
+        /// <summary>
+        /// Validates the provided API token is not null or empty.
+        /// </summary>
+        /// <param name="token">The API token to validate.</param>
         protected virtual void CheckToken(string token)
         {
             Utils.CheckToken(this, token);
         }
 
+        /// <summary>
+        /// Sends a POST request with form-encoded payload to the specified URI.
+        /// </summary>
+        /// <param name="payload">Dictionary of form data to send.</param>
+        /// <param name="uri">The URI to send the request to.</param>
+        /// <param name="cancellationToken">Cancellation token for the request.</param>
+        /// <param name="timeOutSeconds">Number of seconds before the HTTP request times out.</param>
+        /// <returns>The response content as a string.</returns>
         protected virtual Task<string> SendPostRequestAsync(Dictionary<string, string> payload, Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             return _transport.SendPostRequestAsync(this, payload, uri, cancellationToken, timeOutSeconds);
         }
 
+        /// <summary>
+        /// Sends a POST request with multipart form data payload to the specified URI.
+        /// </summary>
+        /// <param name="payload">Multipart form data content to send.</param>
+        /// <param name="uri">The URI to send the request to.</param>
+        /// <param name="cancellationToken">Cancellation token for the request.</param>
+        /// <param name="timeOutSeconds">Number of seconds before the HTTP request times out.</param>
+        /// <returns>The response content as a string.</returns>
         protected virtual Task<string> SendPostRequestAsync(MultipartFormDataContent payload, Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             return _transport.SendPostRequestAsync(this, payload, uri, cancellationToken, timeOutSeconds);
         }
 
+        /// <summary>
+        /// Gets stream content from the specified URI with form-encoded payload.
+        /// </summary>
+        /// <param name="payload">Dictionary of form data to send.</param>
+        /// <param name="uri">The URI to send the request to.</param>
+        /// <param name="cancellationToken">Cancellation token for the request.</param>
+        /// <param name="timeOutSeconds">Number of seconds before the HTTP request times out.</param>
+        /// <returns>The response content as a stream.</returns>
         protected virtual Task<Stream> GetStreamContentAsync(Dictionary<string, string> payload, Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             return _transport.GetStreamContentAsync(this, payload, uri, cancellationToken, timeOutSeconds);
         }
 
+        /// <summary>
+        /// Converts an array to a comma-separated string.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the array.</typeparam>
+        /// <param name="inputArray">The array to convert.</param>
+        /// <returns>A comma-separated string representation of the array elements.</returns>
         protected virtual Task<string> ConvertArraytoString<T>(T[] inputArray)
         {
             return Utils.ConvertArraytoString(this, inputArray);
         }
 
+        /// <summary>
+        /// Converts an integer array to a comma-separated string.
+        /// </summary>
+        /// <param name="inputArray">The integer array to convert.</param>
+        /// <returns>A comma-separated string representation of the array elements.</returns>
         protected virtual Task<string> ConvertIntArraytoString(int[] inputArray)
         {
             return Utils.ConvertIntArraytoString(this, inputArray);
         }
 
+        /// <summary>
+        /// Processes and validates format parameters for API requests.
+        /// </summary>
+        /// <param name="format">The data format (csv, json, xml).</param>
+        /// <param name="onErrorFormat">The format for error messages.</param>
+        /// <param name="redcapDataType">The REDCap data type.</param>
+        /// <returns>A tuple containing the processed format, error format, and data type strings.</returns>
         protected virtual Task<(string format, string onErrorFormat, string redcapDataType)> HandleFormat(RedcapFormat? format = RedcapFormat.json, RedcapReturnFormat? onErrorFormat = RedcapReturnFormat.json, RedcapDataType? redcapDataType = RedcapDataType.flat)
         {
             return Utils.HandleFormat(this, format, onErrorFormat, redcapDataType);
         }
 
+        /// <summary>
+        /// Processes the return content parameter for API requests.
+        /// </summary>
+        /// <param name="returnContent">The type of content to return in the response.</param>
+        /// <returns>The processed return content string value.</returns>
         protected virtual Task<string> HandleReturnContent(ReturnContent returnContent = ReturnContent.count)
         {
             return Utils.HandleReturnContent(this, returnContent);
         }
 
+        /// <summary>
+        /// Extracts and processes the overwrite behavior parameter.
+        /// </summary>
+        /// <param name="overwriteBehavior">The behavior to use when overwriting existing data.</param>
+        /// <returns>The processed overwrite behavior string value.</returns>
         protected virtual Task<string> ExtractBehaviorAsync(OverwriteBehavior overwriteBehavior)
         {
             return Utils.ExtractBehaviorAsync(this, overwriteBehavior);
@@ -645,6 +701,7 @@ namespace Redcap
         /// <param name="action">switch</param>
         /// <param name="dag">The unique group name of the Data Access Group to which you wish to switch.</param>
         /// <param name="cancellationToken"></param>
+        /// <param name="timeOutSeconds">Number of seconds before the HTTP request times out.</param>
         /// <returns>Returns "1" when the current API user is switched to the specified Data Access Group, otherwise it returns an error message.</returns>
         public async Task<string> SwitchDagAsync(string token, RedcapDag dag, Content content = Content.Dag, RedcapAction action = RedcapAction.Switch, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
@@ -683,6 +740,7 @@ namespace Redcap
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
+        /// <param name="timeOutSeconds">Number of seconds before the HTTP request times out.</param>
         /// <returns>User-DAG assignments for the project in the format specified</returns>
         public async Task<string> ExportUserDagAssignmentAsync(string token, Content content, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
@@ -735,6 +793,7 @@ namespace Redcap
         /// </param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
+        /// <param name="timeOutSeconds">Number of seconds before the HTTP request times out.</param>
         /// <returns>Number of User-DAG assignments added or updated</returns>
         public async Task<string> ImportUserDagAssignmentAsync<T>(string token, Content content, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
@@ -788,6 +847,7 @@ namespace Redcap
         /// <param name="arms"></param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
+        /// <param name="timeOutSeconds">Number of seconds before the HTTP request times out.</param>
         /// <returns>Events for the project in the format specified</returns>
         public async Task<string> ExportEventsAsync(string token, RedcapFormat format, string[] arms, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
@@ -843,6 +903,7 @@ namespace Redcap
         /// <param name="arms"></param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
+        /// <param name="timeOutSeconds">Number of seconds before the HTTP request times out.</param>
         /// <returns>Events for the project in the format specified</returns>
         public async Task<string> ExportEventsAsync(string token, Content content, RedcapFormat format, string[] arms, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
@@ -904,6 +965,7 @@ namespace Redcap
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
+        /// <param name="timeOutSeconds">Number of seconds before the HTTP request times out.</param>
         /// <returns>Number of Events imported</returns>
         public async Task<string> ImportEventsAsync<T>(string token, Override overRideBehavior, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
@@ -961,6 +1023,7 @@ namespace Redcap
         /// <param name="format">csv, json [default], xml</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
+        /// <param name="timeOutSeconds">Number of seconds before the HTTP request times out.</param>
         /// <returns>Number of Events imported</returns>
         public async Task<string> ImportEventsAsync<T>(string token, Content content, RedcapAction action, Override overrideBehavior, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {

@@ -7,6 +7,8 @@
     <Company>Virginia Commonwealth University</Company>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/cctrbic/redcap-api</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageProjectUrl>https://github.com/cctrbic/redcap-api/</PackageProjectUrl>
     <Description>This library allows applications on the .NET platform to make http calls to REDCap instances.</Description>
     <Product>Redcap Api Library</Product>
