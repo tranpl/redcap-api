@@ -227,6 +227,9 @@ namespace Redcap.Utilities
                     case RedcapFormat.xml:
                         _format = RedcapFormat.xml.ToString();
                         break;
+                    case RedcapFormat.odm:
+                        _format = RedcapFormat.odm.ToString();
+                        break;
                     default:
                         _format = RedcapFormat.json.ToString();
                         break;
