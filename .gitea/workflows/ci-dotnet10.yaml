@@ -20,47 +20,23 @@ jobs:
         run: |
           set -euo pipefail
 
-          ref="${GITHUB_SHA:-${GITHUB_REF_NAME:-master}}"
+          ref_name="${GITHUB_REF_NAME:-master}"
+          ref_sha="${GITHUB_SHA:-}"
           repo_path="${GITHUB_REPOSITORY}.git"
           base_server="${GITHUB_SERVER_URL%/}"
-          host="${base_server#https://}"
-          host="${host#http://}"
-          clone_bases=(
-            "${base_server}"
-            "https://${host}"
-            "http://${host}"
-          )
+          url="${base_server}/${repo_path}"
 
-          echo "Checkout ref: ${ref}"
+          echo "Checkout branch: ${ref_name}"
+          echo "Checkout sha: ${ref_sha:-<none>}"
+          echo "Checkout url: ${url}"
 
-          git init .
+          # Keep checkout simple and fail fast.
+          git -c http.version=HTTP/1.1 clone --depth=1 --branch "${ref_name}" "${url}" .
 
-          fetched="false"
-          for base in "${clone_bases[@]}"; do
-            url="${base%/}/${repo_path}"
-            echo "Trying checkout from ${url}"
-
-            git remote remove origin >/dev/null 2>&1 || true
-            git remote add origin "${url}"
-
-            for attempt in 1 2 3; do
-              if git -c http.version=HTTP/1.1 fetch --depth=1 origin "${ref}"; then
-                git checkout --force FETCH_HEAD
-                fetched="true"
-                break
-              fi
-              echo "Fetch failed from ${url} (attempt ${attempt}/3), retrying..."
-              sleep 2
-            done
-
-            if [ "${fetched}" = "true" ]; then
-              break
-            fi
-          done
-
-          if [ "${fetched}" != "true" ]; then
-            echo "Unable to checkout from any configured Git URL."
-            exit 1
+          # If the workflow is pinned to a specific SHA, move to it explicitly.
+          if [ -n "${ref_sha}" ] && [ "$(git rev-parse HEAD)" != "${ref_sha}" ]; then
+            git -c http.version=HTTP/1.1 fetch --depth=1 origin "${ref_sha}"
+            git checkout --force FETCH_HEAD
           fi
 
       - name: Ensure .NET SDK is available
