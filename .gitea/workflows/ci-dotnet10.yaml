@@ -10,10 +10,67 @@ on:
 
 jobs:
   restore-build-test:
-    runs-on: linux-dotnet10
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Ensure .NET SDK is available
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if command -v dotnet >/dev/null 2>&1; then
+            dotnet --info
+            exit 0
+          fi
+
+          install_via_apt() {
+            if ! command -v apt-get >/dev/null 2>&1; then
+              return 1
+            fi
+
+            echo "Trying apt-get fallback for .NET SDK 10.0"
+
+            if command -v sudo >/dev/null 2>&1; then
+              SUDO="sudo"
+            else
+              SUDO=""
+            fi
+
+            $SUDO apt-get update
+            $SUDO apt-get install -y dotnet-sdk-10.0
+          }
+
+          install_root="$HOME/.dotnet"
+          install_script="${RUNNER_TEMP:-/tmp}/dotnet-install.sh"
+
+          echo "dotnet not found, installing .NET SDK 10.0"
+          script_downloaded="false"
+          for url in \
+            "https://dot.net/v1/dotnet-install.sh" \
+            "https://aka.ms/dotnet-install.sh" \
+            "https://raw.githubusercontent.com/dotnet/install-scripts/main/src/dotnet-install.sh"
+          do
+            if curl -fsSL "$url" -o "$install_script"; then
+              script_downloaded="true"
+              break
+            fi
+          done
+
+          if [ "$script_downloaded" = "true" ]; then
+            chmod +x "$install_script"
+            "$install_script" --channel 10.0 --install-dir "$install_root"
+            export PATH="$install_root:$PATH"
+            echo "$install_root" >> "$GITHUB_PATH"
+            dotnet --info
+            exit 0
+          fi
+
+          install_via_apt
 
       - name: Dotnet info
         run: dotnet --info
