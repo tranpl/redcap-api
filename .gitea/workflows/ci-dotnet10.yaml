@@ -34,16 +34,24 @@ jobs:
           echo "Checkout https url: ${https_url}"
           echo "Checkout http url: ${http_url}"
 
-          # Keep checkout simple and fail fast.
-          if ! git -c http.version=HTTP/1.1 clone --depth=1 --branch "${ref_name}" "${https_url}" .; then
-            echo "HTTPS clone failed, trying HTTP fallback once..."
-            git -c http.version=HTTP/1.1 clone --depth=1 --branch "${ref_name}" "${http_url}" .
+          git init -b master .
+
+          target_ref="${ref_sha:-${ref_name}}"
+
+          git remote add origin "${https_url}"
+          if ! GIT_TRACE=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 fetch --depth=1 origin "${target_ref}"; then
+            echo "HTTPS fetch failed, trying HTTP fallback once..."
+            git remote set-url origin "${http_url}"
+            GIT_TRACE=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 fetch --depth=1 origin "${target_ref}"
           fi
 
-          # If the workflow is pinned to a specific SHA, move to it explicitly.
+          git checkout --force FETCH_HEAD
+
+          # Ensure exact commit for event payload when SHA is provided.
           if [ -n "${ref_sha}" ] && [ "$(git rev-parse HEAD)" != "${ref_sha}" ]; then
-            git -c http.version=HTTP/1.1 fetch --depth=1 origin "${ref_sha}"
-            git checkout --force FETCH_HEAD
+            echo "Checked out commit does not match expected SHA"
+            git rev-parse HEAD
+            exit 1
           fi
 
       - name: Ensure .NET SDK is available
