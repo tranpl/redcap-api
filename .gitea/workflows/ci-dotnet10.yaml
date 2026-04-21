@@ -24,14 +24,21 @@ jobs:
           ref_sha="${GITHUB_SHA:-}"
           repo_path="${GITHUB_REPOSITORY}.git"
           base_server="${GITHUB_SERVER_URL%/}"
-          url="${base_server}/${repo_path}"
+          host="${base_server#https://}"
+          host="${host#http://}"
+          https_url="https://${host}/${repo_path}"
+          http_url="http://${host}/${repo_path}"
 
           echo "Checkout branch: ${ref_name}"
           echo "Checkout sha: ${ref_sha:-<none>}"
-          echo "Checkout url: ${url}"
+          echo "Checkout https url: ${https_url}"
+          echo "Checkout http url: ${http_url}"
 
           # Keep checkout simple and fail fast.
-          git -c http.version=HTTP/1.1 clone --depth=1 --branch "${ref_name}" "${url}" .
+          if ! git -c http.version=HTTP/1.1 clone --depth=1 --branch "${ref_name}" "${https_url}" .; then
+            echo "HTTPS clone failed, trying HTTP fallback once..."
+            git -c http.version=HTTP/1.1 clone --depth=1 --branch "${ref_name}" "${http_url}" .
+          fi
 
           # If the workflow is pinned to a specific SHA, move to it explicitly.
           if [ -n "${ref_sha}" ] && [ "$(git rev-parse HEAD)" != "${ref_sha}" ]; then
