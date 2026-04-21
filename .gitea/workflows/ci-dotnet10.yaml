@@ -28,36 +28,28 @@ jobs:
           host="${host#http://}"
           https_url="https://${host}/${repo_path}"
 
+          echo "Checkout ref name: ${ref_name}"
+          echo "Checkout ref sha: ${ref_sha:-<none>}"
+          echo "Git remote URL: ${https_url}"
+
+          echo "DNS resolution for ${host}:"
+          getent hosts "${host}" || true
+
+          echo "HTTPS probe for ${base_server}:"
+          curl -IvsS --http1.1 --connect-timeout 10 --max-time 30 "${base_server}" || true
+
+          echo "Git smart HTTP probe (ls-remote):"
+          GIT_TRACE=1 GIT_TRACE_PACKET=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 ls-remote "${https_url}" HEAD
+
           git init -b master .
           git remote add origin "${https_url}"
 
-          fetch_with_retry() {
-            local target_ref="$1"
-            local max_attempts=6
-            local attempt=1
-
-            while [ "$attempt" -le "$max_attempts" ]; do
-              if git -c http.version=HTTP/1.1 -c http.sslVersion=tlsv1.2 fetch --depth=1 origin "${target_ref}"; then
-                return 0
-              fi
-
-              if [ "$attempt" -eq "$max_attempts" ]; then
-                echo "Fetch failed after ${max_attempts} attempts for ref: ${target_ref}"
-                return 1
-              fi
-
-              echo "Fetch attempt ${attempt}/${max_attempts} failed for ${target_ref}; retrying..."
-              attempt=$((attempt + 1))
-              sleep 5
-            done
-          }
-
-          fetch_with_retry "${ref_name}"
+          GIT_TRACE=1 GIT_TRACE_PACKET=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 -c http.sslVersion=tlsv1.2 fetch --depth=1 origin "${ref_name}"
           git checkout --force FETCH_HEAD
 
           # Ensure exact commit for event payload when SHA is provided.
           if [ -n "${ref_sha}" ] && [ "$(git rev-parse HEAD)" != "${ref_sha}" ]; then
-            fetch_with_retry "${ref_sha}"
+            GIT_TRACE=1 GIT_TRACE_PACKET=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 -c http.sslVersion=tlsv1.2 fetch --depth=1 origin "${ref_sha}"
             git checkout --force FETCH_HEAD
           fi
 
