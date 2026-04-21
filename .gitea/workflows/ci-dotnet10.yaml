@@ -82,6 +82,20 @@ jobs:
               SUDO=""
             fi
 
+            if ! dpkg -s packages-microsoft-prod >/dev/null 2>&1; then
+              codename="$(. /etc/os-release && echo "${VERSION_CODENAME:-}")"
+              if [ -z "$codename" ]; then
+                codename="noble"
+              fi
+              repo_pkg="packages-microsoft-prod.deb"
+              repo_url="https://packages.microsoft.com/config/ubuntu/${codename}/${repo_pkg}"
+              repo_file="${RUNNER_TEMP:-/tmp}/${repo_pkg}"
+
+              echo "Adding Microsoft package feed: ${repo_url}"
+              curl -fsSL "$repo_url" -o "$repo_file"
+              $SUDO dpkg -i "$repo_file"
+            fi
+
             $SUDO apt-get update
             $SUDO apt-get install -y dotnet-sdk-10.0
           }
@@ -91,14 +105,25 @@ jobs:
 
           echo "dotnet not found, installing .NET SDK 10.0"
           script_downloaded="false"
+
+          is_valid_install_script() {
+            local script_path="$1"
+            [ -s "$script_path" ] || return 1
+            head -n 1 "$script_path" | grep -q '^#!' || return 1
+            grep -q 'dotnet-install' "$script_path" || return 1
+          }
+
           for url in \
             "https://dot.net/v1/dotnet-install.sh" \
             "https://aka.ms/dotnet-install.sh" \
             "https://raw.githubusercontent.com/dotnet/install-scripts/main/src/dotnet-install.sh"
           do
             if curl -fsSL "$url" -o "$install_script"; then
-              script_downloaded="true"
-              break
+              if is_valid_install_script "$install_script"; then
+                script_downloaded="true"
+                break
+              fi
+              echo "Downloaded content from $url is not a valid dotnet install script; skipping."
             fi
           done
 
