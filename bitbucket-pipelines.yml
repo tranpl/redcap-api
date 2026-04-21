@@ -1,0 +1,56 @@
+image: mcr.microsoft.com/dotnet/sdk:10.0
+
+pipelines:
+  default:
+    - step:
+        name: Build, Test, and Pack
+        caches:
+          - dotnetcore
+        script:
+          - dotnet --info
+          - dotnet restore RedcapApi.sln
+          - dotnet build RedcapApi.sln -c Release --no-restore
+          - dotnet test tests/RedcapApi.Tests/RedcapApi.Tests.csproj -c Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
+          - dotnet pack src/RedcapApi/RedcapApi.csproj -c Release --no-build -o artifacts
+        artifacts:
+          - artifacts/**
+          - tests/RedcapApi.Tests/TestResults/**
+
+  pull-requests:
+    "**":
+      - step:
+          name: PR Build and Test
+          caches:
+            - dotnetcore
+          script:
+            - dotnet restore RedcapApi.sln
+            - dotnet build RedcapApi.sln -c Release --no-restore
+            - dotnet test tests/RedcapApi.Tests/RedcapApi.Tests.csproj -c Release --no-build --verbosity normal
+image: mcr.microsoft.com/dotnet/sdk:10.0
+
+pipelines:
+  default:
+    - step:
+        name: Build, Test, and Pack
+        caches:
+          - dotnetcore
+        script:
+          - dotnet --info
+          - dotnet restore RedcapApi.sln
+          - dotnet build RedcapApi.sln -c Release --no-restore
+          - dotnet test tests/RedcapApi.Tests/RedcapApi.Tests.csproj -c Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
+          - dotnet pack src/RedcapApi/RedcapApi.csproj -c Release --no-build -o artifacts
+        artifacts:
+          - artifacts/**
+          - tests/RedcapApi.Tests/TestResults/**
+
+  pull-requests:
+    "**":
+      - step:
+          name: PR Build and Test
+          caches:
+            - dotnetcore
+          script:
+            - dotnet restore RedcapApi.sln
+            - dotnet build RedcapApi.sln -c Release --no-restore
+            - dotnet test tests/RedcapApi.Tests/RedcapApi.Tests.csproj -c Release --no-build --verbosity normal
