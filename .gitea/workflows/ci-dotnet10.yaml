@@ -24,7 +24,8 @@ jobs:
           ref_sha="${GITHUB_SHA:-}"
           repo_path="${GITHUB_REPOSITORY}.git"
           # Prefer an internal URL (for self-hosted runners) to avoid external proxy/TLS hairpin issues.
-          base_server="${GITEA_INTERNAL_SERVER_URL:-${GITHUB_SERVER_URL}}"
+          # Use repo variable INTERNAL_GIT_SERVER_URL since some platforms reserve GITEA_* names.
+          base_server="${INTERNAL_GIT_SERVER_URL:-${GITHUB_SERVER_URL}}"
           base_server="${base_server%/}"
           host="${base_server#https://}"
           host="${host#http://}"
