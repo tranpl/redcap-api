@@ -23,26 +23,29 @@ jobs:
           ref_name="${GITHUB_REF_NAME:-master}"
           ref_sha="${GITHUB_SHA:-}"
           repo_path="${GITHUB_REPOSITORY}.git"
-          base_server="${GITHUB_SERVER_URL%/}"
+          # Prefer an internal URL (for self-hosted runners) to avoid external proxy/TLS hairpin issues.
+          base_server="${GITEA_INTERNAL_SERVER_URL:-${GITHUB_SERVER_URL}}"
+          base_server="${base_server%/}"
           host="${base_server#https://}"
           host="${host#http://}"
-          https_url="https://${host}/${repo_path}"
+          repo_url="${base_server}/${repo_path}"
 
           echo "Checkout ref name: ${ref_name}"
           echo "Checkout ref sha: ${ref_sha:-<none>}"
-          echo "Git remote URL: ${https_url}"
+          echo "Git server URL: ${base_server}"
+          echo "Git remote URL: ${repo_url}"
 
           echo "DNS resolution for ${host}:"
           getent hosts "${host}" || true
 
-          echo "HTTPS probe for ${base_server}:"
+          echo "HTTP(S) probe for ${base_server}:"
           curl -IvsS --http1.1 --connect-timeout 10 --max-time 30 "${base_server}" || true
 
           echo "Git smart HTTP probe (ls-remote):"
-          GIT_TRACE=1 GIT_TRACE_PACKET=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 ls-remote "${https_url}" HEAD
+          GIT_TRACE=1 GIT_TRACE_PACKET=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 ls-remote "${repo_url}" HEAD
 
           git init -b master .
-          git remote add origin "${https_url}"
+          git remote add origin "${repo_url}"
 
           GIT_TRACE=1 GIT_TRACE_PACKET=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 -c http.sslVersion=tlsv1.2 fetch --depth=1 origin "${ref_name}"
           git checkout --force FETCH_HEAD
