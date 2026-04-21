@@ -1,0 +1,37 @@
+name: CI DotNet10
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+
+jobs:
+  restore-build-test:
+    runs-on: linux-dotnet10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Dotnet info
+        run: dotnet --info
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        shell: bash
+        run: |
+          set -euo pipefail
+          test_projects="$(find . -type f -name '*Tests*.csproj' -o -name '*.Tests.csproj' || true)"
+          if [ -z "${test_projects}" ]; then
+            echo "No test projects found, skipping dotnet test."
+            exit 0
+          fi
+
+          # Run all tests in one command so CI fails if any test fails.
+          dotnet test --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
