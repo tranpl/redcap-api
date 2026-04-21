@@ -20,16 +20,43 @@ jobs:
         run: |
           set -euo pipefail
 
-          git init .
-          git remote add origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
+          ref="${GITHUB_SHA:-${GITHUB_REF_NAME:-master}}"
+          repo_path="${GITHUB_REPOSITORY}.git"
+          clone_bases=(
+            "${GITHUB_SERVER_URL}"
+            "http://gitea-http.gitea.svc.cluster.local:3000"
+            "http://gitea-http.gitea.svc:3000"
+            "http://gitea-http:3000"
+          )
 
-          if [ -n "${GITHUB_SHA:-}" ]; then
-            git fetch --depth=1 origin "${GITHUB_SHA}"
-            git checkout --force FETCH_HEAD
-          else
-            ref="${GITHUB_REF_NAME:-master}"
-            git fetch --depth=1 origin "${ref}"
-            git checkout --force FETCH_HEAD
+          git init .
+
+          fetched="false"
+          for base in "${clone_bases[@]}"; do
+            url="${base%/}/${repo_path}"
+            echo "Trying checkout from ${url}"
+
+            git remote remove origin >/dev/null 2>&1 || true
+            git remote add origin "${url}"
+
+            for attempt in 1 2 3; do
+              if git fetch --depth=1 origin "${ref}"; then
+                git checkout --force FETCH_HEAD
+                fetched="true"
+                break
+              fi
+              echo "Fetch failed from ${url} (attempt ${attempt}/3), retrying..."
+              sleep 2
+            done
+
+            if [ "${fetched}" = "true" ]; then
+              break
+            fi
+          done
+
+          if [ "${fetched}" != "true" ]; then
+            echo "Unable to checkout from any configured Git URL."
+            exit 1
           fi
 
       - name: Ensure .NET SDK is available
