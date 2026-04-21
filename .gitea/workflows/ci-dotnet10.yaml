@@ -39,10 +39,10 @@ jobs:
           target_ref="${ref_sha:-${ref_name}}"
 
           git remote add origin "${https_url}"
-          if ! GIT_TRACE=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 fetch --depth=1 origin "${target_ref}"; then
+          if ! GIT_TRACE=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 -c http.sslVersion=tlsv1.2 fetch --depth=1 origin "${target_ref}"; then
             echo "HTTPS fetch failed, trying HTTP fallback once..."
             git remote set-url origin "${http_url}"
-            GIT_TRACE=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 fetch --depth=1 origin "${target_ref}"
+            GIT_TRACE=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 -c http.sslVersion=tlsv1.2 fetch --depth=1 origin "${target_ref}"
           fi
 
           git checkout --force FETCH_HEAD
