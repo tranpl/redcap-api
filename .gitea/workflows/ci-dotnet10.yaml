@@ -22,12 +22,16 @@ jobs:
 
           ref="${GITHUB_SHA:-${GITHUB_REF_NAME:-master}}"
           repo_path="${GITHUB_REPOSITORY}.git"
+          base_server="${GITHUB_SERVER_URL%/}"
+          host="${base_server#https://}"
+          host="${host#http://}"
           clone_bases=(
-            "${GITHUB_SERVER_URL}"
-            "http://gitea-http.gitea.svc.cluster.local:3000"
-            "http://gitea-http.gitea.svc:3000"
-            "http://gitea-http:3000"
+            "${base_server}"
+            "https://${host}"
+            "http://${host}"
           )
+
+          echo "Checkout ref: ${ref}"
 
           git init .
 
