@@ -16,7 +16,21 @@ jobs:
       DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git init .
+          git remote add origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
+
+          if [ -n "${GITHUB_SHA:-}" ]; then
+            git fetch --depth=1 origin "${GITHUB_SHA}"
+            git checkout --force FETCH_HEAD
+          else
+            ref="${GITHUB_REF_NAME:-master}"
+            git fetch --depth=1 origin "${ref}"
+            git checkout --force FETCH_HEAD
+          fi
 
       - name: Ensure .NET SDK is available
         shell: bash
