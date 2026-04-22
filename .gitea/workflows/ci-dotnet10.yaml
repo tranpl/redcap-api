@@ -11,6 +11,8 @@ on:
 jobs:
   restore-build-test:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:10.0
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
       DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
@@ -25,27 +27,9 @@ jobs:
           ref_name="${GITHUB_REF_NAME:-master}"
           ref_sha="${GITHUB_SHA:-}"
           repo_path="${GITHUB_REPOSITORY}.git"
-          # Prefer an internal URL (for self-hosted runners) to avoid external proxy/TLS hairpin issues.
-          # Use repo variable INTERNAL_GIT_SERVER_URL since some platforms reserve GITEA_* names.
           base_server="${INTERNAL_GIT_SERVER_URL:-${GITHUB_SERVER_URL}}"
           base_server="${base_server%/}"
-          host="${base_server#https://}"
-          host="${host#http://}"
           repo_url="${base_server}/${repo_path}"
-
-          echo "Checkout ref name: ${ref_name}"
-          echo "Checkout ref sha: ${ref_sha:-<none>}"
-          echo "Git server URL: ${base_server}"
-          echo "Git remote URL: ${repo_url}"
-
-          echo "DNS resolution for ${host}:"
-          getent hosts "${host}" || true
-
-          echo "HTTP(S) probe for ${base_server}:"
-          curl -IvsS --http1.1 --connect-timeout 10 --max-time 30 "${base_server}" || true
-
-          echo "Git smart HTTP probe (ls-remote):"
-          git -c http.version=HTTP/1.1 ls-remote "${repo_url}" HEAD
 
           git init -b master .
           git remote add origin "${repo_url}"
@@ -53,7 +37,6 @@ jobs:
           git -c http.version=HTTP/1.1 -c http.sslVersion=tlsv1.2 fetch --depth=1 origin "${ref_name}"
           git checkout --force FETCH_HEAD
 
-          # Ensure exact commit for event payload when SHA is provided.
           if [ -n "${ref_sha}" ] && [ "$(git rev-parse HEAD)" != "${ref_sha}" ]; then
             git -c http.version=HTTP/1.1 -c http.sslVersion=tlsv1.2 fetch --depth=1 origin "${ref_sha}"
             git checkout --force FETCH_HEAD
@@ -63,38 +46,10 @@ jobs:
         run: dotnet --info
 
       - name: Restore
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          for i in 1 2 3 4 5; do
-            echo "dotnet restore attempt ${i}/5"
-            if dotnet restore --disable-parallel; then
-              echo "Restore succeeded"
-              exit 0
-            fi
-
-            if [ "${i}" -lt 5 ]; then
-              echo "Restore failed; sleeping before retry"
-              sleep $((i * 20))
-            fi
-          done
-
-          echo "dotnet restore failed after retries"
-          exit 1
+        run: dotnet restore RedcapApi.sln
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build RedcapApi.sln --configuration Release --no-restore
 
       - name: Test
-        shell: bash
-        run: |
-          set -euo pipefail
-          test_projects="$(find . -type f -name '*Tests*.csproj' -o -name '*.Tests.csproj' || true)"
-          if [ -z "${test_projects}" ]; then
-            echo "No test projects found, skipping dotnet test."
-            exit 0
-          fi
-
-          # Run all tests in one command so CI fails if any test fails.
-          dotnet test --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
+        run: dotnet test tests/RedcapApi.Tests/RedcapApi.Tests.csproj --configuration Release --no-build --verbosity normal
