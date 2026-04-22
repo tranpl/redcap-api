@@ -93,12 +93,19 @@ jobs:
           echo "Configured NuGet sources:"
           dotnet nuget list source
 
-          # Probe nuget.org with retries to reduce flaky restore failures.
-          for i in 1 2 3 4 5; do
-            echo "NuGet probe attempt ${i}/5"
+          # Require repeated successful TLS handshakes to reduce intermittent failures.
+          ok_count=0
+          for i in 1 2 3 4 5 6 7 8; do
+            echo "NuGet probe attempt ${i}/8"
             if curl -4 -fsSIL --http1.1 --connect-timeout 10 --max-time 30 https://api.nuget.org/v3/index.json >/dev/null; then
-              echo "NuGet preflight succeeded"
-              exit 0
+              ok_count=$((ok_count + 1))
+              echo "NuGet preflight success count: ${ok_count}"
+              if [ "${ok_count}" -ge 2 ]; then
+                echo "NuGet preflight passed"
+                exit 0
+              fi
+            else
+              ok_count=0
             fi
             sleep $((i * 5))
           done
@@ -111,16 +118,16 @@ jobs:
         run: |
           set -euo pipefail
 
-          for i in 1 2 3; do
-            echo "dotnet restore attempt ${i}/3"
+          for i in 1 2 3 4 5; do
+            echo "dotnet restore attempt ${i}/5"
             if dotnet restore --disable-parallel; then
               echo "Restore succeeded"
               exit 0
             fi
 
-            if [ "${i}" -lt 3 ]; then
+            if [ "${i}" -lt 5 ]; then
               echo "Restore failed; sleeping before retry"
-              sleep $((i * 15))
+              sleep $((i * 20))
             fi
           done
 
