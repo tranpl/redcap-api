@@ -85,6 +85,23 @@ jobs:
       - name: Dotnet info
         run: dotnet --info
 
+      - name: Diagnose NuGet connectivity
+        shell: bash
+        run: |
+          set -euo pipefail
+          
+          echo "=== DNS Resolution ==="
+          nslookup api.nuget.org || true
+          
+          echo "=== Ping api.nuget.org ==="
+          ping -c 3 api.nuget.org || true
+          
+          echo "=== HTTPS connectivity test ==="
+          curl -v https://api.nuget.org/v3/index.json --connect-timeout 10 --max-time 30 || true
+          
+          echo "=== dotnet restore dry-run with verbose ==="
+          dotnet restore --verbosity diagnostic --source https://api.nuget.org/v3/index.json || true
+
       - name: Restore
         run: dotnet restore
 
