@@ -10,7 +10,7 @@ on:
 
 jobs:
   restore-build-test:
-    runs-on: linux-dotnet10
+    runs-on: ubuntu-latest
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
       DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
@@ -58,29 +58,6 @@ jobs:
             git -c http.version=HTTP/1.1 -c http.sslVersion=tlsv1.2 fetch --depth=1 origin "${ref_sha}"
             git checkout --force FETCH_HEAD
           fi
-
-      - name: Verify .NET SDK 10 is available
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          if ! command -v dotnet >/dev/null 2>&1; then
-            echo "dotnet CLI not found on runner."
-            echo "Use a pre-provisioned runner image/label with .NET 10 installed."
-            exit 1
-          fi
-
-          sdk_version="$(dotnet --version || true)"
-          echo "Detected dotnet SDK: ${sdk_version}"
-
-          if ! dotnet --list-sdks | grep -q '^10\.'; then
-            echo ".NET SDK 10.x is required but not installed on this runner."
-            echo "Install .NET 10 on runner image or use a runner label/container that already includes it."
-            dotnet --list-sdks || true
-            exit 1
-          fi
-
-          dotnet --info
 
       - name: Dotnet info
         run: dotnet --info
