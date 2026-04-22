@@ -106,8 +106,26 @@ jobs:
           echo "NuGet preflight failed after retries"
           exit 1
 
-      - name: Restore
-        run: dotnet restore
+      - name: Restore (retry)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for i in 1 2 3; do
+            echo "dotnet restore attempt ${i}/3"
+            if dotnet restore --disable-parallel; then
+              echo "Restore succeeded"
+              exit 0
+            fi
+
+            if [ "${i}" -lt 3 ]; then
+              echo "Restore failed; sleeping before retry"
+              sleep $((i * 15))
+            fi
+          done
+
+          echo "dotnet restore failed after retries"
+          exit 1
 
       - name: Build
         run: dotnet build --configuration Release --no-restore
