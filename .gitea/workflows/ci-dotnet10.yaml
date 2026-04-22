@@ -85,35 +85,7 @@ jobs:
       - name: Dotnet info
         run: dotnet --info
 
-      - name: NuGet preflight (retry)
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          echo "Configured NuGet sources:"
-          dotnet nuget list source
-
-          # Require repeated successful TLS handshakes to reduce intermittent failures.
-          ok_count=0
-          for i in 1 2 3 4 5 6 7 8; do
-            echo "NuGet probe attempt ${i}/8"
-            if curl -4 -fsSIL --http1.1 --connect-timeout 10 --max-time 30 https://api.nuget.org/v3/index.json >/dev/null; then
-              ok_count=$((ok_count + 1))
-              echo "NuGet preflight success count: ${ok_count}"
-              if [ "${ok_count}" -ge 2 ]; then
-                echo "NuGet preflight passed"
-                exit 0
-              fi
-            else
-              ok_count=0
-            fi
-            sleep $((i * 5))
-          done
-
-          echo "NuGet preflight failed after retries"
-          exit 1
-
-      - name: Restore (retry)
+      - name: Restore
         shell: bash
         run: |
           set -euo pipefail
