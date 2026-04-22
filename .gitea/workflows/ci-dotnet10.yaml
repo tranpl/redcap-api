@@ -45,17 +45,17 @@ jobs:
           curl -IvsS --http1.1 --connect-timeout 10 --max-time 30 "${base_server}" || true
 
           echo "Git smart HTTP probe (ls-remote):"
-          GIT_TRACE=1 GIT_TRACE_PACKET=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 ls-remote "${repo_url}" HEAD
+          git -c http.version=HTTP/1.1 ls-remote "${repo_url}" HEAD
 
           git init -b master .
           git remote add origin "${repo_url}"
 
-          GIT_TRACE=1 GIT_TRACE_PACKET=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 -c http.sslVersion=tlsv1.2 fetch --depth=1 origin "${ref_name}"
+          git -c http.version=HTTP/1.1 -c http.sslVersion=tlsv1.2 fetch --depth=1 origin "${ref_name}"
           git checkout --force FETCH_HEAD
 
           # Ensure exact commit for event payload when SHA is provided.
           if [ -n "${ref_sha}" ] && [ "$(git rev-parse HEAD)" != "${ref_sha}" ]; then
-            GIT_TRACE=1 GIT_TRACE_PACKET=1 GIT_CURL_VERBOSE=1 git -c http.version=HTTP/1.1 -c http.sslVersion=tlsv1.2 fetch --depth=1 origin "${ref_sha}"
+            git -c http.version=HTTP/1.1 -c http.sslVersion=tlsv1.2 fetch --depth=1 origin "${ref_sha}"
             git checkout --force FETCH_HEAD
           fi
 
@@ -84,23 +84,6 @@ jobs:
 
       - name: Dotnet info
         run: dotnet --info
-
-      - name: Diagnose NuGet connectivity
-        shell: bash
-        run: |
-          set -euo pipefail
-          
-          echo "=== DNS Resolution ==="
-          nslookup api.nuget.org || true
-          
-          echo "=== Ping api.nuget.org ==="
-          ping -c 3 api.nuget.org || true
-          
-          echo "=== HTTPS connectivity test ==="
-          curl -v https://api.nuget.org/v3/index.json --connect-timeout 10 --max-time 30 || true
-          
-          echo "=== dotnet restore dry-run with verbose ==="
-          dotnet restore --verbosity diagnostic --source https://api.nuget.org/v3/index.json || true
 
       - name: Restore
         run: dotnet restore
