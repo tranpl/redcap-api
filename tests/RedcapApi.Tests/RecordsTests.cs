@@ -14,6 +14,8 @@ namespace RedcapApi.Tests
     [Xunit.Trait("Category", "E2E")]
         public class RecordsTest
     {
+        /// <summary>Verifies export records should return list records.</summary>
+        /// <returns>A task that completes when the check finishes.</returns>
         [Fact]
         public async Task ExportRecords_ShouldReturn_ListRecords()
         {

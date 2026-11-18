@@ -1,38 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
 	<ImplicitUsings>enable</ImplicitUsings>
     <Authors>Michael Tran</Authors>
     <Company>Virginia Commonwealth University</Company>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <RepositoryUrl>https://github.com/cctrbic/redcap-api</RepositoryUrl>
+    <RepositoryUrl>https://github.com/tranpl/redcap-api</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <PackageProjectUrl>https://github.com/cctrbic/redcap-api/</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/tranpl/redcap-api/</PackageProjectUrl>
     <Description>This library allows applications on the .NET platform to make http calls to REDCap instances.</Description>
     <Product>Redcap Api Library</Product>
     <PackageId>RedcapAPI</PackageId>
-    <Version>2.0.0</Version>
-    <AssemblyVersion>2.0.0</AssemblyVersion>
+    <RedcapVersionLine>2.0</RedcapVersionLine>
+    <RedcapBuildPatch Condition="'$(GITHUB_RUN_NUMBER)' != ''">$(GITHUB_RUN_NUMBER)</RedcapBuildPatch>
+    <RedcapBuildPatch Condition="'$(BITBUCKET_BUILD_NUMBER)' != ''">$(BITBUCKET_BUILD_NUMBER)</RedcapBuildPatch>
+    <Version>$(RedcapVersionLine).1</Version>
     <PackageTags>redcap api library vcu</PackageTags>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <NeutralLanguage>en</NeutralLanguage>
-    <FileVersion>2.0.0</FileVersion>
-    <Copyright>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</Copyright>
+    <Copyright>https://github.com/tranpl/redcap-api/blob/master/LICENSE.md</Copyright>
     <icon>https://vortex.cctr.vcu.edu/images/ram_crest_160.png</icon>
     <PackageIcon>vcu.png</PackageIcon>
     <Title>Redcap Api</Title>
-    <PackageReleaseNotes>2.0.0 release highlights:
-  - parity refresh against documented REDCap 17.0.2 endpoints
-  - added ExportSurveyAccessCodeAsync
-  - added randomization and user role mapping interface coverage
-  - added combineCheckboxOptions and delete_logging parameter support
-  - added ODM format support
-  - reorganized the repository into src/tests/demo
-
-    </PackageReleaseNotes>
+    <PackageReleaseNotes>Targets .NET 11 and updates dependencies. Includes public REDCap 17.5.10 API updates and bulk ODM record import. The source repository includes an offline demo and a companion stdio MCP server.</PackageReleaseNotes>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
@@ -55,7 +48,8 @@
     <None Remove="bin\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Serilog" Version="4.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="Serilog" Version="4.4.0" />
   </ItemGroup>
+  <Import Project="../../build/BuildVersion.targets" />
 </Project>

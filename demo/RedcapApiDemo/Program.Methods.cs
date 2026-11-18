@@ -5,6 +5,7 @@ using RedcapApiDemo.Models;
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 using Tynamix.ObjectFiller;
@@ -91,6 +92,14 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             "Talon Karrde"
         };
 
+        /// <summary>Exercises additional public REDCap operations against the live demo project.</summary>
+        /// <param name="redcap_api">The client configured for the live demo project.</param>
+        /// <param name="token">The project API token for this operation.</param>
+        /// <param name="superToken">The server-level token for the project creation example.</param>
+        /// <param name="recordId">The REDCap record identifier.</param>
+        /// <param name="eventName">The unique event name in a longitudinal project.</param>
+        /// <param name="fileDownloadPath">The directory used for downloaded files.</param>
+        /// <returns>A task that completes when the demo operation finishes.</returns>
         static async Task RunAdditionalMethodWiringAsync(RedcapApi redcap_api, string token, string superToken, string recordId, string eventName, string fileDownloadPath)
         {
             Console.WriteLine("Running additional wiring examples...");
@@ -131,16 +140,23 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
 
             _ = await redcap_api.CreateFolderFileRepositoryAsync(token, Content.FileRepository, RedcapAction.CreateFolder, "demo-folder", RedcapFormat.json, returnFormat: RedcapReturnFormat.json);
             _ = await redcap_api.ExportFilesFoldersFileRepositoryAsync(token, Content.FileRepository, RedcapAction.List, RedcapFormat.json, folderId: null, RedcapReturnFormat.json);
-            _ = await redcap_api.ImportFileRepositoryAsync(token, Content.FileRepository, RedcapAction.Import, file: "demo-file-content", folderId: null, returnFormat: RedcapReturnFormat.json);
+            var repositoryUploadPath = Path.Combine(fileDownloadPath, "test.txt");
+            if(File.Exists(repositoryUploadPath))
+            {
+                _ = await redcap_api.ImportFileRepositoryAsync(token, Content.FileRepository, RedcapAction.Import, repositoryUploadPath);
+            }
             _ = await redcap_api.ExportFileFileRepositoryAsync(token, Content.FileRepository, RedcapAction.Export, docId: "1", returnFormat: RedcapReturnFormat.json);
             _ = await redcap_api.DeleteFileRepositoryAsync(token, Content.FileRepository, RedcapAction.Delete, docId: "1", returnFormat: RedcapReturnFormat.json);
 
             _ = superToken;
-            _ = fileDownloadPath;
 
             Console.WriteLine("Completed additional wiring examples.");
         }
 
+        /// <summary>Generates a synthetic demographic record with the requested identifier.</summary>
+        /// <param name="id">The record identifier for the synthetic person.</param>
+        /// <param name="includeBio">Whether to populate the long sample biography field.</param>
+        /// <returns>A synthetic demographic record.</returns>
         public static Demographic GetRandomPerson(string id, bool includeBio = false)
         {
             var person = new Demographic();
@@ -154,6 +170,10 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             return person;
         }
 
+        /// <summary>Generates sequentially numbered demographic records for import.</summary>
+        /// <param name="includeBio">Whether to populate the long sample biography field.</param>
+        /// <param name="count">The number of synthetic entries to generate.</param>
+        /// <returns>The generated records.</returns>
         public static List<Demographic> CreateDemographics(bool includeBio = false, int count = 1)
         {
             var demographics = new List<Demographic>();
@@ -165,6 +185,9 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             return demographics;
         }
 
+        /// <summary>Builds sample longitudinal arms for an import.</summary>
+        /// <param name="count">The number of synthetic entries to generate.</param>
+        /// <returns>The generated arm definitions.</returns>
         public static List<RedcapArm> CreateArms(int count = 1)
         {
             var arms = new List<RedcapArm>();
@@ -179,6 +202,9 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             return arms;
         }
 
+        /// <summary>Builds sample data access groups for an import.</summary>
+        /// <param name="count">The number of synthetic entries to generate.</param>
+        /// <returns>The generated data access groups.</returns>
         public static List<RedcapDag> CreateDags(int count = 1)
         {
             var dags = new List<RedcapDag>();
@@ -193,6 +219,9 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
             return dags;
         }
 
+        /// <summary>Constructs a sample user with project rights for the live demo.</summary>
+        /// <param name="username">The username for the sample project user.</param>
+        /// <returns>The configured sample user.</returns>
         public static RedcapUser CreateRedcapUser(string username)
         {
             return new RedcapUser

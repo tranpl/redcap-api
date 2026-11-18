@@ -1,5 +1,7 @@
 # 🎉 REDCap API Library 2.0.0 Release Notes
 
+These notes describe the original 2.0.0 release. See the [current 2.0.x changes](README.md#whats-new-in-20x) for subsequent updates.
+
 ## Overview
 Version 2.0.0 is a major release focused on **parity with REDCap API documentation**, **modernization**, and **cleanup**. This release brings the library in line with current REDCap API endpoints while reorganizing the repository to follow .NET conventions.
 

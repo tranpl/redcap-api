@@ -9,6 +9,9 @@ namespace RedcapApiDemo
 {
     partial class Program
     {
+        /// <summary>Reads the method selector from the command line.</summary>
+        /// <param name="args">The command-line arguments supplied to the demo.</param>
+        /// <returns>The method name or alias, or null if no selector was supplied.</returns>
         static string GetMethodArgument(string[] args)
         {
             if(args == null || args.Length == 0)
@@ -41,6 +44,11 @@ namespace RedcapApiDemo
             return null;
         }
 
+        /// <summary>Dispatches a selected live demo operation by name or alias.</summary>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
+        /// <param name="token">The project API token for this operation.</param>
+        /// <param name="method">The selected demo method name or alias.</param>
+        /// <returns>A task that completes when the demo operation finishes.</returns>
         static async Task RunSingleMethodAsync(RedcapApi redcapApi, string token, string method)
         {
             if(string.IsNullOrWhiteSpace(method))
@@ -70,6 +78,10 @@ namespace RedcapApiDemo
             Console.WriteLine($"Unknown method selector '{method}'. Supported selectors: import, ImportRecordsAsync, importrecords, export, ExportRecordsAsync, exportrecords");
         }
 
+        /// <summary>Imports sample demographics into the configured project.</summary>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
+        /// <param name="token">The project API token for this operation.</param>
+        /// <returns>A task that completes when the demo operation finishes.</returns>
         static async Task RunImportRecordsOnlyAsync(RedcapApi redcapApi, string token)
         {
             Console.WriteLine("How many records to import? (default: 1)");
@@ -100,6 +112,10 @@ namespace RedcapApiDemo
             Console.WriteLine($"ImportRecordsAsync Result: {FormatApiResponse(result)}");
         }
 
+        /// <summary>Exports records from the configured project and displays the response.</summary>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
+        /// <param name="token">The project API token for this operation.</param>
+        /// <returns>A task that completes when the demo operation finishes.</returns>
         static async Task RunExportRecordsOnlyAsync(RedcapApi redcapApi, string token)
         {
             Console.WriteLine("Enter record IDs to export (comma-delimited), or press Enter to export all:");

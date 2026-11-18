@@ -18,6 +18,8 @@ namespace RedcapApiDemo
             public DevelopmentSettings RedcapDemo { get; set; }
         }
 
+        /// <summary>Loads local demo settings and applies environment variable overrides.</summary>
+        /// <returns>The merged demo settings.</returns>
         static DevelopmentSettings LoadDevelopmentSettings()
         {
             var settings = new DevelopmentSettings();
@@ -48,6 +50,8 @@ namespace RedcapApiDemo
             return settings;
         }
 
+        /// <summary>Applies the first configured environment value for each demo setting.</summary>
+        /// <param name="settings">The demo configuration to update from the environment.</param>
         static void ApplyEnvironmentOverrides(DevelopmentSettings settings)
         {
             if(settings == null)
@@ -74,6 +78,9 @@ namespace RedcapApiDemo
             }
         }
 
+        /// <summary>Looks up environment variables in the supplied order.</summary>
+        /// <param name="names">Environment variable names in order of precedence.</param>
+        /// <returns>The trimmed value, or null if none is set.</returns>
         static string FirstNonEmptyEnvironmentVariable(params string[] names)
         {
             foreach(var name in names)
@@ -88,6 +95,8 @@ namespace RedcapApiDemo
             return null;
         }
 
+        /// <summary>Searches for the local demo settings file.</summary>
+        /// <returns>The settings file path, or null if it cannot be found.</returns>
         static string FindDevelopmentSettingsFile()
         {
             var current = new DirectoryInfo(Environment.CurrentDirectory);

@@ -15,6 +15,37 @@ namespace RedcapApiDemo
 {
     partial class Program
     {
+        /// <summary>Reads a token from standard input, suppressing interactive echo.</summary>
+        /// <returns>The token entered on standard input.</returns>
+        static string ReadToken()
+        {
+            if(Console.IsInputRedirected)
+            {
+                return Console.ReadLine();
+            }
+            var value = new System.Text.StringBuilder();
+            while(true)
+            {
+                var key = Console.ReadKey(intercept: true);
+                if(key.Key == ConsoleKey.Enter)
+                {
+                    Console.WriteLine();
+                    return value.ToString();
+                }
+                if(key.Key == ConsoleKey.Backspace && value.Length > 0)
+                {
+                    value.Length--;
+                }
+                else if(!char.IsControl(key.KeyChar))
+                {
+                    value.Append(key.KeyChar);
+                }
+            }
+        }
+
+        /// <summary>Selects the offline demo or a requested live operation.</summary>
+        /// <param name="args">The command-line arguments supplied to the demo.</param>
+        /// <returns>A task that completes when the demo operation finishes.</returns>
         static async Task Main(string[] args)
         {
             /*
@@ -33,26 +64,29 @@ namespace RedcapApiDemo
              * This allows the upload file method to upload files
              * 
              */
+            if(args.Length == 0 || args.SequenceEqual(new[] { "--offline" }))
+            {
+                await RunOfflineDemoAsync();
+                return;
+            }
             var methodFromArgs = GetMethodArgument(args);
+            if(methodFromArgs == null && !args.Contains("--live"))
+            {
+                Console.Error.WriteLine("Use --offline for sample data or --live for a REDCap project.");
+                Environment.ExitCode = 2;
+                return;
+            }
             await InitializeDemo(methodFromArgs);
         }
+        /// <summary>Configures the live client and runs the selected examples.</summary>
+        /// <param name="methodToRun">The selected method, or null to run the live examples.</param>
+        /// <returns>A task that completes when the demo operation finishes.</returns>
         static async Task InitializeDemo(string methodToRun = null)
         {
             var devSettings = LoadDevelopmentSettings();
             var defaultBaseUri = string.IsNullOrWhiteSpace(devSettings.BaseUri) ? "http://localhost" : devSettings.BaseUri.Trim();
-            var defaultProjectToken = string.IsNullOrWhiteSpace(devSettings.ProjectToken) ? "4B6C281C04A23A3C10A5AF336A44A05D" : devSettings.ProjectToken.Trim();
-            /*
-             * Change this token for your demo project
-             * Using one created from a local dev instance
-             */
-            string _token = defaultProjectToken;
-            /*
-             * Change this token for your demo project
-             * Using one created from a local dev instance
-            */
-            string _superToken = string.IsNullOrWhiteSpace(devSettings.SuperToken)
-                ? "7A6DD591AA50723B86FDDD7000EB2C59193341F131644CA49A6FD0B7C26135E7"
-                : devSettings.SuperToken.Trim();
+            string _token = devSettings.ProjectToken?.Trim();
+            string _superToken = devSettings.SuperToken?.Trim();
             /*
              * Using a local redcap development instsance
              */
@@ -73,7 +107,7 @@ namespace RedcapApiDemo
                 : baseUri + "/api/";
 
             Console.WriteLine("Enter your project api token (press Enter for default/config value):");
-            var token = Console.ReadLine();
+            var token = ReadToken();
 
             if(!string.IsNullOrWhiteSpace(token))
             {
@@ -81,7 +115,7 @@ namespace RedcapApiDemo
             }
 
             Console.WriteLine("Enter your super api token (press Enter for default/config value):");
-            var superToken = Console.ReadLine();
+            var superToken = ReadToken();
             if(!string.IsNullOrWhiteSpace(superToken))
             {
                 _superToken = superToken.Trim();
@@ -94,12 +128,22 @@ namespace RedcapApiDemo
                 runMode = Console.ReadLine();
             }
 
-            Console.WriteLine($"Using Endpoint=> {_uri} Token => {_token}");
+            if(string.IsNullOrWhiteSpace(_token))
+            {
+                Console.WriteLine("A project API token is required.");
+                return;
+            }
 
             if(!string.IsNullOrWhiteSpace(runMode))
             {
                 var importOnlyApi = new RedcapApi(_uri);
                 await RunSingleMethodAsync(importOnlyApi, _token, runMode);
+                return;
+            }
+
+            Console.WriteLine("The full demo modifies and deletes project data. Type YES to run it against your disposable demo project.");
+            if(Console.ReadLine() != "YES")
+            {
                 return;
             }
 
@@ -141,6 +185,10 @@ namespace RedcapApiDemo
             Console.WriteLine("Calling ImportDagsAsync() . . .");
             Console.WriteLine($"Importing Dags . . .");
             var dags = CreateDags(5);
+            foreach(var dag in dags)
+            {
+                dag.GroupName = $"demo_{Guid.NewGuid():N}";
+            }
             var ImportDagsAsyncResult = await redcap_api.ImportDagsAsync(_token, Content.Dag, RedcapAction.Import, RedcapFormat.json, dags);
             Console.WriteLine($"ImportDagsAsync Results: {JsonConvert.DeserializeObject(ImportDagsAsyncResult)}");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
@@ -160,7 +208,7 @@ namespace RedcapApiDemo
             #region DeleteDagsAsync()
             Console.WriteLine("Calling DeleteDagsAsync() . . .");
             Console.WriteLine($"Deleting Dags . . .");
-            var dagsToDelete = JsonConvert.DeserializeObject<List<RedcapDag>>(ExportDagsAsyncResult).Select(x => x.UniqueGroupName).ToArray();
+            var dagsToDelete = JsonConvert.DeserializeObject<List<RedcapDag>>(ExportDagsAsyncResult).Where(group => dags.Any(created => created.GroupName == group.GroupName)).Select(group => group.UniqueGroupName).ToArray();
             var DeleteDagsAsyncResult = await redcap_api.DeleteDagsAsync(_token, Content.Dag, RedcapAction.Delete, dagsToDelete);
             Console.WriteLine($"DeleteDagsAsync Results: {JsonConvert.DeserializeObject(DeleteDagsAsyncResult)}");
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
@@ -474,8 +522,10 @@ namespace RedcapApiDemo
             var projectData = new List<RedcapProject> { new RedcapProject { project_title = "Amazing Project ", purpose = ProjectPurpose.Other, purpose_other = "Test" } };
             Console.WriteLine($"Calling CreateProjectAsync(), creating a new project with Amazing Project as title, purpose 1 (other) ");
             Console.WriteLine($"-----------------------Notice the use of SUPER TOKEN------------------------");
-            var CreateProjectAsyncResult = await redcap_api.CreateProjectAsync(_superToken, Content.Project, RedcapFormat.json, projectData, RedcapReturnFormat.json, null);
-            Console.WriteLine($"CreateProjectAsyncResult: {CreateProjectAsyncResult}");
+            if(!string.IsNullOrWhiteSpace(_superToken))
+            {
+                await redcap_api.CreateProjectAsync(_superToken, Content.Project, RedcapFormat.json, projectData, RedcapReturnFormat.json, null);
+            }
             #endregion CreateProjectAsync()
             Console.WriteLine("----------------------------Press Enter to Continue-------------");
             Console.ReadLine();

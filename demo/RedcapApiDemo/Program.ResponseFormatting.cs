@@ -6,6 +6,9 @@ namespace RedcapApiDemo
 {
     partial class Program
     {
+        /// <summary>Formats JSON for display and shortens markup responses for console output.</summary>
+        /// <param name="response">The raw response body returned by REDCap.</param>
+        /// <returns>A console-friendly representation of the response.</returns>
         static string FormatApiResponse(string response)
         {
             if(string.IsNullOrWhiteSpace(response))

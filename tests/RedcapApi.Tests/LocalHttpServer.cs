@@ -12,6 +12,8 @@ internal sealed class LocalHttpServer : IDisposable
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private readonly Task _listenerTask;
 
+    /// <summary>Starts a loopback HTTP listener using the supplied response factory.</summary>
+    /// <param name="responseFactory">Produces the response for each captured request.</param>
     public LocalHttpServer(Func<CapturedRequest, TestResponse> responseFactory)
     {
         _responseFactory = responseFactory;
@@ -30,6 +32,7 @@ internal sealed class LocalHttpServer : IDisposable
 
     public ConcurrentQueue<CapturedRequest> Requests { get; } = new();
 
+    /// <summary>Stops the test listener and waits for the request loop to exit.</summary>
     public void Dispose()
     {
         _cancellationTokenSource.Cancel();
@@ -52,6 +55,8 @@ internal sealed class LocalHttpServer : IDisposable
         _cancellationTokenSource.Dispose();
     }
 
+    /// <summary>Captures incoming HTTP requests and writes the configured fixture response.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     private async Task ListenAsync()
     {
         while (!_cancellationTokenSource.IsCancellationRequested)
@@ -96,9 +101,9 @@ internal sealed class LocalHttpServer : IDisposable
                 context.Response.Headers[header.Key] = header.Value;
             }
 
-            if (!string.IsNullOrEmpty(response.Body))
+            var bytes = response.Bytes ?? Encoding.UTF8.GetBytes(response.Body);
+            if (bytes.Length > 0)
             {
-                var bytes = Encoding.UTF8.GetBytes(response.Body);
                 await context.Response.OutputStream.WriteAsync(bytes, 0, bytes.Length);
             }
 
@@ -106,6 +111,8 @@ internal sealed class LocalHttpServer : IDisposable
         }
     }
 
+    /// <summary>Selects a temporary loopback TCP port for the test listener.</summary>
+    /// <returns>The local port number.</returns>
     private static int GetAvailablePort()
     {
         using var tcpListener = new TcpListener(IPAddress.Loopback, 0);
@@ -118,6 +125,11 @@ internal sealed record CapturedRequest(string Method, string Path, string Body, 
 
 internal sealed class TestResponse
 {
+    /// <summary>Creates an HTTP response fixture with optional headers.</summary>
+    /// <param name="statusCode">The HTTP response status.</param>
+    /// <param name="body">The response text.</param>
+    /// <param name="contentType">The response media type.</param>
+    /// <param name="headers">Optional HTTP response headers.</param>
     public TestResponse(int statusCode, string body, string contentType = "text/plain", Dictionary<string, string>? headers = null)
     {
         StatusCode = statusCode;
@@ -129,6 +141,8 @@ internal sealed class TestResponse
     public int StatusCode { get; }
 
     public string Body { get; }
+
+    public byte[]? Bytes { get; init; }
 
     public string ContentType { get; }
 
