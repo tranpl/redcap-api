@@ -203,7 +203,7 @@ Supported selectors include method names and short aliases, e.g. `ImportRecordsA
 
 ## Build versions
 
-Each local library build increments the patch number for the current major/minor line. The first build in a fresh checkout produces 2.0.1. Debug and Release share a checkout-local counter that survives `dotnet clean`. GitHub Actions uses the workflow run number, Bitbucket uses its build number, and Azure Pipelines uses a pipeline counter. CI retries of the same numbered run reuse its version. Tagged releases use the patch number in their 2.0.x tag.
+Each local library build increments the patch number for the current major/minor line. The first build in a fresh checkout produces 2.0.1. Debug and Release share a checkout-local counter that survives `dotnet clean`. GitHub Actions uses the workflow run number and Bitbucket uses its build number. CI retries of the same numbered run reuse its version. Tagged releases use the patch number in their 2.0.x tag.
 
 Use `dotnet pack --no-build -c Release` to package the version already compiled in Release.
 
