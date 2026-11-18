@@ -68,7 +68,7 @@ namespace RedcapApiDemo
         {
             Console.WriteLine("Redcap Api Demo Started!");
             // Use your own API Token here...
-            var apiToken = "3D57A7FA57C8A43F6C8803A84BB3957B";
+            var apiToken = "YOUR_PROJECT_TOKEN";
             var redcap_api = new RedcapApi("https://localhost/redcap/api/");
 
             Console.WriteLine("Exporting all records from project.");

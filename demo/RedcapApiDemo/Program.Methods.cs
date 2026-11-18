@@ -5,6 +5,7 @@ using RedcapApiDemo.Models;
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 using Tynamix.ObjectFiller;
@@ -131,12 +132,15 @@ You can see here the Death Star orbiting the forest Moon of Endor. Although the 
 
             _ = await redcap_api.CreateFolderFileRepositoryAsync(token, Content.FileRepository, RedcapAction.CreateFolder, "demo-folder", RedcapFormat.json, returnFormat: RedcapReturnFormat.json);
             _ = await redcap_api.ExportFilesFoldersFileRepositoryAsync(token, Content.FileRepository, RedcapAction.List, RedcapFormat.json, folderId: null, RedcapReturnFormat.json);
-            _ = await redcap_api.ImportFileRepositoryAsync(token, Content.FileRepository, RedcapAction.Import, file: "demo-file-content", folderId: null, returnFormat: RedcapReturnFormat.json);
+            var repositoryUploadPath = Path.Combine(fileDownloadPath, "test.txt");
+            if(File.Exists(repositoryUploadPath))
+            {
+                _ = await redcap_api.ImportFileRepositoryAsync(token, Content.FileRepository, RedcapAction.Import, repositoryUploadPath);
+            }
             _ = await redcap_api.ExportFileFileRepositoryAsync(token, Content.FileRepository, RedcapAction.Export, docId: "1", returnFormat: RedcapReturnFormat.json);
             _ = await redcap_api.DeleteFileRepositoryAsync(token, Content.FileRepository, RedcapAction.Delete, docId: "1", returnFormat: RedcapReturnFormat.json);
 
             _ = superToken;
-            _ = fileDownloadPath;
 
             Console.WriteLine("Completed additional wiring examples.");
         }

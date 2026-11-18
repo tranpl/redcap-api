@@ -4,7 +4,6 @@ using Redcap.Models;
 using Serilog;
 
 using System.ComponentModel.DataAnnotations;
-using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 
@@ -17,11 +16,6 @@ namespace Redcap.Utilities
     /// </summary>
     public static class Utils
     {
-
-        /// <summary>
-        /// Controls how strictly a certificate's credentials are observed, for example over ssh tunnels.
-        /// </summary>
-        internal static bool UseInsecureCertificate = false;
 
         /// <summary>
         /// Method gets the display string for an enum
@@ -50,40 +44,43 @@ namespace Redcap.Utilities
         /// <param name="fileExtension"></param>
         /// <param name="cancellationToken"></param>
         /// <returns>HttpContent</returns>
-        public static Task ReadAsFileAsync(this HttpContent httpContent, string fileName, string path, bool overwrite, string fileExtension = "pdf", CancellationToken cancellationToken = default)
+        public static async Task ReadAsFileAsync(this HttpContent httpContent, string fileName, string path, bool overwrite, string fileExtension = "pdf", CancellationToken cancellationToken = default)
         {
-
-            if (!overwrite && File.Exists(Path.Combine(fileName + fileExtension?.SingleOrDefault(), path)))
+            fileName = fileName?.Trim('"');
+            if(string.IsNullOrWhiteSpace(fileName) || fileName is "." or ".." ||
+                fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 ||
+                fileName.Contains('/') || fileName.Contains('\\') || fileName.Contains(':'))
             {
-                throw new InvalidOperationException($"File {fileName} already exists.");
+                throw new ArgumentException("Provide a file name without a directory.", nameof(fileName));
             }
-            FileStream filestream = null;
+
+            var outputName = string.IsNullOrEmpty(fileExtension) ? fileName : $"{fileName}.{fileExtension}";
+            if(outputName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 ||
+                outputName.Contains('/') || outputName.Contains('\\') || outputName.Contains(':'))
+            {
+                throw new ArgumentException("Provide a file extension without a directory.", nameof(fileExtension));
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+            var temporaryPath = Path.Combine(path, Path.GetRandomFileName());
+            var options = new FileStreamOptions { Mode = FileMode.CreateNew, Access = FileAccess.Write, Share = FileShare.None };
+            if(!OperatingSystem.IsWindows())
+            {
+                options.UnixCreateMode = UnixFileMode.UserRead | UnixFileMode.UserWrite;
+            }
+            var destination = new FileStream(temporaryPath, options);
             try
             {
-                fileName = fileName.Replace("\"", "");
-                /*
-                 * Add extension
-                 */
-                if (!string.IsNullOrEmpty(fileExtension))
+                await using(destination)
                 {
-                    fileName = fileName + "." + fileExtension;
+                    await httpContent.CopyToAsync(destination, cancellationToken);
                 }
-                filestream = new FileStream(Path.Combine(path, fileName), FileMode.Create, FileAccess.Write, FileShare.None);
-                return httpContent.CopyToAsync(filestream).ContinueWith(
-                    (copyTask) =>
-                    {
-                        filestream.Flush();
-                        filestream.Dispose();
-                    }, cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+                File.Move(temporaryPath, Path.Combine(path, outputName), overwrite);
             }
-            catch (Exception Ex)
+            finally
             {
-                Log.Error(Ex.Message);
-                if (filestream != null)
-                {
-                    filestream.Flush();
-                }
-                throw new InvalidOperationException($"{Ex.Message}");
+                File.Delete(temporaryPath);
             }
         }
         /// https://stackoverflow.com/questions/8560106/isnullorempty-equivalent-for-array-c-sharp
@@ -495,16 +492,29 @@ namespace Redcap.Utilities
             return await Task.FromResult(new List<string> { });
         }
         /// <summary>
-        /// Returns a HttpClientHandler dependent on the value of the UseInsecureCertificate boolean
+        /// Creates a handler with standard certificate validation and automatic redirects disabled.
         /// </summary>
-        /// <returns>HttpClientHandler</returns>
-        public static HttpClientHandler GetHttpHandler()
+        public static HttpClientHandler GetHttpHandler() => new HttpClientHandler { AllowAutoRedirect = false };
+
+        /// <summary>Creates an HTTP handler using this client's certificate settings.</summary>
+        public static HttpClientHandler GetHttpHandler(this RedcapApi redcapApi)
         {
-            return UseInsecureCertificate ? new HttpClientHandler()
+            var handler = GetHttpHandler();
+            if(redcapApi.UseInsecureCertificates)
             {
-                UseProxy = false,
-                ServerCertificateCustomValidationCallback = BrokenCertificate.DangerousAcceptAnyServerCertificateValidator
-            } : new HttpClientHandler();
+                handler.UseProxy = false;
+                handler.ServerCertificateCustomValidationCallback = BrokenCertificate.DangerousAcceptAnyServerCertificateValidator;
+            }
+            return handler;
+        }
+
+        private static HttpClientHandler CreateRequestHandler(RedcapApi redcapApi, Uri uri)
+        {
+            if(uri.Scheme != Uri.UriSchemeHttps && !(uri.Scheme == Uri.UriSchemeHttp && uri.IsLoopback))
+            {
+                throw new ArgumentException("Use an HTTPS endpoint for remote REDCap requests.", nameof(uri));
+            }
+            return redcapApi.GetHttpHandler();
         }
         /// <summary>
         /// 
@@ -517,32 +527,17 @@ namespace Redcap.Utilities
         /// <returns>Stream</returns>
         public static async Task<Stream> GetStreamContentAsync(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
-            try
+            using var handler = CreateRequestHandler(redcapApi, uri);
+            using var client = new HttpClient(handler)
             {
-                Stream stream = null;
-                using (var handler = GetHttpHandler())
-                using (var client = new HttpClient(handler))
-                {
-                    TimeSpan tsTimeOut = TimeSpan.FromTicks(timeOutSeconds * TimeSpan.TicksPerSecond);
-                    client.Timeout = tsTimeOut;
-                    // Encode the values for payload
-                    var content = new FormUrlEncodedContent(payload);
-                    using (var response = await client.PostAsync(uri, content, cancellationToken))
-                    {
-                        if (response.IsSuccessStatusCode)
-                        {
-                            stream = await response.Content.ReadAsStreamAsync();
-                            return stream;
-                        }
-                    }
-                }
-                return null;
-            }
-            catch (Exception Ex)
-            {
-                Log.Error(Ex.Message);
-                return null;
-            }
+                Timeout = TimeSpan.FromSeconds(timeOutSeconds)
+            };
+            using var content = new FormUrlEncodedContent(payload);
+            using var response = await client.PostAsync(uri, content, cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            var bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+            return new MemoryStream(bytes, writable: false);
         }
 
         /// <summary>
@@ -559,7 +554,7 @@ namespace Redcap.Utilities
         {
             try
             {
-                using (var handler = GetHttpHandler())
+                using (var handler = CreateRequestHandler(redcapApi, uri))
                 using (var client = new HttpClient(handler))
                 {
                     TimeSpan tsTimeOut = TimeSpan.FromTicks(timeOutSeconds * TimeSpan.TicksPerSecond);
@@ -597,7 +592,7 @@ namespace Redcap.Utilities
             {
                 string _responseMessage;
 
-                using var handler = GetHttpHandler();
+                using var handler = CreateRequestHandler(redcapApi, uri);
                 using var client = new HttpClient(handler);
 
                 TimeSpan tsTimeOut = TimeSpan.FromTicks(timeOutSeconds * TimeSpan.TicksPerSecond);
@@ -617,35 +612,23 @@ namespace Redcap.Utilities
                 using var response = await client.PostAsync(uri, content, cancellationToken);
                 if (response.IsSuccessStatusCode)
                 {
-                    // Get the filename so we can save with the name
-                    var headers = response.Content.Headers;
-                    var fileName = headers.ContentType?.Parameters.Select(x => x.Value).FirstOrDefault();
-                    if (!string.IsNullOrEmpty(fileName))
-                    {
-                        var contentDisposition = response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-                        {
-                            FileName = fileName
-                        };
-                    }
-
-
                     if (!string.IsNullOrEmpty(pathValue))
                     {
-                        var fileExtension = payload.SingleOrDefault(x => x.Key == "content" && x.Value == "pdf").Value;
-                        if (!string.IsNullOrEmpty(fileExtension))
-                        {
-                            // pdf 
-                            fileName = payload.SingleOrDefault(x => x.Key == "instrument").Value;
-                            // to do , make extensions for various types
-                            // save the file to a specified location using an extension method
-                            await response.Content.ReadAsFileAsync(fileName, pathValue, true, fileExtension, cancellationToken: cancellationToken);
+                        var headers = response.Content.Headers;
+                        var fileName = headers.ContentDisposition?.FileNameStar ??
+                            headers.ContentDisposition?.FileName ??
+                            headers.ContentType?.Parameters.FirstOrDefault(parameter =>
+                                string.Equals(parameter.Name, "name", StringComparison.OrdinalIgnoreCase))?.Value;
+                        fileName = fileName?.Trim('"');
 
-                        }
-                        else
+                        var isPdf = payload.TryGetValue("content", out var contentType) && contentType == "pdf";
+                        if (string.IsNullOrEmpty(fileName) && isPdf)
                         {
-                            await response.Content.ReadAsFileAsync(fileName, pathValue, true, fileExtension, cancellationToken: cancellationToken);
-
+                            fileName = payload.TryGetValue("instrument", out var instrument) ? instrument + ".pdf" : "instruments.pdf";
                         }
+
+                        await response.Content.ReadAsFileAsync(fileName, pathValue, overwrite: true,
+                            fileExtension: null, cancellationToken: cancellationToken);
                         _responseMessage = fileName;
                     }
                     else
@@ -677,7 +660,7 @@ namespace Redcap.Utilities
         /// <returns>string</returns>
         public static async Task<string> SendPostRequest(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
-            using var handler = GetHttpHandler();
+            using var handler = CreateRequestHandler(redcapApi, uri);
             using var client = new HttpClient(handler);
 
             TimeSpan tsTimeOut = TimeSpan.FromTicks(timeOutSeconds * TimeSpan.TicksPerSecond);

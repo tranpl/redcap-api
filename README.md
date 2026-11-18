@@ -61,7 +61,7 @@ namespace RedcapApiDemo
     {
         static async Task<int> Main(string[] args)
         {
-            var apiToken = "3D57A7FA57C8A43F6C8803A84BB3957B";
+            var apiToken = "YOUR_PROJECT_TOKEN";
             var redcap_api = new RedcapApi("http://localhost/redcap/api/");
             var result = await redcap_api.ExportRecordsAsync(apiToken);
             var records = JsonConvert.DeserializeObject(result);
@@ -101,7 +101,21 @@ __Example Project__
 
 A console project has been included with the source code to get started. Some examples of method usage. You can use this to get started potentially.
 
-## Demo Prerequisites (RedcapApiDemo)
+## Offline demo and bulk XML import
+
+Run the demo without arguments to import two synthetic records from a bundled ODM file and export them again through an in-memory transport. It runs without credentials, prompts, or a REDCap server.
+
+```bash
+dotnet run --project demo/RedcapApiDemo/RedcapApiDemo.csproj
+```
+
+To import all records in a REDCap project XML export into an existing project, use its record-import token and supply the file once. The destination needs matching metadata. The client reads the document into memory and submits it as one ODM record import.
+
+```csharp
+var result = await api.ImportRecordsFromOdmFileAsync(token, "project-export.xml");
+```
+
+## Live demo prerequisites
 
 Before running the demo app in `demo/RedcapApiDemo`, verify all of the following:
 
@@ -118,10 +132,10 @@ Before running the demo app in `demo/RedcapApiDemo`, verify all of the following
 5. Local download folder is writable:
     - `C:\redcap_download_files`
 
-Run the demo:
+Run the live demo:
 
 ```bash
-dotnet run --project demo/RedcapApiDemo/RedcapApiDemo.csproj
+dotnet run --project demo/RedcapApiDemo/RedcapApiDemo.csproj -- --live
 ```
 
 The demo now prints a startup checklist and validates local artifacts before API calls begin.
@@ -192,6 +206,12 @@ Supported selectors include method names and short aliases, e.g. `ImportRecordsA
 __Test Project__
 
 A project with associated test cases is included. Make sure to change the api token
+
+## Build versions
+
+Each local library build increments the patch number for the current major/minor line. The first build in a fresh checkout produces 2.0.1. Debug and Release share a checkout-local counter that survives `dotnet clean`. GitHub Actions uses the workflow run number, Bitbucket uses its build number, and Azure Pipelines uses a pipeline counter. CI retries of the same numbered run reuse its version. The publishing workflow owns the sequence for published packages.
+
+Use `dotnet pack --no-build -c Release` to package the version already compiled in Release.
 
 ## Testing and Coverage
 

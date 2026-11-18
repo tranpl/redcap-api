@@ -262,3 +262,4 @@ __pycache__/
 RedcapApi/Properties
 RedcapApiDemo/Properties
 RedcapApi/nuget.config
+/src/RedcapApi/.build-patch-*
