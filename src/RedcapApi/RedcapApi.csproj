@@ -13,13 +13,14 @@
     <Description>This library allows applications on the .NET platform to make http calls to REDCap instances.</Description>
     <Product>Redcap Api Library</Product>
     <PackageId>RedcapAPI</PackageId>
-    <Version>2.0.0</Version>
-    <AssemblyVersion>2.0.0</AssemblyVersion>
+    <RedcapVersionLine>2.0</RedcapVersionLine>
+    <RedcapBuildPatch Condition="'$(GITHUB_RUN_NUMBER)' != ''">$(GITHUB_RUN_NUMBER)</RedcapBuildPatch>
+    <RedcapBuildPatch Condition="'$(BITBUCKET_BUILD_NUMBER)' != ''">$(BITBUCKET_BUILD_NUMBER)</RedcapBuildPatch>
+    <Version>$(RedcapVersionLine).1</Version>
     <PackageTags>redcap api library vcu</PackageTags>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <NeutralLanguage>en</NeutralLanguage>
-    <FileVersion>2.0.0</FileVersion>
     <Copyright>https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md</Copyright>
     <icon>https://vortex.cctr.vcu.edu/images/ram_crest_160.png</icon>
     <PackageIcon>vcu.png</PackageIcon>
@@ -58,4 +59,5 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Serilog" Version="4.1.0" />
   </ItemGroup>
+  <Import Project="../../build/BuildVersion.targets" />
 </Project>

@@ -12,9 +12,10 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  redcapPatch: $[counter('redcap-2.0', 1)]
 
 steps:
-- script: dotnet build --configuration $(buildConfiguration)
+- script: dotnet build --configuration $(buildConfiguration) -p:RedcapBuildPatch=$(redcapPatch)
   displayName: 'dotnet build $(buildConfiguration)'
 - task: DotNetCoreCLI@2
   inputs:

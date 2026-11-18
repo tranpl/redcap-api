@@ -1,0 +1,61 @@
+<Project>
+  <UsingTask TaskName="NextRedcapPatch" TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <CounterPath ParameterType="System.String" Required="true" />
+      <Patch ParameterType="System.Int32" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Threading" />
+      <Using Namespace="System.Globalization" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        using (var hash = System.Security.Cryptography.SHA256.Create())
+        {
+            var key = BitConverter.ToString(hash.ComputeHash(System.Text.Encoding.UTF8.GetBytes(CounterPath)));
+            using (var mutex = new Mutex(false, "RedcapBuild-" + key))
+            {
+                try { mutex.WaitOne(); }
+                catch (AbandonedMutexException) { /* The previous build stopped while holding the mutex. */ }
+                try
+                {
+                    var previous = File.Exists(CounterPath)
+                        ? int.Parse(File.ReadAllText(CounterPath), CultureInfo.InvariantCulture) : 0;
+                    Patch = checked(previous + 1);
+                    var temporary = CounterPath + ".tmp";
+                    File.WriteAllText(temporary, Patch.ToString(CultureInfo.InvariantCulture));
+                    if (File.Exists(CounterPath)) File.Replace(temporary, CounterPath, null);
+                    else File.Move(temporary, CounterPath);
+                }
+                finally { mutex.ReleaseMutex(); }
+            }
+        }
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="AllocateRedcapBuildVersion" BeforeTargets="GetAssemblyVersion"
+          Condition="'$(DesignTimeBuild)' != 'true' and '$(NoBuild)' != 'true'">
+    <NextRedcapPatch Condition="'$(RedcapBuildPatch)' == ''"
+                     CounterPath="$(MSBuildProjectDirectory)/.build-patch-$(RedcapVersionLine)">
+      <Output TaskParameter="Patch" PropertyName="RedcapBuildPatch" />
+    </NextRedcapPatch>
+    <PropertyGroup>
+      <Version>$(RedcapVersionLine).$(RedcapBuildPatch)</Version>
+      <PackageVersion>$(Version)</PackageVersion>
+      <AssemblyVersion>$(Version).0</AssemblyVersion>
+      <FileVersion>$(AssemblyVersion)</FileVersion>
+      <InformationalVersion>$(Version)</InformationalVersion>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="ReadBuiltRedcapPackageVersion" BeforeTargets="GenerateNuspec" Condition="'$(NoBuild)' == 'true'">
+    <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
+      <Output TaskParameter="Assemblies" ItemName="_BuiltRedcapAssembly" />
+    </GetAssemblyIdentity>
+    <PropertyGroup>
+      <_BuiltVersion>@(_BuiltRedcapAssembly->'%(Version)')</_BuiltVersion>
+      <PackageVersion>$([System.Version]::Parse('$(_BuiltVersion)').ToString(3))</PackageVersion>
+    </PropertyGroup>
+  </Target>
+</Project>

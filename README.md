@@ -207,6 +207,12 @@ __Test Project__
 
 A project with associated test cases is included. Make sure to change the api token
 
+## Build versions
+
+Each local library build increments the patch number for the current major/minor line. The first build in a fresh checkout produces 2.0.1. Debug and Release share a checkout-local counter that survives `dotnet clean`. GitHub Actions uses the workflow run number, Bitbucket uses its build number, and Azure Pipelines uses a pipeline counter. CI retries of the same numbered run reuse its version. The publishing workflow owns the sequence for published packages.
+
+Use `dotnet pack --no-build -c Release` to package the version already compiled in Release.
+
 ## Testing and Coverage
 
 The repository includes transport-focused unit tests that validate payload composition for API methods and overload variants without requiring a live REDCap instance.
