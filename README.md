@@ -1,105 +1,79 @@
 [![Build Status](https://dev.azure.com/cctrbic/redcap-api/_apis/build/status/redcap-api?branchName=master)](https://dev.azure.com/cctrbic/redcap-api/_build/latest?definitionId=122&branchName=master)
 
 [![NuGet](https://img.shields.io/nuget/dt/RedcapApi.svg?style=for-the-badge)](https://www.nuget.org/packages/RedcapAPI) 
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=for-the-badge)](https://github.com/cctrbic/redcap-api/blob/master/LICENSE.md)
+[![license](https://img.shields.io/github/license/tranpl/redcap-api.svg?style=for-the-badge)](https://github.com/tranpl/redcap-api/blob/master/LICENSE.md)
 
 # REDCap API Library for .NET
-The REDCap Api Library provides the ability to interact with REDCap programmatically using various .NET languages(C#,F#,VB.NET);
 
-## What's New in 2.0.0
+Use the .NET client from an application or launch the MCP server to give an agent access to REDCap's public API. This source tree targets .NET 11.
 
-Version 2.0.0 is a cleanup and parity release focused on bringing the library in line with documented REDCap API behavior while modernizing the repository structure.
+## What's New in 2.0.x
 
-- Added `ExportSurveyAccessCodeAsync`
-- Added interface coverage for randomization and user role mapping endpoints
-- Added `combineCheckboxOptions` support for record export methods
-- Added `delete_logging` support for record deletion methods
-- Added ODM format support where REDCap supports it
-- Expanded `Content` coverage for newer REDCap content values
-- Fixed `ExportProjectXmlAsync` default content mapping
-- Reorganized the repository into conventional `.NET` folders: `src`, `tests`, and `demo`
+- Updated the client against the public API reference shipped with REDCap 17.5.10.
+- Added bulk ODM record import into an existing project and a credential-free demo that imports and exports synthetic records.
+- Added a stdio MCP server with 55 tools. It exposes 28 export tools by default and supports all 55 operations when writes are enabled.
+- Moved the library, demo and tests to .NET 11, refreshed dependencies and added offline MCP coverage.
+- Each library build increments the patch version. See [Build versions](#build-versions) for CI numbering.
 
-__Prerequisites__
-1.  Local redcap instance installed (visit https://project-redcap.org) if you need to download files(assuming you have access)
-2.  Create a new project with "Demographics" for the template; this gives you a basic project to work with.
-3.  Create an api token for yourself, replace that with the tokens you see on the "RedcapApiTests.cs" files, and others
-4.  You may need to add a field type of "file_upload" so that you can test the file upload interface of the API
-5.  Build the solution, then run the demo project to see the results.
+## Use the .NET client
 
-__Highlights__
-* Export and import records, metadata, users, roles, DAGs, events, instruments, reports, and files
-* Project export, project XML export, project settings import, and next record name generation
-* Survey link, survey queue link, survey return code, survey participants, and survey access code support
-* File repository create/list/export/import/delete support
-* Repeating instruments/events import and export support
-* Randomize record support
+Install the .NET 11 SDK to build this checkout. Applications referencing this build must target a compatible framework. From your application, add a project reference to the checkout:
 
-__Usage__:
+```bash
+dotnet add reference /path/to/redcap-api/src/RedcapApi/RedcapApi.csproj
+```
 
-1. dotnet restore
-2. Add a reference to the package or project
-3. Add "using Redcap" namespace
-4. Add "using Redcap.Models" for convenience
-5. Use the sample data dictionary in `src/RedcapApi/Docs` if you want a quick test project setup
-6. The repository is organized as follows:
+For a published release, install the [RedcapAPI NuGet package](https://www.nuget.org/packages/RedcapAPI). To export one record, supply your project's HTTPS API URL and token from your application's configuration:
 
-    - `src/RedcapApi` - library source
-    - `tests/RedcapApi.Tests` - test project
-    - `demo/RedcapApiDemo` - demo console app
-
-7. Feel free to contribute
-
-__Sample / Example__
-```C# 
-
-using Newtonsoft.Json;
+```csharp
 using Redcap;
 
-namespace RedcapApiDemo
+var api = new RedcapApi(Environment.GetEnvironmentVariable("REDCAP_API_URL")
+    ?? throw new InvalidOperationException("Set REDCAP_API_URL to the project's API URL."));
+var token = Environment.GetEnvironmentVariable("REDCAP_API_TOKEN")
+    ?? throw new InvalidOperationException("Set REDCAP_API_TOKEN."));
+var result = await api.ExportRecordsAsync(token, records: ["1"]);
+```
+
+## Use the MCP server
+
+Build the solution from the repository root:
+
+```bash
+dotnet build RedcapApi.sln -c Release
+```
+
+Register the executable with a stdio-capable MCP client. Replace the absolute path below with your checkout's path:
+
+```json
 {
-    internal class Program
-    {
-        static async Task<int> Main(string[] args)
-        {
-            var apiToken = "YOUR_PROJECT_TOKEN";
-            var redcap_api = new RedcapApi("http://localhost/redcap/api/");
-            var result = await redcap_api.ExportRecordsAsync(apiToken);
-            var records = JsonConvert.DeserializeObject(result);
-            Console.WriteLine(records);
-            Console.ReadLine();
-            return 0;
-        }
+  "mcpServers": {
+    "redcap": {
+      "command": "dotnet",
+      "args": ["/absolute/path/to/redcap-api/src/RedcapApi.Mcp/bin/Release/net11.0/RedcapApi.Mcp.dll"]
     }
+  }
 }
-
-
 ```
 
-__Install directly in Package Manager Console or Command Line Interface__
-```C#
-Package Manager
+Configure the following variables in the server process environment. Store tokens in the client's secret configuration. The agent can receive any data the supplied credential is allowed to export.
 
-Install-Package RedcapAPI -Version 2.0.0
+| Variable | Purpose |
+| --- | --- |
+| `REDCAP_MCP_URL` | Complete REDCap API URL, such as `https://redcap.example.edu/api/`. HTTP is accepted only on loopback. |
+| `REDCAP_MCP_TOKEN` | Project API token for ordinary calls. Its REDCap permissions apply to every request. |
+| `REDCAP_MCP_ENABLE_WRITES` | Set to `true` and restart the process to expose imports, deletions, randomization and other changes. |
+| `REDCAP_MCP_SUPER_TOKEN` | Separate credential used only by `redcap_create_project`, which also requires writes enabled. |
 
+Use `tools/list` to discover each enabled tool and its required and optional arguments. The [operation catalog](src/RedcapApi.Mcp/operations.json) covers records, metadata, projects, reports, surveys, instruments, events, arms, users, roles, data access groups, logging, file fields and the file repository.
+
+For example, call `redcap_export_records` with:
+
+```json
+{"format":"json","type":"flat","records":["1"],"fields":["record_id"]}
 ```
 
-```C#
-.NET CLI
-
-dotnet add package RedcapAPI --version 2.0.0
-
- ```
-
-```C#
-Paket CLI
-
-paket add RedcapAPI --version 2.0.0
-
-```
-
-__Example Project__
-
-A console project has been included with the source code to get started. Some examples of method usage. You can use this to get started potentially.
+Supply identifiers as strings and switches as JSON booleans. For imports, pass `data` as a string serialized in the selected REDCap format. Upload tools accept a plain `fileName` and base64-encoded `fileBase64`. File and PDF exports return a text block containing JSON with `mimeType` and `base64`. The server buffers up to 32 MiB per HTTP response.
 
 ## Offline demo and bulk XML import
 
@@ -203,10 +177,6 @@ dotnet run --project demo/RedcapApiDemo/RedcapApiDemo.csproj -- -m ExportRecords
 
 Supported selectors include method names and short aliases, e.g. `ImportRecordsAsync`/`import`, `ExportRecordsAsync`/`export`.
 
-__Test Project__
-
-A project with associated test cases is included. Make sure to change the api token
-
 ## Build versions
 
 Each local library build increments the patch number for the current major/minor line. The first build in a fresh checkout produces 2.0.1. Debug and Release share a checkout-local counter that survives `dotnet clean`. GitHub Actions uses the workflow run number, Bitbucket uses its build number, and Azure Pipelines uses a pipeline counter. CI retries of the same numbered run reuse its version. The publishing workflow owns the sequence for published packages.
@@ -229,17 +199,10 @@ Run tests with coverage:
 dotnet test tests/RedcapApi.Tests/RedcapApi.Tests.csproj --collect:"XPlat Code Coverage" --verbosity minimal
 ```
 
-Latest local baseline (2026-04-19):
+After building the solution in Release, exercise discovery and calls for all 55 MCP tools with a local HTTP stub and Python 3:
 
-- Test count: `128`
-- Passing: `128`
-- Failing: `0`
-- Line coverage: `80.26%` (`2310/2878`)
-- Branch coverage: `59.49%` (`445/748`)
+```bash
+python3 tests/mcp/stdio_smoke.py
+```
 
-Recent coverage work focused on:
-
-- Overload parity across API method variants
-- Multipart and dictionary payload branch paths
-- File and file-repository request behavior
-- Survey/report/record export optional parameter handling
+The unit tests, MCP smoke test and default demo run with synthetic data. Live REDCap verification is tracked in [issue #142](https://github.com/tranpl/redcap-api/issues/142).

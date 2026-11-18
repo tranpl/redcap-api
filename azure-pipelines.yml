@@ -15,6 +15,10 @@ variables:
   redcapPatch: $[counter('redcap-2.0', 1)]
 
 steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: sdk
+    version: 11.0.x
 - script: dotnet build --configuration $(buildConfiguration) -p:RedcapBuildPatch=$(redcapPatch)
   displayName: 'dotnet build $(buildConfiguration)'
 - task: DotNetCoreCLI@2
