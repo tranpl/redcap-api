@@ -1,0 +1,13 @@
+{
+  "name": "redcap_import_records",
+  "arguments": {
+    "format": "json",
+    "type": "flat",
+    "overwriteBehavior": "normal",
+    "forceAutoNumber": false,
+    "backgroundProcess": false,
+    "returnContent": "count",
+    "returnFormat": "json",
+    "data": "[{\"record_id\":\"1\",\"visit_status\":\"scheduled\"}]"
+  }
+}

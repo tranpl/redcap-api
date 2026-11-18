@@ -90,6 +90,18 @@ def exercise(endpoint, writes):
             assert len(endpoint.requests) == count + 55
             assert call("redcap_export_version", format="json", token="unexpected")["isError"]
             assert len(endpoint.requests) == count + 55
+            # Run the documented tools/call examples through the same stdio session.
+            for sample in ("export-records", "import-records"):
+                params = json.loads((ROOT / "demo/mcp" / f"{sample}.json").read_text())
+                endpoint.reply = b'[{"record_id":"1"}]' if sample == "export-records" else b'{"count":1}'
+                result = rpc("tools/call", params)
+                assert not result.get("isError") and result["content"][0]["text"] == endpoint.reply.decode()
+                form = parse_qs(endpoint.requests[-1])
+                if sample == "export-records":
+                    assert form[b"records[0]"] == [b"1"] and form[b"fields[0]"] == [b"record_id"]
+                else:
+                    assert json.loads(form[b"data"][0]) == [{"record_id": "1", "visit_status": "scheduled"}]
+                print(f"{params['name']} -> {result['content'][0]['text']}")
             endpoint.status = 403
             assert call("redcap_export_version", format="json")["isError"]
         finally:

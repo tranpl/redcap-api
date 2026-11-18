@@ -1,0 +1,9 @@
+{
+  "name": "redcap_export_records",
+  "arguments": {
+    "format": "json",
+    "type": "flat",
+    "records": ["1"],
+    "fields": ["record_id"]
+  }
+}

@@ -32,8 +32,19 @@ var api = new RedcapApi(Environment.GetEnvironmentVariable("REDCAP_API_URL")
     ?? throw new InvalidOperationException("Set REDCAP_API_URL to the project's API URL."));
 var token = Environment.GetEnvironmentVariable("REDCAP_API_TOKEN")
     ?? throw new InvalidOperationException("Set REDCAP_API_TOKEN."));
-var result = await api.ExportRecordsAsync(token, records: ["1"]);
+var result = await api.ExportRecordsAsync(token, records: ["1"], fields: ["record_id"]);
 ```
+
+The equivalent REDCap API call is a form-encoded HTTP POST. This Bash example reads the token from the environment and sends it through standard input:
+
+```bash
+printf '%s' "$REDCAP_API_TOKEN" | curl --fail-with-body --silent --show-error \
+  --data-urlencode 'token@-' --data 'content=record&format=json&type=flat' \
+  --data-urlencode 'records[0]=1' --data-urlencode 'fields[0]=record_id' \
+  "$REDCAP_API_URL"
+```
+
+With access to record 1 in a project whose ID field is `record_id`, the JSON response looks like `[{"record_id":"1"}]`. The [offline C# sample](demo/RedcapApiDemo/Program.Offline.cs) shows both an import and an export with an in-memory transport.
 
 ## Use the MCP server
 
@@ -42,6 +53,8 @@ Build the solution from the repository root:
 ```bash
 dotnet build RedcapApi.sln -c Release
 ```
+
+Check `dotnet --version` if the build reports NETSDK1045. On macOS or Linux with .NET 11 installed in `$HOME/.dotnet`, run `export PATH="$HOME/.dotnet:$PATH"` in the current shell, then repeat the build. A GUI MCP client may need the absolute path to that same `dotnet` executable in its `command` setting.
 
 Register the executable with a stdio-capable MCP client. Replace the absolute path below with your checkout's path:
 
@@ -67,11 +80,22 @@ Configure the following variables in the server process environment. Store token
 
 Use `tools/list` to discover each enabled tool and its required and optional arguments. The [operation catalog](src/RedcapApi.Mcp/operations.json) covers records, metadata, projects, reports, surveys, instruments, events, arms, users, roles, data access groups, logging, file fields and the file repository.
 
-For example, call `redcap_export_records` with:
+### Discover and call tools
+
+After connecting, ask your agent to “export only the record ID for record 1.” An MCP client initializes the stdio session, sends `notifications/initialized`, and requests `tools/list`. Each tool's `inputSchema` describes its arguments. For that request, the client sends:
 
 ```json
-{"format":"json","type":"flat","records":["1"],"fields":["record_id"]}
+{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"redcap_export_records","arguments":{"format":"json","type":"flat","records":["1"],"fields":["record_id"]}}}
 ```
+
+Check `result.isError` before reading `result.content[0].text`. On success, that text contains the REDCap response in the requested format. Parse it as JSON when requesting JSON.
+
+| Sample `tools/call` parameters | What it does |
+| --- | --- |
+| [Export a record](demo/mcp/export-records.json) | Returns only the ID field for record 1. Works with the default export tools. |
+| [Import a record](demo/mcp/import-records.json) | Creates or updates record 1 with a synthetic visit status and requests a count. A live project needs a matching field and import rights, and the server needs writes enabled. |
+
+To run both sample calls offline, build the solution in Release and run `python3 tests/mcp/stdio_smoke.py` from the repository root. It starts the MCP process, sends the sample files over stdio, and prints the responses from a loopback REDCap stub. The [Python client example](tests/mcp/stdio_smoke.py) includes session initialization, discovery and error handling.
 
 Supply identifiers as strings and switches as JSON booleans. For imports, pass `data` as a string serialized in the selected REDCap format. Upload tools accept a plain `fileName` and base64-encoded `fileBase64`. File and PDF exports return a text block containing JSON with `mimeType` and `base64`. The server buffers up to 32 MiB per HTTP response.
 
