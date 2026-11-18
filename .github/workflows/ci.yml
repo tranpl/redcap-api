@@ -1,30 +1,31 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
-name: .NET
+name: REDCap CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [master]
   pull_request:
-    branches: [ "master" ]
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
     name: REDCap build and tests
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v7.0.1
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v6.1.0
-      with:
-        dotnet-version: 11.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build -c Release --no-restore
-    - name: Test
-      run: dotnet test -c Release --no-build --verbosity normal
-    - name: Test MCP tools offline
-      run: python3 tests/mcp/stdio_smoke.py
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-dotnet@v6.1.0
+        with:
+          dotnet-version: 11.0.x
+      - name: Restore dependencies
+        run: dotnet restore RedcapApi.sln
+      - name: Build
+        run: dotnet build RedcapApi.sln -c Release --no-restore
+      - name: Test
+        run: dotnet test RedcapApi.sln -c Release --no-build --verbosity normal
+      - name: Run offline demo
+        run: dotnet run --project demo/RedcapApiDemo -c Release --no-build
+      - name: Test MCP tools offline
+        run: python3 tests/mcp/stdio_smoke.py
