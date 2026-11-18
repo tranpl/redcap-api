@@ -1,4 +1,4 @@
-[![Build Status](https://dev.azure.com/cctrbic/redcap-api/_apis/build/status/redcap-api?branchName=master)](https://dev.azure.com/cctrbic/redcap-api/_build/latest?definitionId=122&branchName=master)
+[![Build and tests](https://github.com/tranpl/redcap-api/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/tranpl/redcap-api/actions/workflows/ci.yml)
 
 [![NuGet](https://img.shields.io/nuget/dt/RedcapApi.svg?style=for-the-badge)](https://www.nuget.org/packages/RedcapAPI) 
 [![license](https://img.shields.io/github/license/tranpl/redcap-api.svg?style=for-the-badge)](https://github.com/tranpl/redcap-api/blob/master/LICENSE.md)

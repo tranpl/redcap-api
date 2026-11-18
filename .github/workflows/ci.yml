@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-
+    name: REDCap build and tests
     runs-on: ubuntu-latest
 
     steps:
