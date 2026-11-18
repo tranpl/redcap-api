@@ -7,6 +7,7 @@ using Redcap.Utilities;
 
 using Serilog;
 
+using System.Globalization;
 using System.Net.Http.Headers;
 
 using static System.String;
@@ -30,6 +31,8 @@ namespace Redcap
         private Uri _uri = default!;
 
         private readonly IRedcapTransport _transport;
+
+        internal bool UseInsecureCertificates { get; }
 
         /// <summary>
         /// The version of redcap that the api is currently interacting with.
@@ -81,7 +84,7 @@ namespace Redcap
         {
             _uri = new Uri(redcapApiUrl);
             _transport = transport ?? throw new ArgumentNullException(nameof(transport));
-            Utils.UseInsecureCertificate = useInsecureCertificates;
+            UseInsecureCertificates = useInsecureCertificates;
         }
 
         /// <summary>
@@ -184,6 +187,29 @@ namespace Redcap
         {
             return Utils.ExtractBehaviorAsync(this, overwriteBehavior);
         }
+        private static void AddArrayParameter(Dictionary<string, string> payload, string name, string[] values)
+        {
+            if(values == null)
+            {
+                return;
+            }
+
+            for(var index = 0; index < values.Length; index++)
+            {
+                payload.Add($"{name}[{index}]", values[index]);
+            }
+        }
+
+        private static string SerializeImportData(RedcapFormat format, object data)
+        {
+            if(format != RedcapFormat.json)
+            {
+                throw new ArgumentException("Use the string overload to send data already formatted as CSV, XML, or ODM.", nameof(format));
+            }
+
+            return JsonConvert.SerializeObject(data);
+        }
+
         #region Arms
 
         /// <summary>
@@ -303,7 +329,7 @@ namespace Redcap
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="overrideBhavior">0 - false [default], 1 - true — You may use override=1 as a 'delete all + import' action in order to erase all existing Arms in the project while importing new Arms. If override=0, then you can only add new Arms or rename existing ones. </param>
         /// <param name="action">import</param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="data">Contains the attributes 'arm_num' (referring to the arm number) and 'name' (referring to the arm's name) of each arm to be created/modified, in which they are provided in the specified format. 
         /// [{"arm_num":"1","name":"Drug A"},
         /// {"arm_num":"2","name":"Drug B"},
@@ -313,13 +339,20 @@ namespace Redcap
         /// <param name="cancellationToken"></param>
         /// <param name="timeOutSeconds">The number of seconds beore the http request times out.</param>
         /// <returns>Number of Arms imported</returns>
-        public async Task<string> ImportArmsAsync<T>(string token, Override overrideBhavior, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+        public Task<string> ImportArmsAsync<T>(string token, Override overrideBhavior, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportArmsAsync(token, overrideBhavior, action, format, () => SerializeImportData(format, data), returnFormat, cancellationToken, timeOutSeconds);
+
+        /// <inheritdoc />
+        public Task<string> ImportArmsAsync(string token, Override overrideBhavior, RedcapAction action, RedcapFormat format, string data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportArmsAsync(token, overrideBhavior, action, format, () => data, returnFormat, cancellationToken, timeOutSeconds);
+
+        private async Task<string> ImportArmsAsync(string token, Override overrideBhavior, RedcapAction action, RedcapFormat format, Func<string> getData, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             try
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = getData();
                 var payload = new Dictionary<string, string>
                     {
                         { "token", token },
@@ -357,7 +390,7 @@ namespace Redcap
         /// <param name="content">arm</param>
         /// <param name="overrideBehavior">0 - false [default], 1 - true — You may use override=1 as a 'delete all + import' action in order to erase all existing Arms in the project while importing new Arms. If override=0, then you can only add new Arms or rename existing ones. </param>
         /// <param name="action">import</param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="data">Contains the attributes 'arm_num' (referring to the arm number) and 'name' (referring to the arm's name) of each arm to be created/modified, in which they are provided in the specified format. 
         /// [{"arm_num":"1","name":"Drug A"},
         /// {"arm_num":"2","name":"Drug B"},
@@ -373,7 +406,7 @@ namespace Redcap
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = SerializeImportData(format, data);
                 var payload = new Dictionary<string, string>
                     {
                         { "token", token },
@@ -411,7 +444,7 @@ namespace Redcap
         /// <param name="content">arm</param>
         /// <param name="overrideBehavior">0 - false [default], 1 - true — You may use override=1 as a 'delete all + import' action in order to erase all existing Arms in the project while importing new Arms. If override=0, then you can only add new Arms or rename existing ones. </param>
         /// <param name="action">import</param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="data">Contains the attributes 'arm_num' (referring to the arm number) and 'name' (referring to the arm's name) of each arm to be created/modified, in which they are provided in the specified format. 
         /// [{"arm_num":"1","name":"Drug A"},
         /// {"arm_num":"2","name":"Drug B"},
@@ -427,7 +460,7 @@ namespace Redcap
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = SerializeImportData(format, data);
                 var payload = new Dictionary<string, string>
                     {
                         { "token", token },
@@ -513,7 +546,7 @@ namespace Redcap
         /// <param name="cancellationToken"></param>
         /// <param name="timeOutSeconds">The number of seconds beore the http request times out.</param>
         /// <returns>Number of Arms deleted</returns>
-        public async Task<string> DeleteArmsAsync(string token, Content content = Content.Event, RedcapAction action = RedcapAction.Delete, string[] arms = default, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+        public async Task<string> DeleteArmsAsync(string token, Content content = Content.Arm, RedcapAction action = RedcapAction.Delete, string[] arms = default, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             try
             {
@@ -597,7 +630,7 @@ namespace Redcap
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">dags</param>
         /// <param name="action">import</param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="data">Contains the attributes 'data_access_group_name' (referring to the group name) and 'unique_group_name' (referring to the auto-generated unique group name) of each DAG to be created/modified, in which they are provided in the specified format.
         /// Refer to the API documenations for additional examples.
         /// JSON Example:
@@ -614,14 +647,21 @@ namespace Redcap
         /// <param name="cancellationToken"></param>
         /// <param name="timeOutSeconds">Number of seconds before the http request times out.</param>
         /// <returns>Number of DAGs added or updated</returns>
-        public async Task<string> ImportDagsAsync<T>(string token, Content content, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+        public Task<string> ImportDagsAsync<T>(string token, Content content, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportDagsAsync(token, content, action, format, () => SerializeImportData(format, data), returnFormat, cancellationToken, timeOutSeconds);
+
+        /// <inheritdoc />
+        public Task<string> ImportDagsAsync(string token, Content content, RedcapAction action, RedcapFormat format, string data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportDagsAsync(token, content, action, format, () => data, returnFormat, cancellationToken, timeOutSeconds);
+
+        private async Task<string> ImportDagsAsync(string token, Content content, RedcapAction action, RedcapFormat format, Func<string> getData, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             var importDagsResults = string.Empty;
             try
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = getData();
                 var payload = new Dictionary<string, string>
                     {
                         { "token", token },
@@ -778,7 +818,7 @@ namespace Redcap
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">userDagMapping</param>
         /// <param name="action">import</param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="data">
         /// Contains the attributes 'username' (referring to the existing unique username) and 'redcap_data_access_group' (referring to existing unique group name) of each User-DAG assignments to be modified, in which they are provided in the specified format.
         /// JSON Example:
@@ -795,19 +835,26 @@ namespace Redcap
         /// <param name="cancellationToken"></param>
         /// <param name="timeOutSeconds">Number of seconds before the HTTP request times out.</param>
         /// <returns>Number of User-DAG assignments added or updated</returns>
-        public async Task<string> ImportUserDagAssignmentAsync<T>(string token, Content content, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+        public Task<string> ImportUserDagAssignmentAsync<T>(string token, Content content, RedcapAction action, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportUserDagAssignmentAsync(token, content, action, format, () => data is { Count: > 0 } ? SerializeImportData(format, data) : null, returnFormat, cancellationToken, timeOutSeconds);
+
+        /// <inheritdoc />
+        public Task<string> ImportUserDagAssignmentAsync(string token, Content content, RedcapAction action, RedcapFormat format, string data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportUserDagAssignmentAsync(token, content, action, format, () => data, returnFormat, cancellationToken, timeOutSeconds);
+
+        private async Task<string> ImportUserDagAssignmentAsync(string token, Content content, RedcapAction action, RedcapFormat format, Func<string> getData, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             var ImportUserDagAssignmentResults = string.Empty;
             try
             {
                 this.CheckToken(token);
 
-                if(data.Count < 1)
+                var _serializedData = getData();
+                if(IsNullOrWhiteSpace(_serializedData))
                 {
                     throw new InvalidOperationException($"No data to import, please specify data to import.");
                 }
 
-                var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                     {
                         { "token", token },
@@ -962,22 +1009,29 @@ namespace Redcap
         /// {"event_name":"Visit 2","arm_num":"1","day_offset":"3","offset_min":"0",
         /// "offset_max":"0","unique_event_name":"visit_2_arm_1"}]
         /// </param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
         /// <param name="timeOutSeconds">Number of seconds before the HTTP request times out.</param>
         /// <returns>Number of Events imported</returns>
-        public async Task<string> ImportEventsAsync<T>(string token, Override overRideBehavior, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+        public Task<string> ImportEventsAsync<T>(string token, Override overRideBehavior, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportEventsAsync(token, overRideBehavior, format, () => data is { Count: > 0 } ? SerializeImportData(format, data) : null, returnFormat, cancellationToken, timeOutSeconds);
+
+        /// <inheritdoc />
+        public Task<string> ImportEventsAsync(string token, Override overRideBehavior, RedcapFormat format, string data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportEventsAsync(token, overRideBehavior, format, () => data, returnFormat, cancellationToken, timeOutSeconds);
+
+        private async Task<string> ImportEventsAsync(string token, Override overRideBehavior, RedcapFormat format, Func<string> getData, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             try
             {
                 this.CheckToken(token);
 
-                if(data.Count < 1)
+                var _serializedData = getData();
+                if(IsNullOrWhiteSpace(_serializedData))
                 {
                     throw new ArgumentNullException($"Events can not be empty or null");
                 }
-                var _serializedData = JsonConvert.SerializeObject(data);
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -1020,7 +1074,7 @@ namespace Redcap
         /// {"event_name":"Visit 2","arm_num":"1","day_offset":"3","offset_min":"0",
         /// "offset_max":"0","unique_event_name":"visit_2_arm_1"}]
         /// </param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
         /// <param name="timeOutSeconds">Number of seconds before the HTTP request times out.</param>
@@ -1035,7 +1089,7 @@ namespace Redcap
                 {
                     throw new ArgumentNullException($"Events can not be empty or null");
                 }
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = SerializeImportData(format, data);
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -1319,13 +1373,9 @@ namespace Redcap
                 {
                     throw new ArgumentNullException($"No record provided to export");
                 }
-                if(IsNullOrEmpty(field) || IsNullOrEmpty(eventName))
+                if(IsNullOrEmpty(field))
                 {
                     throw new ArgumentNullException($"No field provided to export");
-                }
-                if(IsNullOrEmpty(eventName))
-                {
-                    throw new ArgumentNullException($"No eventName provided to export");
                 }
                 var payload = new Dictionary<string, string>
                 {
@@ -1336,8 +1386,12 @@ namespace Redcap
                     { "field", field },
                     { "event", eventName },
                     { "returnFormat", returnFormat.GetDisplayName() },
-                    { "repeat_instance", repeatInstance  }
+                    { "filePath", filePath }
                 };
+                if(!IsNullOrEmpty(repeatInstance))
+                {
+                    payload.Add("repeat_instance", repeatInstance);
+                }
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken, timeOutSeconds);
             }
             catch(Exception Ex)
@@ -1453,7 +1507,7 @@ namespace Redcap
                         {new StringContent(RedcapAction.Import.GetDisplayName()), "action" },
                         {new StringContent(record), "record" },
                         {new StringContent(field), "field" },
-                        {new StringContent(eventName),  "event" },
+                        {new StringContent(eventName ?? string.Empty),  "event" },
                         {new StringContent(returnFormat.GetDisplayName()), "returnFormat" }
                 };
                 if(!IsNullOrEmpty(repeatInstance))
@@ -1524,7 +1578,7 @@ namespace Redcap
                         {new StringContent(action.GetDisplayName()), "action" },
                         {new StringContent(record), "record" },
                         {new StringContent(field), "field" },
-                        {new StringContent(eventName),  "event" },
+                        {new StringContent(eventName ?? string.Empty),  "event" },
                         {new StringContent(returnFormat.GetDisplayName()), "returnFormat" }
                 };
                 if(!IsNullOrEmpty(repeatInstance))
@@ -1588,7 +1642,7 @@ namespace Redcap
                     {new StringContent(RedcapAction.Delete.GetDisplayName()), "action" },
                     {new StringContent(record), "record" },
                     {new StringContent(field), "field" },
-                    {new StringContent(eventName),  "event" },
+                    {new StringContent(eventName ?? string.Empty),  "event" },
                     {new StringContent(returnFormat.GetDisplayName()), "returnFormat" }
                 };
                 if(!IsNullOrEmpty(repeatInstance))
@@ -1642,7 +1696,7 @@ namespace Redcap
                     {new StringContent(action.GetDisplayName()), "action" },
                     {new StringContent(record), "record" },
                     {new StringContent(field), "field" },
-                    {new StringContent(eventName),  "event" },
+                    {new StringContent(eventName ?? string.Empty),  "event" },
                     {new StringContent(returnFormat.GetDisplayName()), "returnFormat" }
                 };
                 if(!IsNullOrEmpty(repeatInstance))
@@ -1664,6 +1718,35 @@ namespace Redcap
                 return Ex.Message;
             }
         }
+
+        /// <inheritdoc />
+        public Task<Stream> ExportFileStreamAsync(string token, string record, string field, string eventName = null,
+            int? repeatInstance = null, RedcapReturnFormat returnFormat = RedcapReturnFormat.json,
+            CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+        {
+            CheckToken(token);
+            ArgumentException.ThrowIfNullOrWhiteSpace(record);
+            ArgumentException.ThrowIfNullOrWhiteSpace(field);
+            var payload = new Dictionary<string, string>
+            {
+                ["token"] = token,
+                ["content"] = Content.File.GetDisplayName(),
+                ["action"] = RedcapAction.Export.GetDisplayName(),
+                ["record"] = record,
+                ["field"] = field,
+                ["returnFormat"] = returnFormat.GetDisplayName()
+            };
+            if(!IsNullOrEmpty(eventName))
+            {
+                payload.Add("event", eventName);
+            }
+            if(repeatInstance.HasValue)
+            {
+                payload.Add("repeat_instance", repeatInstance.Value.ToString(CultureInfo.InvariantCulture));
+            }
+            return GetStreamContentAsync(payload, _uri, cancellationToken, timeOutSeconds);
+        }
+
         #endregion Files
         #region File Repository
 
@@ -1708,6 +1791,7 @@ namespace Redcap
                     { "token", token },
                     { "content", content.GetDisplayName() },
                     { "action", action.GetDisplayName() },
+                    { "name", name },
                     { "format", format.GetDisplayName() },
                     { "returnFormat", returnFormat.GetDisplayName() }
                 };
@@ -1834,7 +1918,7 @@ namespace Redcap
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">fileRepository</param>
         /// <param name="action">import</param>
-        /// <param name="file">the contents of the file</param>
+        /// <param name="file">The local path of the file to upload.</param>
         /// <param name="folderId">the folder_id of a specific folder in the File Repository where you wish to store the file. If none is provided, the file will be stored in the top-level directory of the File Repository.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
@@ -1850,18 +1934,20 @@ namespace Redcap
                 {
                     throw new ArgumentNullException("Please provide a file to import.");
                 }
-                var payload = new Dictionary<string, string>
+                await using var fileStream = System.IO.File.OpenRead(file);
+                using var payload = new MultipartFormDataContent
                 {
-                    { "token", token },
-                    { "content", content.GetDisplayName() },
-                    { "action", action.GetDisplayName() },
-                    { "returnFormat", returnFormat.GetDisplayName() },
-                    { "file", file }
+                    { new StringContent(token), "token" },
+                    { new StringContent(content.GetDisplayName()), "content" },
+                    { new StringContent(action.GetDisplayName()), "action" },
+                    { new StringContent(returnFormat.GetDisplayName()), "returnFormat" }
                 };
-                // Optional
+                var fileContent = new StreamContent(fileStream);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                payload.Add(fileContent, "file", Path.GetFileName(file));
                 if(!IsNullOrEmpty(folderId))
                 {
-                    payload.Add("folder_id", folderId);
+                    payload.Add(new StringContent(folderId), "folder_id");
                 }
                 return await this.SendPostRequestAsync(payload, _uri, cancellationToken: cancellationToken, timeOutSeconds);
             }
@@ -1914,6 +2000,25 @@ namespace Redcap
                 return Ex.Message;
             }
         }
+
+        /// <inheritdoc />
+        public Task<Stream> ExportFileRepositoryStreamAsync(string token, string docId,
+            RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default,
+            long timeOutSeconds = 100)
+        {
+            CheckToken(token);
+            ArgumentException.ThrowIfNullOrWhiteSpace(docId);
+            var payload = new Dictionary<string, string>
+            {
+                ["token"] = token,
+                ["content"] = Content.FileRepository.GetDisplayName(),
+                ["action"] = RedcapAction.Export.GetDisplayName(),
+                ["doc_id"] = docId,
+                ["returnFormat"] = returnFormat.GetDisplayName()
+            };
+            return GetStreamContentAsync(payload, _uri, cancellationToken, timeOutSeconds);
+        }
+
         #endregion File Repository
         #region Instruments
 
@@ -2281,7 +2386,7 @@ namespace Redcap
         /// </remarks>
         /// <typeparam name="T"></typeparam>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="data">Contains the attributes 'arm_num' (referring to the arm number), 'unique_event_name' (referring to the auto-generated unique event name of the given event), and 'form' (referring to the unique form name of the given data collection instrument), in which they are provided in the specified format. 
         /// JSON Example:[{"arm_num":"1","unique_event_name":"baseline_arm_1","form":"demographics"},
         /// {"arm_num":"1","unique_event_name":"visit_1_arm_1","form":"day_3"},
@@ -2292,13 +2397,20 @@ namespace Redcap
         /// <param name="cancellationToken"></param>
         /// <param name="timeOutSeconds">Number of seconds before the http request times out.</param>
         /// <returns>Number of Instrument-Event Mappings imported</returns>
-        public async Task<string> ImportInstrumentMappingAsync<T>(string token, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+        public Task<string> ImportInstrumentMappingAsync<T>(string token, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportInstrumentMappingAsync(token, format, () => SerializeImportData(format, data), returnFormat, cancellationToken, timeOutSeconds);
+
+        /// <inheritdoc />
+        public Task<string> ImportInstrumentMappingAsync(string token, RedcapFormat format, string data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportInstrumentMappingAsync(token, format, () => data, returnFormat, cancellationToken, timeOutSeconds);
+
+        private async Task<string> ImportInstrumentMappingAsync(string token, RedcapFormat format, Func<string> getData, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             try
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = getData();
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -2329,7 +2441,7 @@ namespace Redcap
         /// <typeparam name="T"></typeparam>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">formEventMapping</param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="data">Contains the attributes 'arm_num' (referring to the arm number), 'unique_event_name' (referring to the auto-generated unique event name of the given event), and 'form' (referring to the unique form name of the given data collection instrument), in which they are provided in the specified format. 
         /// JSON Example:[{"arm_num":"1","unique_event_name":"baseline_arm_1","form":"demographics"},
         /// {"arm_num":"1","unique_event_name":"visit_1_arm_1","form":"day_3"},
@@ -2346,7 +2458,7 @@ namespace Redcap
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = SerializeImportData(format, data);
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -2363,6 +2475,47 @@ namespace Redcap
                 return Ex.Message;
             }
         }
+
+        /// <inheritdoc />
+        public Task<Stream> ExportPDFInstrumentsStreamAsync(string token, string recordId = null, string eventName = null,
+            string instrument = null, int? repeatInstance = null, bool allRecords = false, bool compactDisplay = false,
+            RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default,
+            long timeOutSeconds = 100)
+        {
+            CheckToken(token);
+            var payload = new Dictionary<string, string>
+            {
+                ["token"] = token,
+                ["content"] = Content.Pdf.GetDisplayName(),
+                ["returnFormat"] = returnFormat.GetDisplayName()
+            };
+            if(!IsNullOrEmpty(recordId))
+            {
+                payload.Add("record", recordId);
+            }
+            if(!IsNullOrEmpty(eventName))
+            {
+                payload.Add("event", eventName);
+            }
+            if(!IsNullOrEmpty(instrument))
+            {
+                payload.Add("instrument", instrument);
+            }
+            if(repeatInstance.HasValue)
+            {
+                payload.Add("repeat_instance", repeatInstance.Value.ToString(CultureInfo.InvariantCulture));
+            }
+            if(allRecords)
+            {
+                payload.Add("allRecords", "true");
+            }
+            if(compactDisplay)
+            {
+                payload.Add("compactDisplay", "true");
+            }
+            return GetStreamContentAsync(payload, _uri, cancellationToken, timeOutSeconds);
+        }
+
         #endregion Instruments
         #region Logging
 
@@ -2556,19 +2709,26 @@ namespace Redcap
         /// </remarks>
         /// <typeparam name="T"></typeparam>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="data">The formatted data to be imported.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
         /// <param name="timeOutSeconds">Number of seconds before the http request times out.</param>
         /// <returns>Number of fields imported</returns>
-        public async Task<string> ImportMetaDataAsync<T>(string token, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+        public Task<string> ImportMetaDataAsync<T>(string token, RedcapFormat format, List<T> data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportMetaDataAsync(token, format, () => SerializeImportData(format, data), returnFormat, cancellationToken, timeOutSeconds);
+
+        /// <inheritdoc />
+        public Task<string> ImportMetaDataAsync(string token, RedcapFormat format, string data, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportMetaDataAsync(token, format, () => data, returnFormat, cancellationToken, timeOutSeconds);
+
+        private async Task<string> ImportMetaDataAsync(string token, RedcapFormat format, Func<string> getData, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             try
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = getData();
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -2599,7 +2759,7 @@ namespace Redcap
         /// <typeparam name="T"></typeparam>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">metadata</param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="data">The formatted data to be imported.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
@@ -2613,7 +2773,7 @@ namespace Redcap
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = SerializeImportData(format, data);
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -2647,7 +2807,7 @@ namespace Redcap
         /// </remarks>
         /// <typeparam name="T"></typeparam>
         /// <param name="token">The Super API Token specific to a user</param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="data">
         ///     Contains the attributes of the project to be created, in which they are provided in the specified format. While the only required attributes are 'project_title' and 'purpose', the fields listed below are all the possible attributes that can be provided in the 'data' parameter. The 'purpose' attribute must have a numerical value (0=Practice/Just for fun, 1=Other, 2=Research, 3=Quality Improvement, 4=Operational Support), in which 'purpose_other' is only required to have a value (as a text string) if purpose=1. The attributes is_longitudinal (0=False, 1=True; Default=0), surveys_enabled (0=False, 1=True; Default=0), and record_autonumbering_enabled (0=False, 1=True; Default=1) are all boolean. Please note that either is_longitudinal=1 or surveys_enabled=1 does not add arms/events or surveys to the project, respectively, but it merely enables those settings which are seen at the top of the project's Project Setup page.
         ///     All available attributes:
@@ -2660,7 +2820,18 @@ namespace Redcap
         /// <param name="cancellationToken"></param>
         /// <param name="timeOutSeconds">Number of seconds before the http request times out.</param>
         /// <returns>When a project is created, a 32-character project-level API Token is returned (associated with both the project and user creating the project). This token could then ostensibly be used to make subsequent API calls to this project, such as for adding new events, fields, records, etc.</returns>
-        public async Task<string> CreateProjectAsync<T>(string token, RedcapFormat format, List<T> data,
+        public Task<string> CreateProjectAsync<T>(string token, RedcapFormat format, List<T> data,
+            RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string odm = null,
+            CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => CreateProjectAsync(token, format, () => SerializeImportData(format, data), returnFormat, odm, cancellationToken, timeOutSeconds);
+
+        /// <inheritdoc />
+        public Task<string> CreateProjectAsync(string token, RedcapFormat format, string data,
+            RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string odm = null,
+            CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => CreateProjectAsync(token, format, () => data, returnFormat, odm, cancellationToken, timeOutSeconds);
+
+        private async Task<string> CreateProjectAsync(string token, RedcapFormat format, Func<string> getData,
             RedcapReturnFormat returnFormat = RedcapReturnFormat.json, string odm = null,
             CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
@@ -2668,7 +2839,7 @@ namespace Redcap
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = getData();
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -2706,7 +2877,7 @@ namespace Redcap
         /// <typeparam name="T"></typeparam>
         /// <param name="token">The Super API Token specific to a user</param>
         /// <param name="content">project</param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="data">
         ///     Contains the attributes of the project to be created, in which they are provided in the specified format. While the only required attributes are 'project_title' and 'purpose', the fields listed below are all the possible attributes that can be provided in the 'data' parameter. The 'purpose' attribute must have a numerical value (0=Practice/Just for fun, 1=Other, 2=Research, 3=Quality Improvement, 4=Operational Support), in which 'purpose_other' is only required to have a value (as a text string) if purpose=1. The attributes is_longitudinal (0=False, 1=True; Default=0), surveys_enabled (0=False, 1=True; Default=0), and record_autonumbering_enabled (0=False, 1=True; Default=1) are all boolean. Please note that either is_longitudinal=1 or surveys_enabled=1 does not add arms/events or surveys to the project, respectively, but it merely enables those settings which are seen at the top of the project's Project Setup page.
         ///     All available attributes:
@@ -2727,7 +2898,7 @@ namespace Redcap
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = SerializeImportData(format, data);
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -2758,7 +2929,7 @@ namespace Redcap
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">project_settings</param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use <c>ImportProjectSettingsAsync</c> for preformatted data.</param>
         /// <param name="projectInfo">Contains some or all of the attributes from Export Project Information in the same data format as in the export. These attributes will change the project information.
         /// Attributes for the project in the format specified. For any values that are boolean, they should be represented as either a '0' (no/false) or '1' (yes/true). The following project attributes can be udpated:
         /// project_title, project_language, purpose, purpose_other, project_notes, custom_record_label, secondary_unique_field, is_longitudinal, surveys_enabled, scheduling_enabled, record_autonumbering_enabled, randomization_enabled, project_irb_number, project_grant_number, project_pi_firstname, project_pi_lastname, display_today_now_button
@@ -2766,13 +2937,20 @@ namespace Redcap
         /// <param name="cancellationToken"></param>
         /// <param name="timeOutSeconds">Number of seconds before the http request times out.</param>
         /// <returns>Returns the number of values accepted to be updated in the project settings (including values which remained the same before and after the import).</returns>
-        public async Task<string> ImportProjectInfoAsync(string token, Content content, RedcapFormat format, RedcapProjectInfo projectInfo, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+        public Task<string> ImportProjectInfoAsync(string token, Content content, RedcapFormat format, RedcapProjectInfo projectInfo, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportProjectSettingsAsync(token, content, format, () => SerializeImportData(format, projectInfo), cancellationToken, timeOutSeconds);
+
+        /// <inheritdoc />
+        public Task<string> ImportProjectSettingsAsync(string token, RedcapFormat format, string data, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportProjectSettingsAsync(token, Content.ProjectSettings, format, () => data, cancellationToken, timeOutSeconds);
+
+        private async Task<string> ImportProjectSettingsAsync(string token, Content content, RedcapFormat format, Func<string> getData, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             try
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(projectInfo);
+                var _serializedData = getData();
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -2797,7 +2975,7 @@ namespace Redcap
         /// To use this method, you must have API Import/Update privileges in the project.
         /// </remarks>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use <c>ImportProjectSettingsAsync</c> for preformatted data.</param>
         /// <param name="projectInfo">Contains some or all of the attributes from Export Project Information in the same data format as in the export. These attributes will change the project information.
         /// Attributes for the project in the format specified. For any values that are boolean, they should be represented as either a '0' (no/false) or '1' (yes/true). The following project attributes can be udpated:
         /// project_title, project_language, purpose, purpose_other, project_notes, custom_record_label, secondary_unique_field, is_longitudinal, surveys_enabled, scheduling_enabled, record_autonumbering_enabled, randomization_enabled, project_irb_number, project_grant_number, project_pi_firstname, project_pi_lastname, display_today_now_button
@@ -2811,7 +2989,7 @@ namespace Redcap
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(projectInfo);
+                var _serializedData = SerializeImportData(format, projectInfo);
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -2949,14 +3127,9 @@ namespace Redcap
                 {
                     payload.Add("returnMetadataOnly", returnMetadataOnly.ToString());
                 }
-                if(records?.Length > 0)
-                {
-                    payload.Add("records", await this.ConvertArraytoString(records));
-                }
-                if(events?.Length > 0)
-                {
-                    payload.Add("events", await this.ConvertArraytoString(events));
-                }
+                AddArrayParameter(payload, "records", records);
+                AddArrayParameter(payload, "fields", fields);
+                AddArrayParameter(payload, "events", events);
                 if(exportSurveyFields)
                 {
                     payload.Add("exportSurveyFields", exportSurveyFields.ToString());
@@ -3022,14 +3195,9 @@ namespace Redcap
                 {
                     payload.Add("returnMetadataOnly", returnMetadataOnly.ToString());
                 }
-                if(records?.Length > 0)
-                {
-                    payload.Add("records", await this.ConvertArraytoString(records));
-                }
-                if(events?.Length > 0)
-                {
-                    payload.Add("events", await this.ConvertArraytoString(events));
-                }
+                AddArrayParameter(payload, "records", records);
+                AddArrayParameter(payload, "fields", fields);
+                AddArrayParameter(payload, "events", events);
                 if(exportSurveyFields)
                 {
                     payload.Add("exportSurveyFields", exportSurveyFields.ToString());
@@ -3057,6 +3225,15 @@ namespace Redcap
 
         #endregion Projects
         #region Records
+
+        /// <inheritdoc />
+        public async Task<string> ImportRecordsFromOdmFileAsync(string token, string filePath, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+        {
+            CheckToken(token);
+            var data = await System.IO.File.ReadAllTextAsync(filePath, cancellationToken);
+            return await ImportRecordsAsync(token, RedcapFormat.odm, RedcapDataType.flat, OverwriteBehavior.normal,
+                false, false, data, cancellationToken: cancellationToken, timeOutSeconds: timeOutSeconds);
+        }
 
         /// <summary>
         /// From Redcap Version 6.18.0 <br/>
@@ -3180,22 +3357,10 @@ namespace Redcap
                 };
 
                 // Optional
-                if(records?.Length > 0)
-                {
-                    payload.Add("records", await this.ConvertArraytoString(records));
-                }
-                if(fields?.Length > 0)
-                {
-                    payload.Add("fields", await this.ConvertArraytoString(fields));
-                }
-                if(forms?.Length > 0)
-                {
-                    payload.Add("forms", await this.ConvertArraytoString(forms));
-                }
-                if(events?.Length > 0)
-                {
-                    payload.Add("events", await this.ConvertArraytoString(events));
-                }
+                AddArrayParameter(payload, "records", records);
+                AddArrayParameter(payload, "fields", fields);
+                AddArrayParameter(payload, "forms", forms);
+                AddArrayParameter(payload, "events", events);
                 // Pertains to CSV data only
                 var _rawOrLabel = rawOrLabel.ToString();
                 if(!IsNullOrEmpty(_rawOrLabel))
@@ -3229,19 +3394,19 @@ namespace Redcap
                 }
                 if(dateRangeBegin.HasValue)
                 {
-                    payload.Add("dateRangeBegin", dateRangeBegin.Value.ToString("yyyy-MM-dd hh:mm:ss"));
+                    payload.Add("dateRangeBegin", dateRangeBegin.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
                 }
                 if(dateRangeEnd.HasValue)
                 {
-                    payload.Add("dateRangeEnd", dateRangeEnd.Value.ToString("yyyy-MM-dd hh:mm:ss"));
+                    payload.Add("dateRangeEnd", dateRangeEnd.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
                 }
                 if(format == RedcapFormat.csv)
                 {
-                    payload.Add("csvDelimiter", csvDelimiter.ToString());
+                    payload.Add("csvDelimiter", csvDelimiter.GetDisplayName());
                 }
                 if(decimalCharacter != DecimalCharacter.none)
                 {
-                    payload.Add("decimalCharacter", decimalCharacter.ToString());
+                    payload.Add("decimalCharacter", decimalCharacter.GetDisplayName());
                 }
                 if(combineCheckboxOptions)
                 {
@@ -3307,22 +3472,10 @@ namespace Redcap
                 };
 
                 // Optional
-                if(records?.Length > 0)
-                {
-                    payload.Add("records", await this.ConvertArraytoString(records));
-                }
-                if(fields?.Length > 0)
-                {
-                    payload.Add("fields", await this.ConvertArraytoString(fields));
-                }
-                if(forms?.Length > 0)
-                {
-                    payload.Add("forms", await this.ConvertArraytoString(forms));
-                }
-                if(events?.Length > 0)
-                {
-                    payload.Add("events", await this.ConvertArraytoString(events));
-                }
+                AddArrayParameter(payload, "records", records);
+                AddArrayParameter(payload, "fields", fields);
+                AddArrayParameter(payload, "forms", forms);
+                AddArrayParameter(payload, "events", events);
 
                 // Pertains to CSV data only
                 var _rawOrLabel = rawOrLabel.ToString();
@@ -3357,19 +3510,19 @@ namespace Redcap
                 }
                 if(dateRangeBegin.HasValue)
                 {
-                    payload.Add("dateRangeBegin", dateRangeBegin.Value.ToString("yyyy-MM-dd hh:mm:ss"));
+                    payload.Add("dateRangeBegin", dateRangeBegin.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
                 }
                 if(dateRangeEnd.HasValue)
                 {
-                    payload.Add("dateRangeEnd", dateRangeEnd.Value.ToString("yyyy-MM-dd hh:mm:ss"));
+                    payload.Add("dateRangeEnd", dateRangeEnd.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
                 }
                 if(format == RedcapFormat.csv)
                 {
-                    payload.Add("csvDelimiter", csvDelimiter.ToString());
+                    payload.Add("csvDelimiter", csvDelimiter.GetDisplayName());
                 }
                 if(decimalCharacter != DecimalCharacter.none)
                 {
-                    payload.Add("decimalCharacter", decimalCharacter.ToString());
+                    payload.Add("decimalCharacter", decimalCharacter.GetDisplayName());
                 }
                 if(combineCheckboxOptions)
                 {
@@ -3427,7 +3580,7 @@ namespace Redcap
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
-                    { "records", record },
+                    { "records[0]", record },
                     { "content", content.GetDisplayName() },
                     { "format", format.GetDisplayName() },
                     { "returnFormat", onErrorFormat.GetDisplayName() },
@@ -3435,18 +3588,9 @@ namespace Redcap
                 };
 
                 // Optional
-                if(fields?.Length > 0)
-                {
-                    payload.Add("fields", await this.ConvertArraytoString(fields));
-                }
-                if(forms?.Length > 0)
-                {
-                    payload.Add("forms", await this.ConvertArraytoString(forms));
-                }
-                if(events?.Length > 0)
-                {
-                    payload.Add("events", await this.ConvertArraytoString(events));
-                }
+                AddArrayParameter(payload, "fields", fields);
+                AddArrayParameter(payload, "forms", forms);
+                AddArrayParameter(payload, "events", events);
                 /*
                  * Pertains to CSV data only
                  */
@@ -3482,20 +3626,20 @@ namespace Redcap
                 }
                 if(dateRangeBegin.HasValue)
                 {
-                    payload.Add("dateRangeBegin", dateRangeBegin.Value.ToString("yyyy-MM-dd hh:mm:ss"));
+                    payload.Add("dateRangeBegin", dateRangeBegin.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
                 }
                 if(dateRangeEnd.HasValue)
                 {
-                    payload.Add("dateRangeEnd", dateRangeEnd.Value.ToString("yyyy-MM-dd hh:mm:ss"));
+                    payload.Add("dateRangeEnd", dateRangeEnd.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
                 }
 
                 if(format == RedcapFormat.csv)
                 {
-                    payload.Add("csvDelimiter", csvDelimiter.ToString());
+                    payload.Add("csvDelimiter", csvDelimiter.GetDisplayName());
                 }
                 if(decimalCharacter != DecimalCharacter.none)
                 {
-                    payload.Add("decimalCharacter", decimalCharacter.ToString());
+                    payload.Add("decimalCharacter", decimalCharacter.GetDisplayName());
                 }
                 if(combineCheckboxOptions)
                 {
@@ -3526,7 +3670,7 @@ namespace Redcap
         /// </remarks>
         /// <typeparam name="T"></typeparam>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
-        /// <param name="format">csv, json [default], xml, odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="redcapDataType">flat - output as one record per row [default]
         /// eav - input as one data point per row
         /// Non-longitudinal: Will have the fields - record*, field_name, value
@@ -3550,13 +3694,20 @@ namespace Redcap
         /// <param name="cancellationToken"></param>
         /// <param name="timeOutSeconds">Number of seconds before the http request times out.</param>
         /// <returns>the content specified by returnContent</returns>
-        public async Task<string> ImportRecordsAsync<T>(string token, RedcapFormat format, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, bool backgroundProcess, List<T> data, string dateFormat = default, CsvDelimiter csvDelimiter = CsvDelimiter.tab, ReturnContent returnContent = ReturnContent.count, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+        public Task<string> ImportRecordsAsync<T>(string token, RedcapFormat format, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, bool backgroundProcess, List<T> data, string dateFormat = default, CsvDelimiter csvDelimiter = CsvDelimiter.tab, ReturnContent returnContent = ReturnContent.count, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportRecordsAsync(token, format, redcapDataType, overwriteBehavior, forceAutoNumber, backgroundProcess, () => SerializeImportData(format, data), dateFormat, csvDelimiter, returnContent, returnFormat, cancellationToken, timeOutSeconds);
+
+        /// <inheritdoc />
+        public Task<string> ImportRecordsAsync(string token, RedcapFormat format, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, bool backgroundProcess, string data, string dateFormat = default, CsvDelimiter csvDelimiter = CsvDelimiter.tab, ReturnContent returnContent = ReturnContent.count, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportRecordsAsync(token, format, redcapDataType, overwriteBehavior, forceAutoNumber, backgroundProcess, () => data, dateFormat, csvDelimiter, returnContent, returnFormat, cancellationToken, timeOutSeconds);
+
+        private async Task<string> ImportRecordsAsync(string token, RedcapFormat format, RedcapDataType redcapDataType, OverwriteBehavior overwriteBehavior, bool forceAutoNumber, bool backgroundProcess, Func<string> getData, string dateFormat = default, CsvDelimiter csvDelimiter = CsvDelimiter.tab, ReturnContent returnContent = ReturnContent.count, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             try
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = getData();
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -3566,10 +3717,13 @@ namespace Redcap
                     { "overwriteBehavior", overwriteBehavior.ToString() },
                     { "forceAutoNumber", forceAutoNumber.ToString() },
                     { "backgroundProcess", backgroundProcess.ToString() },
-                    { "csvDelimiter", csvDelimiter.ToString() },
                     { "data", _serializedData },
                     { "returnFormat", returnFormat.GetDisplayName() }
                 };
+                if(format == RedcapFormat.csv)
+                {
+                    payload.Add("csvDelimiter", csvDelimiter.GetDisplayName());
+                }
                 // Optional
                 if(!IsNullOrEmpty(dateFormat))
                 {
@@ -3599,7 +3753,7 @@ namespace Redcap
         /// <typeparam name="T"></typeparam>
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="content">record</param>
-        /// <param name="format">csv, json [default], xml, odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="redcapDataType">flat - output as one record per row [default]
         /// eav - input as one data point per row
         /// Non-longitudinal: Will have the fields - record*, field_name, value
@@ -3628,7 +3782,7 @@ namespace Redcap
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = SerializeImportData(format, data);
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -3638,10 +3792,13 @@ namespace Redcap
                     { "overwriteBehavior", overwriteBehavior.ToString() },
                     { "forceAutoNumber", forceAutoNumber.ToString() },
                     { "backgroundProcess", backgroundProcess.ToString() },
-                    { "csvDelimiter", csvDelimiter.ToString() },
                     { "data", _serializedData },
                     { "returnFormat", returnFormat.GetDisplayName() }
                 };
+                if(format == RedcapFormat.csv)
+                {
+                    payload.Add("csvDelimiter", csvDelimiter.GetDisplayName());
+                }
                 // Optional
                 if(!IsNullOrEmpty(dateFormat))
                 {
@@ -3683,7 +3840,7 @@ namespace Redcap
             {
                 this.CheckToken(token);
 
-                if(records?.Length < 1)
+                if(records == null || records.Length == 0)
                 {
                     throw new ArgumentNullException("Please provide the records you would like to remove.");
                 }
@@ -3738,7 +3895,7 @@ namespace Redcap
             {
                 this.CheckToken(token);
 
-                if(records?.Length < 1)
+                if(records == null || records.Length == 0)
                 {
                     throw new ArgumentNullException("Please provide the records you would like to remove.");
                 }
@@ -3796,7 +3953,7 @@ namespace Redcap
             {
                 this.CheckToken(token);
 
-                if(records?.Length < 1)
+                if(records == null || records.Length == 0)
                 {
                     throw new ArgumentNullException("Please provide the records you would like to remove.");
                 }
@@ -3813,10 +3970,30 @@ namespace Redcap
                 }
 
                 // Optional
-                payload.Add("arm", arm?.ToString());
-                payload.Add("instrument", instrument.InstrumentName);
-                payload.Add("event", redcapEvent.EventName);
-                payload.Add("repeat_instance", repeatInstance.RepeatInstance.ToString());
+                if(arm.HasValue)
+                {
+                    payload.Add("arm", arm.Value.ToString(CultureInfo.InvariantCulture));
+                }
+                if(instrument == null && redcapEvent == null && repeatInstance == null)
+                {
+                    throw new ArgumentException("Provide an instrument, event, or repeating instance for a scoped deletion.");
+                }
+                if(instrument != null)
+                {
+                    ArgumentException.ThrowIfNullOrWhiteSpace(instrument.InstrumentName);
+                    payload.Add("instrument", instrument.InstrumentName);
+                }
+                if(redcapEvent != null)
+                {
+                    var eventName = redcapEvent.UniqueEventName ?? redcapEvent.EventName;
+                    ArgumentException.ThrowIfNullOrWhiteSpace(eventName);
+                    payload.Add("event", eventName);
+                }
+                if(repeatInstance != null)
+                {
+                    ArgumentOutOfRangeException.ThrowIfLessThan(repeatInstance.RepeatInstance, 1);
+                    payload.Add("repeat_instance", repeatInstance.RepeatInstance.ToString(CultureInfo.InvariantCulture));
+                }
                 if(deleteLogging)
                 {
                     payload.Add("delete_logging", deleteLogging.ToString());
@@ -4001,18 +4178,25 @@ namespace Redcap
         /// <param name="token">The API token specific to your REDCap project and username (each token is unique to each user for each project). See the section on the left-hand menu for obtaining a token for a given project.</param>
         /// <param name="data">Note: Super API Tokens can also be utilized for this method instead of a project-level API token. Users can only be granted a super token by a REDCap administrator (using the API Tokens page in the REDCap Control Center).</param>
         /// <param name="content">repeatingFormsEvents</param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
         /// <param name="timeOutSeconds">Number of seconds before the http request times out.</param>
         /// <returns>Repeated instruments and events for the project in the format specified and will be ordered according to their order in the project.</returns>
-        public async Task<string> ImportRepeatingInstrumentsAndEvents<T>(string token, List<T> data, Content content = Content.RepeatingFormsEvents, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+        public Task<string> ImportRepeatingInstrumentsAndEvents<T>(string token, List<T> data, Content content = Content.RepeatingFormsEvents, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportRepeatingInstrumentsAndEvents(token, () => SerializeImportData(format, data), content, format, returnFormat, cancellationToken, timeOutSeconds);
+
+        /// <inheritdoc />
+        public Task<string> ImportRepeatingInstrumentsAndEvents(string token, string data, Content content = Content.RepeatingFormsEvents, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportRepeatingInstrumentsAndEvents(token, () => data, content, format, returnFormat, cancellationToken, timeOutSeconds);
+
+        private async Task<string> ImportRepeatingInstrumentsAndEvents(string token, Func<string> getData, Content content = Content.RepeatingFormsEvents, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             try
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = getData();
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4786,18 +4970,25 @@ namespace Redcap
         /// "lock_records_all_forms":"0","lock_records":"0","lock_records_customization":"0",
         /// "forms":{"demographics":"1","day_3":"2","other":"0"}}]
         /// </example>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
         /// <param name="timeOutSeconds">Number of seconds before the http request times out.</param>
         /// <returns>Number of users added or updated</returns>
-        public async Task<string> ImportUsersAsync<T>(string token, List<T> data, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+        public Task<string> ImportUsersAsync<T>(string token, List<T> data, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportUsersAsync(token, () => SerializeImportData(format, data), format, returnFormat, cancellationToken, timeOutSeconds);
+
+        /// <inheritdoc />
+        public Task<string> ImportUsersAsync(string token, string data, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportUsersAsync(token, () => data, format, returnFormat, cancellationToken, timeOutSeconds);
+
+        private async Task<string> ImportUsersAsync(string token, Func<string> getData, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             try
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = getData();
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -4853,7 +5044,7 @@ namespace Redcap
         /// "lock_records_all_forms":"0","lock_records":"0","lock_records_customization":"0",
         /// "forms":{"demographics":"1","day_3":"2","other":"0"}}]
         /// </example>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
         /// <param name="timeOutSeconds">Number of seconds before the http request times out.</param>
@@ -4864,7 +5055,7 @@ namespace Redcap
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = SerializeImportData(format, data);
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },
@@ -5004,19 +5195,26 @@ namespace Redcap
         /// All available attributes: unique_role_name, role_label, design, user_rights, data_access_groups, data_export, reports, stats_and_charts, manage_survey_participants, calendar, data_import_tool, data_comparison_tool, logging, file_repository, data_quality_create, data_quality_execute, api_export, api_import, mobile_app, mobile_app_download_data, record_create, record_rename, record_delete, lock_records_customization, lock_records, lock_records_all_forms, forms
         /// </param>
         /// <param name="content">userRole</param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="returnFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
         /// <param name="timeOutSeconds">Number of seconds before the http request times out.</param>
         /// <returns>Number of user roles added or updated</returns>
-        public async Task<string> ImportUserRolesAsync<T>(string token, List<T> data, Content content = Content.UserRole, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+        public Task<string> ImportUserRolesAsync<T>(string token, List<T> data, Content content = Content.UserRole, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportUserRolesAsync(token, () => SerializeImportData(format, data), content, format, returnFormat, cancellationToken, timeOutSeconds);
+
+        /// <inheritdoc />
+        public Task<string> ImportUserRolesAsync(string token, string data, Content content = Content.UserRole, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportUserRolesAsync(token, () => data, content, format, returnFormat, cancellationToken, timeOutSeconds);
+
+        private async Task<string> ImportUserRolesAsync(string token, Func<string> getData, Content content = Content.UserRole, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat returnFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             var importUserRolesResult = string.Empty;
             try
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = getData();
                 var payload = new Dictionary<string, string>
                     {
                         { "token", token },
@@ -5140,19 +5338,26 @@ namespace Redcap
         /// </param>
         /// <param name="content">userRoleMapping</param>
         /// <param name="action">import</param>
-        /// <param name="format">csv, json [default], xml</param>
+        /// <param name="format">Use <see cref="RedcapFormat.json"/> with .NET objects. Use the string overload for preformatted data.</param>
         /// <param name="onErrorFormat">csv, json, xml - specifies the format of error messages. If you do not pass in this flag, it will select the default format for you passed based on the 'format' flag you passed in or if no format flag was passed in, it will default to 'json'.</param>
         /// <param name="cancellationToken"></param>
         /// <param name="timeOutSeconds">Number of seconds before the http request times out.</param>
         /// <returns>Number of User-Role assignments added or updated</returns>
-        public async Task<string> ImportUserRoleAssignmentAsync<T>(string token, List<T> data, Content content = Content.UserRoleMapping, RedcapAction action = RedcapAction.Import, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat onErrorFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+        public Task<string> ImportUserRoleAssignmentAsync<T>(string token, List<T> data, Content content = Content.UserRoleMapping, RedcapAction action = RedcapAction.Import, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat onErrorFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportUserRoleAssignmentAsync(token, () => SerializeImportData(format, data), content, action, format, onErrorFormat, cancellationToken, timeOutSeconds);
+
+        /// <inheritdoc />
+        public Task<string> ImportUserRoleAssignmentAsync(string token, string data, Content content = Content.UserRoleMapping, RedcapAction action = RedcapAction.Import, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat onErrorFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
+            => ImportUserRoleAssignmentAsync(token, () => data, content, action, format, onErrorFormat, cancellationToken, timeOutSeconds);
+
+        private async Task<string> ImportUserRoleAssignmentAsync(string token, Func<string> getData, Content content = Content.UserRoleMapping, RedcapAction action = RedcapAction.Import, RedcapFormat format = RedcapFormat.json, RedcapReturnFormat onErrorFormat = RedcapReturnFormat.json, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             var importUserRoleAssignmentResult = string.Empty;
             try
             {
                 this.CheckToken(token);
 
-                var _serializedData = JsonConvert.SerializeObject(data);
+                var _serializedData = getData();
                 var payload = new Dictionary<string, string>
                 {
                     { "token", token },

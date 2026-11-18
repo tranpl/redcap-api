@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Docs/SampleRecords.xml" CopyToOutputDirectory="PreserveNewest" />
     <ProjectReference Include="..\..\src\RedcapApi\RedcapApi.csproj" />
   </ItemGroup>
 </Project>
