@@ -131,12 +131,15 @@ public class UtilitiesTests
     [Fact]
     public void GetHttpHandler_UsesUnsafeCertificateModeWhenConfigured()
     {
-        _ = new Redcap.RedcapApi("http://localhost/", useInsecureCertificates: true);
-        var insecureHandler = Utils.GetHttpHandler();
+        var secure = new Redcap.RedcapApi("https://localhost/");
+        var insecure = new Redcap.RedcapApi("https://localhost/", useInsecureCertificates: true);
+        using var secureHandler = secure.GetHttpHandler();
+        using var insecureHandler = insecure.GetHttpHandler();
+        using var defaultHandler = Utils.GetHttpHandler();
 
-        _ = new Redcap.RedcapApi("http://localhost/", useInsecureCertificates: false);
-        var secureHandler = Utils.GetHttpHandler();
-
+        Assert.Null(defaultHandler.ServerCertificateCustomValidationCallback);
+        Assert.False(secureHandler.AllowAutoRedirect);
+        Assert.False(insecureHandler.AllowAutoRedirect);
         Assert.NotNull(insecureHandler.ServerCertificateCustomValidationCallback);
         Assert.Null(secureHandler.ServerCertificateCustomValidationCallback);
     }
@@ -183,7 +186,8 @@ public class UtilitiesTests
         using var stream = await _api.GetStreamContentAsync(new Dictionary<string, string> { ["token"] = "abc" }, server.Url);
 
         Assert.NotNull(stream);
-        Assert.False(stream!.CanRead);
+        using var reader = new StreamReader(stream!);
+        Assert.Equal("stream-body", await reader.ReadToEndAsync());
     }
 
     [Fact]

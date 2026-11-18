@@ -96,9 +96,9 @@ internal sealed class LocalHttpServer : IDisposable
                 context.Response.Headers[header.Key] = header.Value;
             }
 
-            if (!string.IsNullOrEmpty(response.Body))
+            var bytes = response.Bytes ?? Encoding.UTF8.GetBytes(response.Body);
+            if (bytes.Length > 0)
             {
-                var bytes = Encoding.UTF8.GetBytes(response.Body);
                 await context.Response.OutputStream.WriteAsync(bytes, 0, bytes.Length);
             }
 
@@ -129,6 +129,8 @@ internal sealed class TestResponse
     public int StatusCode { get; }
 
     public string Body { get; }
+
+    public byte[]? Bytes { get; init; }
 
     public string ContentType { get; }
 

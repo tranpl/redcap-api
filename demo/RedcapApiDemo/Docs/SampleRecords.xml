@@ -1,0 +1,16 @@
+<ODM xmlns="http://www.cdisc.org/ns/odm/v1.3" ODMVersion="1.3.1" FileType="Snapshot" FileOID="Demo" CreationDateTime="2026-01-01T00:00:00Z">
+  <ClinicalData StudyOID="Demo" MetaDataVersionOID="Demo.1">
+    <SubjectData SubjectKey="1">
+      <StudyEventData StudyEventOID="visit"><FormData FormOID="visit"><ItemGroupData ItemGroupOID="visit_fields">
+        <ItemData ItemOID="record_id" Value="1" />
+        <ItemData ItemOID="visit_status" Value="scheduled" />
+      </ItemGroupData></FormData></StudyEventData>
+    </SubjectData>
+    <SubjectData SubjectKey="2">
+      <StudyEventData StudyEventOID="visit"><FormData FormOID="visit"><ItemGroupData ItemGroupOID="visit_fields">
+        <ItemData ItemOID="record_id" Value="2" />
+        <ItemData ItemOID="visit_status" Value="complete" />
+      </ItemGroupData></FormData></StudyEventData>
+    </SubjectData>
+  </ClinicalData>
+</ODM>

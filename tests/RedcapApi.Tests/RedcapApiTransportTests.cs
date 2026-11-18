@@ -10,6 +10,151 @@ namespace RedcapApi.Tests;
 public class RedcapApiTransportTests
 {
     [Fact]
+    public async Task ImportRecordsFromOdmFileAsync_SubmitsAllRecordsAndFormsInOnePost()
+    {
+        const string data = """
+            <ODM xmlns="http://www.cdisc.org/ns/odm/v1.3"><ClinicalData>
+              <SubjectData SubjectKey="1"><StudyEventData><FormData FormOID="a"/><FormData FormOID="b"/></StudyEventData></SubjectData>
+              <SubjectData SubjectKey="2"><StudyEventData><FormData FormOID="a"/></StudyEventData></SubjectData>
+            </ClinicalData></ODM>
+            """;
+        using var server = new LocalHttpServer(_ => new TestResponse(200, "{\"count\":2}"));
+        IRedcap api = new Redcap.RedcapApi(server.Url.ToString());
+        var path = Path.GetTempFileName();
+        try
+        {
+            await File.WriteAllTextAsync(path, data);
+            Assert.Equal("{\"count\":2}", await api.ImportRecordsFromOdmFileAsync("demo", path));
+            var request = Assert.Single(server.Requests);
+            var fields = System.Web.HttpUtility.ParseQueryString(request.Body);
+            Assert.Equal("record", fields["content"]);
+            Assert.Equal("odm", fields["format"]);
+            Assert.Equal(data, fields["data"]);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public async Task ScopedRecordDeletionRequiresASelector()
+    {
+        var transport = new FakeTransport();
+        var api = new Redcap.RedcapApi("http://localhost/", transport);
+        var result = await api.DeleteRecordsAsync("token123", Content.Record, RedcapAction.Delete,
+            ["1"], null, null!, null!, null!);
+
+        Assert.Contains("scoped deletion", result);
+        Assert.Null(transport.LastDictionaryPayload);
+    }
+
+    [Theory]
+    [InlineData(RedcapFormat.csv, "record_id;status\r\n1;complete")]
+    [InlineData(RedcapFormat.xml, "<records><item><record_id>1</record_id></item></records>")]
+    [InlineData(RedcapFormat.odm, "<ODM xmlns=\"http://www.cdisc.org/ns/odm/v1.3\" />")]
+    public async Task ImportRecordsAsync_PreservesPreformattedData(RedcapFormat format, string data)
+    {
+        var transport = new FakeTransport();
+        IRedcap api = new Redcap.RedcapApi("http://localhost/", transport);
+
+        await api.ImportRecordsAsync("token123", format, RedcapDataType.flat, OverwriteBehavior.normal,
+            false, false, data, csvDelimiter: CsvDelimiter.semiColon);
+
+        Assert.NotNull(transport.LastDictionaryPayload);
+        Assert.Equal(format.ToString(), transport.LastDictionaryPayload["format"]);
+        Assert.Equal(data, transport.LastDictionaryPayload["data"]);
+        if (format == RedcapFormat.csv)
+        {
+            Assert.Equal(";", transport.LastDictionaryPayload["csvDelimiter"]);
+        }
+        else
+        {
+            Assert.False(transport.LastDictionaryPayload.ContainsKey("csvDelimiter"));
+        }
+    }
+
+    [Fact]
+    public async Task ImportRecordsAsync_WithNonJsonObjectData_DoesNotSendMismatchedPayload()
+    {
+        var transport = new FakeTransport();
+        var api = new Redcap.RedcapApi("http://localhost/", transport);
+
+        var result = await api.ImportRecordsAsync("token123", RedcapFormat.csv, RedcapDataType.flat,
+            OverwriteBehavior.normal, false, false, new List<object> { new { record_id = "1" } });
+
+        Assert.Contains("Use the string overload", result);
+        Assert.Null(transport.LastDictionaryPayload);
+    }
+
+    [Theory]
+    [InlineData("file")]
+    [InlineData("fileRepository")]
+    [InlineData("pdf")]
+    public async Task BinaryExports_ReturnOriginalBytes(string content)
+    {
+        byte[] expected = [0x00, 0xFF, 0xFE, 0x01];
+        using var server = new LocalHttpServer(_ => new TestResponse(200, "", "application/octet-stream")
+        {
+            Bytes = expected
+        });
+        IRedcap api = new Redcap.RedcapApi(server.Url.ToString());
+
+        using var stream = await (content switch
+        {
+            "file" => api.ExportFileStreamAsync("token123", "1", "attachment", repeatInstance: 2),
+            "fileRepository" => api.ExportFileRepositoryStreamAsync("token123", "42"),
+            _ => api.ExportPDFInstrumentsStreamAsync("token123", "1", instrument: "survey",
+                repeatInstance: 2, compactDisplay: true)
+        });
+        using var buffer = new MemoryStream();
+        await stream.CopyToAsync(buffer);
+
+        Assert.Equal(expected, buffer.ToArray());
+        var request = Assert.Single(server.Requests);
+        Assert.Contains($"content={content}", request.Body);
+        if (content == "fileRepository")
+        {
+            Assert.Contains("doc_id=42", request.Body);
+        }
+        else
+        {
+            Assert.Contains("repeat_instance=2", request.Body);
+        }
+        if (content == "pdf")
+        {
+            Assert.Contains("compactDisplay=true", request.Body);
+        }
+    }
+
+    [Fact]
+    public async Task ExportFileAsync_SavesAttachmentFromContentDisposition()
+    {
+        byte[] expected = [0x00, 0xFF, 0x01];
+        using var server = new LocalHttpServer(_ => new TestResponse(200, "", "application/octet-stream",
+            new Dictionary<string, string> { ["Content-Disposition"] = "attachment; filename=attachment.bin" })
+        {
+            Bytes = expected
+        });
+        var api = new Redcap.RedcapApi(server.Url.ToString());
+        var directory = Directory.CreateTempSubdirectory();
+
+        try
+        {
+            var name = await api.ExportFileAsync("token123", "1", "attachment", eventName: null,
+                filePath: directory.FullName);
+
+            Assert.Equal("attachment.bin", name);
+            Assert.Equal(expected, await File.ReadAllBytesAsync(Path.Combine(directory.FullName, name)));
+            Assert.DoesNotContain("filePath", Assert.Single(server.Requests).Body);
+        }
+        finally
+        {
+            directory.Delete(recursive: true);
+        }
+    }
+
+    [Fact]
     public async Task ExportDagsAsync_UsesExpectedPayload()
     {
         var transport = new FakeTransport();
@@ -180,7 +325,7 @@ public class RedcapApiTransportTests
             exportSurveyFields: true,
             exportDataAccessGroups: true,
             filterLogic: "[age] > 30",
-            dateRangeBegin: new DateTime(2024, 1, 2, 3, 4, 5),
+            dateRangeBegin: new DateTime(2024, 1, 2, 15, 4, 5),
             dateRangeEnd: new DateTime(2024, 1, 3, 3, 4, 5),
             csvDelimiter: CsvDelimiter.comma,
             decimalCharacter: DecimalCharacter.dot,
@@ -192,18 +337,21 @@ public class RedcapApiTransportTests
             Assert.Equal("record", transport.LastDictionaryPayload!["content"]);
             Assert.Equal("csv", transport.LastDictionaryPayload["format"]);
             Assert.Equal("flat", transport.LastDictionaryPayload["type"]);
-            Assert.Equal("1,2", transport.LastDictionaryPayload["records"]);
-            Assert.Equal("field_1,field_2", transport.LastDictionaryPayload["fields"]);
-            Assert.Equal("form_1", transport.LastDictionaryPayload["forms"]);
-            Assert.Equal("event_1_arm_1", transport.LastDictionaryPayload["events"]);
+            Assert.Equal("1", transport.LastDictionaryPayload["records[0]"]);
+            Assert.Equal("2", transport.LastDictionaryPayload["records[1]"]);
+            Assert.Equal("field_1", transport.LastDictionaryPayload["fields[0]"]);
+            Assert.Equal("field_2", transport.LastDictionaryPayload["fields[1]"]);
+            Assert.Equal("form_1", transport.LastDictionaryPayload["forms[0]"]);
+            Assert.Equal("event_1_arm_1", transport.LastDictionaryPayload["events[0]"]);
             Assert.Equal("label", transport.LastDictionaryPayload["rawOrLabel"]);
             Assert.Equal("label", transport.LastDictionaryPayload["rawOrLabelHeaders"]);
             Assert.Equal("True", transport.LastDictionaryPayload["exportCheckboxLabel"]);
             Assert.Equal("True", transport.LastDictionaryPayload["exportSurveyFields"]);
             Assert.Equal("True", transport.LastDictionaryPayload["exportDataAccessGroups"]);
             Assert.Equal("[age] > 30", transport.LastDictionaryPayload["filterLogic"]);
-            Assert.Equal("comma", transport.LastDictionaryPayload["csvDelimiter"]);
-            Assert.Equal("dot", transport.LastDictionaryPayload["decimalCharacter"]);
+            Assert.Equal(",", transport.LastDictionaryPayload["csvDelimiter"]);
+            Assert.Equal(".", transport.LastDictionaryPayload["decimalCharacter"]);
+            Assert.Equal("2024-01-02 15:04:05", transport.LastDictionaryPayload["dateRangeBegin"]);
             Assert.Equal("True", transport.LastDictionaryPayload["exportBlankForGrayFormStatus"]);
             Assert.Equal("True", transport.LastDictionaryPayload["combineCheckboxOptions"]);
         }
@@ -219,7 +367,7 @@ public class RedcapApiTransportTests
 
         Assert.NotNull(transport.LastDictionaryPayload);
         Assert.Equal("record", transport.LastDictionaryPayload!["content"]);
-        Assert.Equal("5", transport.LastDictionaryPayload["records"]);
+        Assert.Equal("5", transport.LastDictionaryPayload["records[0]"]);
         Assert.Equal("label", transport.LastDictionaryPayload["rawOrLabelHeaders"]);
     }
 
@@ -282,7 +430,7 @@ public class RedcapApiTransportTests
 
         Assert.NotNull(transport.LastDictionaryPayload);
         {
-            Assert.Equal("7", transport.LastDictionaryPayload!["records"]);
+            Assert.Equal("7", transport.LastDictionaryPayload!["records[0]"]);
             Assert.Equal("label", transport.LastDictionaryPayload["rawOrLabelHeaders"]);
             Assert.Equal("xml", transport.LastDictionaryPayload["returnFormat"]);
             Assert.Equal("True", transport.LastDictionaryPayload["exportBlankForGrayFormStatus"]);
@@ -578,12 +726,12 @@ public class RedcapApiTransportTests
             }
         };
 
-        await api.ImportUsersAsync("token123", data, RedcapFormat.csv, RedcapReturnFormat.xml);
+        await api.ImportUsersAsync("token123", data, RedcapFormat.json, RedcapReturnFormat.xml);
 
         Assert.NotNull(transport.LastDictionaryPayload);
         {
             Assert.Equal("user", transport.LastDictionaryPayload!["content"]);
-            Assert.Equal("csv", transport.LastDictionaryPayload["format"]);
+            Assert.Equal("json", transport.LastDictionaryPayload["format"]);
             Assert.Equal("xml", transport.LastDictionaryPayload["returnFormat"]);
             Assert.Contains("alice", transport.LastDictionaryPayload["data"]);
         }
@@ -658,13 +806,13 @@ public class RedcapApiTransportTests
             }
         };
 
-        await api.ImportUserRolesAsync("token123", data, Content.UserRole, RedcapFormat.csv, RedcapReturnFormat.xml);
+        await api.ImportUserRolesAsync("token123", data, Content.UserRole, RedcapFormat.json, RedcapReturnFormat.xml);
 
         Assert.NotNull(transport.LastDictionaryPayload);
         {
             Assert.Equal("token123", transport.LastDictionaryPayload!["token"]);
             Assert.Equal("userRole", transport.LastDictionaryPayload["content"]);
-            Assert.Equal("csv", transport.LastDictionaryPayload["format"]);
+            Assert.Equal("json", transport.LastDictionaryPayload["format"]);
             Assert.Equal("xml", transport.LastDictionaryPayload["returnFormat"]);
             Assert.Contains("Coordinator", transport.LastDictionaryPayload["data"]);
         }
@@ -717,14 +865,14 @@ public class RedcapApiTransportTests
             }
         };
 
-        await api.ImportUserRoleAssignmentAsync("token123", data, Content.UserRoleMapping, RedcapAction.Import, RedcapFormat.csv, RedcapReturnFormat.xml);
+        await api.ImportUserRoleAssignmentAsync("token123", data, Content.UserRoleMapping, RedcapAction.Import, RedcapFormat.json, RedcapReturnFormat.xml);
 
         Assert.NotNull(transport.LastDictionaryPayload);
         {
             Assert.Equal("token123", transport.LastDictionaryPayload!["token"]);
             Assert.Equal("userRoleMapping", transport.LastDictionaryPayload["content"]);
             Assert.Equal("import", transport.LastDictionaryPayload["action"]);
-            Assert.Equal("csv", transport.LastDictionaryPayload["format"]);
+            Assert.Equal("json", transport.LastDictionaryPayload["format"]);
             Assert.Equal("xml", transport.LastDictionaryPayload["returnFormat"]);
             Assert.Contains("U-123", transport.LastDictionaryPayload["data"]);
         }
@@ -997,6 +1145,7 @@ public class RedcapApiTransportTests
             content: Content.ProjectXml,
             returnMetadataOnly: true,
             records: new[] { "1", "2" },
+            fields: new[] { "record_id" },
             events: new[] { "event_1_arm_1" },
             returnFormat: RedcapReturnFormat.xml,
             exportSurveyFields: true,
@@ -1008,8 +1157,10 @@ public class RedcapApiTransportTests
         Assert.Equal("project_xml", transport.LastDictionaryPayload!["content"]);
         Assert.Equal("xml", transport.LastDictionaryPayload["returnFormat"]);
         Assert.Equal("True", transport.LastDictionaryPayload["returnMetadataOnly"]);
-        Assert.Equal("1,2", transport.LastDictionaryPayload["records"]);
-        Assert.Equal("event_1_arm_1", transport.LastDictionaryPayload["events"]);
+        Assert.Equal("1", transport.LastDictionaryPayload["records[0]"]);
+        Assert.Equal("2", transport.LastDictionaryPayload["records[1]"]);
+        Assert.Equal("record_id", transport.LastDictionaryPayload["fields[0]"]);
+        Assert.Equal("event_1_arm_1", transport.LastDictionaryPayload["events[0]"]);
         Assert.Equal("True", transport.LastDictionaryPayload["exportSurveyFields"]);
         Assert.Equal("True", transport.LastDictionaryPayload["exportDataAccessGroups"]);
         Assert.Equal("[record_id] = '1'", transport.LastDictionaryPayload["filterLogic"]);
@@ -1203,7 +1354,7 @@ public class RedcapApiTransportTests
             Assert.Equal("file", transport.LastDictionaryPayload!["content"]);
             Assert.Equal("export", transport.LastDictionaryPayload["action"]);
             Assert.Equal("2", transport.LastDictionaryPayload["repeat_instance"]);
-            Assert.False(transport.LastDictionaryPayload.ContainsKey("filePath"));
+            Assert.Equal(tempFolder, transport.LastDictionaryPayload["filePath"]);
         }
         finally
         {
@@ -1398,6 +1549,7 @@ public class RedcapApiTransportTests
         Assert.NotNull(transport.LastDictionaryPayload);
         Assert.Equal("fileRepository", transport.LastDictionaryPayload!["content"]);
         Assert.Equal("createFolder", transport.LastDictionaryPayload["action"]);
+        Assert.Equal("new-folder", transport.LastDictionaryPayload["name"]);
         Assert.Equal("json", transport.LastDictionaryPayload["format"]);
         Assert.Equal("10", transport.LastDictionaryPayload["folder_id"]);
         Assert.Equal("20", transport.LastDictionaryPayload["dag_id"]);
@@ -1448,18 +1600,31 @@ public class RedcapApiTransportTests
     }
 
     [Fact]
-    public async Task ImportFileRepositoryAsync_UsesExpectedPayload()
+    public async Task ImportFileRepositoryAsync_SendsMultipartFile()
     {
-        var transport = new FakeTransport();
-        var api = new Redcap.RedcapApi("http://localhost/", transport);
+        using var server = new LocalHttpServer(_ => new TestResponse(200, "uploaded"));
+        var api = new Redcap.RedcapApi(server.Url.ToString());
+        var directory = Directory.CreateTempSubdirectory();
+        var file = Path.Combine(directory.FullName, "document.txt");
+        await File.WriteAllTextAsync(file, "file-content");
 
-        await api.ImportFileRepositoryAsync("token123", Content.FileRepository, RedcapAction.Import, "file-content", "9", RedcapReturnFormat.xml);
+        try
+        {
+            var result = await api.ImportFileRepositoryAsync("token123", Content.FileRepository, RedcapAction.Import, file, "9", RedcapReturnFormat.xml);
 
-        Assert.NotNull(transport.LastDictionaryPayload);
-        Assert.Equal("fileRepository", transport.LastDictionaryPayload!["content"]);
-        Assert.Equal("import", transport.LastDictionaryPayload["action"]);
-        Assert.Equal("file-content", transport.LastDictionaryPayload["file"]);
-        Assert.Equal("9", transport.LastDictionaryPayload["folder_id"]);
+            Assert.Equal("uploaded", result);
+            var request = Assert.Single(server.Requests);
+            Assert.Contains("multipart/form-data", request.Headers["Content-Type"]);
+            Assert.Contains("fileRepository", request.Body);
+            Assert.Contains("filename=document.txt", request.Body);
+            Assert.Contains("file-content", request.Body);
+            Assert.Contains("name=folder_id", request.Body);
+            Assert.Contains("\r\n9\r\n", request.Body);
+        }
+        finally
+        {
+            directory.Delete(recursive: true);
+        }
     }
 
     [Fact]
