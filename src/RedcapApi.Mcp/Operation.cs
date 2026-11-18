@@ -9,6 +9,9 @@ internal sealed record Operation(string Name, string Content, string? Action, st
     public bool ReadOnly => Name.StartsWith("redcap_export_", StringComparison.Ordinal);
     public bool Binary => ReadOnly && (Content is "file" or "pdf" || Content == "fileRepository" && Action == "export");
 
+    /// <summary>Maps a REDCap argument name to its MCP JSON Schema type.</summary>
+    /// <param name="field">The argument name in the operation catalog.</param>
+    /// <returns>The JSON Schema type name used to validate the argument.</returns>
     public static string TypeOf(string field) => field switch
     {
         "fields" or "forms" or "records" or "events" or "arms" or "dags" or "users" or "roles" => "array",
@@ -18,6 +21,8 @@ internal sealed record Operation(string Name, string Content, string? Action, st
         _ => "string"
     };
 
+    /// <summary>Builds the discovery entry for this operation, including its schema and access hints.</summary>
+    /// <returns>The tool advertised to MCP clients.</returns>
     public Tool Describe()
     {
         var properties = new Dictionary<string, object>();

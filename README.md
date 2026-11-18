@@ -203,7 +203,7 @@ Supported selectors include method names and short aliases, e.g. `ImportRecordsA
 
 ## Build versions
 
-Each local library build increments the patch number for the current major/minor line. The first build in a fresh checkout produces 2.0.1. Debug and Release share a checkout-local counter that survives `dotnet clean`. GitHub Actions uses the workflow run number, Bitbucket uses its build number, and Azure Pipelines uses a pipeline counter. CI retries of the same numbered run reuse its version. The publishing workflow owns the sequence for published packages.
+Each local library build increments the patch number for the current major/minor line. The first build in a fresh checkout produces 2.0.1. Debug and Release share a checkout-local counter that survives `dotnet clean`. GitHub Actions uses the workflow run number, Bitbucket uses its build number, and Azure Pipelines uses a pipeline counter. CI retries of the same numbered run reuse its version. Tagged releases use the patch number in their 2.0.x tag.
 
 Use `dotnet pack --no-build -c Release` to package the version already compiled in Release.
 
@@ -229,4 +229,4 @@ After building the solution in Release, exercise discovery and calls for all 55 
 python3 tests/mcp/stdio_smoke.py
 ```
 
-The unit tests, MCP smoke test and default demo run with synthetic data. Live REDCap verification is tracked in [issue #142](https://github.com/tranpl/redcap-api/issues/142).
+The unit tests, MCP smoke test and default demo run with synthetic data. Live interoperability has not been verified because no disposable project was available. See [issue #142](https://github.com/tranpl/redcap-api/issues/142).

@@ -14,6 +14,7 @@ public class UtilitiesTests
 {
     private readonly Redcap.RedcapApi _api = new("http://localhost/");
 
+    /// <summary>Verifies get display name returns display attribute name.</summary>
     [Fact]
     public void GetDisplayName_ReturnsDisplayAttributeName()
     {
@@ -21,6 +22,7 @@ public class UtilitiesTests
         Assert.Equal("odm", RedcapFormat.odm.GetDisplayName());
     }
 
+    /// <summary>Verifies is null or empty handles null empty and populated arrays.</summary>
     [Fact]
     public void IsNullOrEmpty_HandlesNullEmptyAndPopulatedArrays()
     {
@@ -33,6 +35,8 @@ public class UtilitiesTests
         Assert.False(values.IsNullOrEmpty());
     }
 
+    /// <summary>Verifies convert array to string formats values.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ConvertArrayToString_FormatsValues()
     {
@@ -45,6 +49,8 @@ public class UtilitiesTests
         Assert.Equal(string.Empty, invalid);
     }
 
+    /// <summary>Verifies convert int array to string formats values.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ConvertIntArrayToString_FormatsValues()
     {
@@ -57,6 +63,8 @@ public class UtilitiesTests
         Assert.Equal(string.Empty, invalid);
     }
 
+    /// <summary>Verifies handle return content returns expected values.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task HandleReturnContent_ReturnsExpectedValues()
     {
@@ -65,6 +73,8 @@ public class UtilitiesTests
         Assert.Equal("count", await _api.HandleReturnContent((ReturnContent)999));
     }
 
+    /// <summary>Verifies handle format returns expected tuple.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task HandleFormat_ReturnsExpectedTuple()
     {
@@ -80,6 +90,8 @@ public class UtilitiesTests
         Assert.Equal("flat", fallback.redcapDataType);
     }
 
+    /// <summary>Verifies extract behavior async returns expected value.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExtractBehaviorAsync_ReturnsExpectedValue()
     {
@@ -88,6 +100,8 @@ public class UtilitiesTests
         Assert.Equal("overwrite", await _api.ExtractBehaviorAsync((OverwriteBehavior)999));
     }
 
+    /// <summary>Verifies get properties uses lower case keys and converts nullable types.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task GetProperties_UsesLowerCaseKeysAndConvertsNullableTypes()
     {
@@ -108,6 +122,8 @@ public class UtilitiesTests
         Assert.Null(properties["optionalvalue"]);
     }
 
+    /// <summary>Verifies extract helpers split delimited values.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExtractHelpers_SplitDelimitedValues()
     {
@@ -120,6 +136,7 @@ public class UtilitiesTests
         Assert.Equal(new[] { "1", "2" }, await _api.ExtractArmsAsync<string>("1,2", delimiters));
     }
 
+    /// <summary>Verifies check token throws for missing token.</summary>
     [Fact]
     public void CheckToken_ThrowsForMissingToken()
     {
@@ -128,6 +145,7 @@ public class UtilitiesTests
         Assert.Null(ex);
     }
 
+    /// <summary>Verifies get http handler uses unsafe certificate mode when configured.</summary>
     [Fact]
     public void GetHttpHandler_UsesUnsafeCertificateModeWhenConfigured()
     {
@@ -144,6 +162,8 @@ public class UtilitiesTests
         Assert.Null(secureHandler.ServerCertificateCustomValidationCallback);
     }
 
+    /// <summary>Verifies custom form url encoded content encodes keys and values.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task CustomFormUrlEncodedContent_EncodesKeysAndValues()
     {
@@ -158,6 +178,8 @@ public class UtilitiesTests
         Assert.Equal("a+key=value+with+spaces&sym%26bol=1%2B2", body);
     }
 
+    /// <summary>Verifies read as file async writes content to disk.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ReadAsFileAsync_WritesContentToDisk()
     {
@@ -179,6 +201,8 @@ public class UtilitiesTests
         }
     }
 
+    /// <summary>Verifies get stream content async returns response stream.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task GetStreamContentAsync_ReturnsResponseStream()
     {
@@ -190,6 +214,8 @@ public class UtilitiesTests
         Assert.Equal("stream-body", await reader.ReadToEndAsync());
     }
 
+    /// <summary>Verifies send post request async with dictionary returns response body.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task SendPostRequestAsync_WithDictionary_ReturnsResponseBody()
     {
@@ -208,6 +234,8 @@ public class UtilitiesTests
         Assert.Contains("content=record", request.Body);
     }
 
+    /// <summary>Verifies send post request throws when http status is not successful.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task SendPostRequest_ThrowsWhenHttpStatusIsNotSuccessful()
     {
@@ -217,6 +245,8 @@ public class UtilitiesTests
             await _api.SendPostRequest(new Dictionary<string, string> { ["token"] = "abc" }, server.Url));
     }
 
+    /// <summary>Verifies export survey access code async sends expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportSurveyAccessCodeAsync_SendsExpectedPayload()
     {
@@ -234,6 +264,8 @@ public class UtilitiesTests
         Assert.Contains("repeat_instance=2", request.Body);
     }
 
+    /// <summary>Verifies delete records async includes delete logging flag when enabled.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteRecordsAsync_IncludesDeleteLoggingFlagWhenEnabled()
     {
@@ -251,6 +283,8 @@ public class UtilitiesTests
         Assert.Contains("delete_logging=True", request.Body);
     }
 
+    /// <summary>Verifies randomize record sends expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task RandomizeRecord_SendsExpectedPayload()
     {

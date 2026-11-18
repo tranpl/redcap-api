@@ -9,6 +9,8 @@ namespace RedcapApi.Tests;
 
 public class RedcapApiTransportTests
 {
+    /// <summary>Verifies import records from odm file async submits all records and forms in one post.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportRecordsFromOdmFileAsync_SubmitsAllRecordsAndFormsInOnePost()
     {
@@ -37,6 +39,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies scoped record deletion requires aselector.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ScopedRecordDeletionRequiresASelector()
     {
@@ -49,6 +53,10 @@ public class RedcapApiTransportTests
         Assert.Null(transport.LastDictionaryPayload);
     }
 
+    /// <summary>Verifies import records async preserves preformatted data.</summary>
+    /// <param name="format">The REDCap data format selected by the caller.</param>
+    /// <param name="data">The data to encode.</param>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Theory]
     [InlineData(RedcapFormat.csv, "record_id;status\r\n1;complete")]
     [InlineData(RedcapFormat.xml, "<records><item><record_id>1</record_id></item></records>")]
@@ -74,6 +82,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies import records async with non json object data does not send mismatched payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportRecordsAsync_WithNonJsonObjectData_DoesNotSendMismatchedPayload()
     {
@@ -87,6 +97,9 @@ public class RedcapApiTransportTests
         Assert.Null(transport.LastDictionaryPayload);
     }
 
+    /// <summary>Verifies binary exports return original bytes.</summary>
+    /// <param name="content">The REDCap content identifier for the operation.</param>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Theory]
     [InlineData("file")]
     [InlineData("fileRepository")]
@@ -127,6 +140,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies export file async saves attachment from content disposition.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportFileAsync_SavesAttachmentFromContentDisposition()
     {
@@ -154,6 +169,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies export dags async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportDagsAsync_UsesExpectedPayload()
     {
@@ -170,6 +187,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies import dags async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportDagsAsync_UsesExpectedPayload()
     {
@@ -189,6 +208,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies delete dags async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteDagsAsync_UsesExpectedPayload()
     {
@@ -206,6 +227,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies delete dags async with no items returns error message.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteDagsAsync_WithNoItems_ReturnsErrorMessage()
     {
@@ -218,6 +241,8 @@ public class RedcapApiTransportTests
         Assert.Null(transport.LastDictionaryPayload);
     }
 
+    /// <summary>Verifies switch dag async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task SwitchDagAsync_UsesExpectedPayload()
     {
@@ -234,6 +259,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies export user dag assignment async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportUserDagAssignmentAsync_UsesExpectedPayload()
     {
@@ -250,6 +277,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies import user dag assignment async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportUserDagAssignmentAsync_UsesExpectedPayload()
     {
@@ -269,6 +298,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies import user dag assignment async with no data returns error message.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportUserDagAssignmentAsync_WithNoData_ReturnsErrorMessage()
     {
@@ -281,6 +312,8 @@ public class RedcapApiTransportTests
         Assert.Null(transport.LastDictionaryPayload);
     }
 
+    /// <summary>Verifies generate next record name async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task GenerateNextRecordNameAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -293,6 +326,8 @@ public class RedcapApiTransportTests
         Assert.Equal("generateNextRecordName", transport.LastDictionaryPayload!["content"]);
     }
 
+    /// <summary>Verifies generate next record name async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task GenerateNextRecordNameAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -305,6 +340,8 @@ public class RedcapApiTransportTests
         Assert.Equal("generateNextRecordName", transport.LastDictionaryPayload!["content"]);
     }
 
+    /// <summary>Verifies export records async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportRecordsAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -357,6 +394,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies export records async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportRecordsAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -371,6 +410,8 @@ public class RedcapApiTransportTests
         Assert.Equal("label", transport.LastDictionaryPayload["rawOrLabelHeaders"]);
     }
 
+    /// <summary>Verifies export records async default overload json format omits csv specific optional keys.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportRecordsAsync_DefaultOverload_JsonFormat_OmitsCsvSpecificOptionalKeys()
     {
@@ -399,6 +440,8 @@ public class RedcapApiTransportTests
         Assert.False(transport.LastDictionaryPayload.ContainsKey("fields"));
     }
 
+    /// <summary>Verifies export record async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportRecordAsync_UsesExpectedPayload()
     {
@@ -438,6 +481,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies import records async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportRecordsAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -459,6 +504,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies import records async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportRecordsAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -474,6 +521,8 @@ public class RedcapApiTransportTests
         Assert.Contains("Bob", transport.LastDictionaryPayload["data"]);
     }
 
+    /// <summary>Verifies export survey access code async uses injected transport.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportSurveyAccessCodeAsync_UsesInjectedTransport()
     {
@@ -491,6 +540,8 @@ public class RedcapApiTransportTests
         Assert.Equal("2", transport.LastDictionaryPayload["repeat_instance"]);
     }
 
+    /// <summary>Verifies delete records async uses injected transport and includes delete logging.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteRecordsAsync_UsesInjectedTransportAndIncludesDeleteLogging()
     {
@@ -507,6 +558,8 @@ public class RedcapApiTransportTests
         Assert.Equal("True", transport.LastDictionaryPayload["delete_logging"]);
     }
 
+    /// <summary>Verifies delete records async detailed overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteRecordsAsync_DetailedOverload_UsesExpectedPayload()
     {
@@ -533,6 +586,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies delete records async content arm overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteRecordsAsync_ContentArmOverload_UsesExpectedPayload()
     {
@@ -548,6 +603,8 @@ public class RedcapApiTransportTests
         Assert.Equal("True", transport.LastDictionaryPayload["delete_logging"]);
     }
 
+    /// <summary>Verifies delete records async with no records returns error message.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteRecordsAsync_WithNoRecords_ReturnsErrorMessage()
     {
@@ -560,6 +617,8 @@ public class RedcapApiTransportTests
         Assert.Null(transport.LastDictionaryPayload);
     }
 
+    /// <summary>Verifies rename record async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task RenameRecordAsync_UsesExpectedPayload()
     {
@@ -576,6 +635,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies randomize record uses injected transport.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task RandomizeRecord_UsesInjectedTransport()
     {
@@ -592,6 +653,8 @@ public class RedcapApiTransportTests
         Assert.Equal("True", transport.LastDictionaryPayload["returnAlt"]);
     }
 
+    /// <summary>Verifies export repeating instruments and events default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportRepeatingInstrumentsAndEvents_DefaultOverload_UsesExpectedPayload()
     {
@@ -605,6 +668,8 @@ public class RedcapApiTransportTests
         Assert.Equal("odm", transport.LastDictionaryPayload["format"]);
     }
 
+    /// <summary>Verifies export repeating instruments and events content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportRepeatingInstrumentsAndEvents_ContentOverload_UsesExpectedPayload()
     {
@@ -617,6 +682,8 @@ public class RedcapApiTransportTests
         Assert.Equal("repeatingFormsEvents", transport.LastDictionaryPayload!["content"]);
     }
 
+    /// <summary>Verifies import repeating instruments and events uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportRepeatingInstrumentsAndEvents_UsesExpectedPayload()
     {
@@ -632,6 +699,8 @@ public class RedcapApiTransportTests
         Assert.Contains("form_a", transport.LastDictionaryPayload["data"]);
     }
 
+    /// <summary>Verifies export reports default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportReports_DefaultOverload_UsesExpectedPayload()
     {
@@ -654,6 +723,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies export reports content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportReports_ContentOverload_UsesExpectedPayload()
     {
@@ -667,6 +738,8 @@ public class RedcapApiTransportTests
         Assert.Equal("5", transport.LastDictionaryPayload["report_id"]);
     }
 
+    /// <summary>Verifies export reports content overload with defaults omits optional keys.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportReports_ContentOverload_WithDefaults_OmitsOptionalKeys()
     {
@@ -683,6 +756,8 @@ public class RedcapApiTransportTests
         Assert.False(transport.LastDictionaryPayload.ContainsKey("decimalCharacter"));
     }
 
+    /// <summary>Verifies export users async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportUsersAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -699,6 +774,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies export users async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportUsersAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -711,6 +788,8 @@ public class RedcapApiTransportTests
         Assert.Equal("user", transport.LastDictionaryPayload!["content"]);
     }
 
+    /// <summary>Verifies import users async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportUsersAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -737,6 +816,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies import users async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportUsersAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -758,6 +839,8 @@ public class RedcapApiTransportTests
         Assert.Contains("bob", transport.LastDictionaryPayload["data"]);
     }
 
+    /// <summary>Verifies delete users async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteUsersAsync_UsesExpectedPayload()
     {
@@ -775,6 +858,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies export user roles async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportUserRolesAsync_UsesExpectedPayload()
     {
@@ -791,6 +876,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies import user roles async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportUserRolesAsync_UsesExpectedPayload()
     {
@@ -818,6 +905,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies delete user roles async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteUserRolesAsync_UsesExpectedPayload()
     {
@@ -835,6 +924,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies export user role assignment async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportUserRoleAssignmentAsync_UsesExpectedPayload()
     {
@@ -851,6 +942,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies import user role assignment async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportUserRoleAssignmentAsync_UsesExpectedPayload()
     {
@@ -878,6 +971,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies export events async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportEventsAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -893,6 +988,8 @@ public class RedcapApiTransportTests
         Assert.Equal("1", transport.LastDictionaryPayload["arms[0]"]);
     }
 
+    /// <summary>Verifies export events async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportEventsAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -907,6 +1004,8 @@ public class RedcapApiTransportTests
         Assert.Equal("1", transport.LastDictionaryPayload["arms[0]"]);
     }
 
+    /// <summary>Verifies import events async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportEventsAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -923,6 +1022,8 @@ public class RedcapApiTransportTests
         Assert.Contains("baseline", transport.LastDictionaryPayload["data"]);
     }
 
+    /// <summary>Verifies import events async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportEventsAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -938,6 +1039,8 @@ public class RedcapApiTransportTests
         Assert.Contains("baseline", transport.LastDictionaryPayload["data"]);
     }
 
+    /// <summary>Verifies delete events async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteEventsAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -952,6 +1055,8 @@ public class RedcapApiTransportTests
         Assert.Equal("event_1_arm_1", transport.LastDictionaryPayload["events[0]"]);
     }
 
+    /// <summary>Verifies delete events async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteEventsAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -966,6 +1071,8 @@ public class RedcapApiTransportTests
         Assert.Equal("event_1_arm_1", transport.LastDictionaryPayload["events[0]"]);
     }
 
+    /// <summary>Verifies delete events async with no events returns error message.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteEventsAsync_WithNoEvents_ReturnsErrorMessage()
     {
@@ -978,6 +1085,8 @@ public class RedcapApiTransportTests
         Assert.Null(transport.LastDictionaryPayload);
     }
 
+    /// <summary>Verifies export instruments async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportInstrumentsAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -991,6 +1100,8 @@ public class RedcapApiTransportTests
         Assert.Equal("csv", transport.LastDictionaryPayload["format"]);
     }
 
+    /// <summary>Verifies export instrument mapping async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportInstrumentMappingAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1006,6 +1117,8 @@ public class RedcapApiTransportTests
         Assert.Equal("xml", transport.LastDictionaryPayload["returnFormat"]);
     }
 
+    /// <summary>Verifies import instrument mapping async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportInstrumentMappingAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1025,6 +1138,8 @@ public class RedcapApiTransportTests
         Assert.Contains("demographics", transport.LastDictionaryPayload["data"]);
     }
 
+    /// <summary>Verifies export meta data async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportMetaDataAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1041,6 +1156,8 @@ public class RedcapApiTransportTests
         Assert.Equal("xml", transport.LastDictionaryPayload["returnFormat"]);
     }
 
+    /// <summary>Verifies import meta data async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportMetaDataAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1057,6 +1174,8 @@ public class RedcapApiTransportTests
         Assert.Contains("record_id", transport.LastDictionaryPayload["data"]);
     }
 
+    /// <summary>Verifies import meta data async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportMetaDataAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1073,6 +1192,8 @@ public class RedcapApiTransportTests
         Assert.Contains("sex", transport.LastDictionaryPayload["data"]);
     }
 
+    /// <summary>Verifies create project async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task CreateProjectAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1090,6 +1211,8 @@ public class RedcapApiTransportTests
         Assert.Equal("<odm />", transport.LastDictionaryPayload["odm"]);
     }
 
+    /// <summary>Verifies create project async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task CreateProjectAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1105,6 +1228,8 @@ public class RedcapApiTransportTests
         Assert.Equal("<odm2 />", transport.LastDictionaryPayload["odm"]);
     }
 
+    /// <summary>Verifies import project info async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportProjectInfoAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1120,6 +1245,8 @@ public class RedcapApiTransportTests
         Assert.Contains("Updated Project", transport.LastDictionaryPayload["data"]);
     }
 
+    /// <summary>Verifies export project info async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportProjectInfoAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1134,6 +1261,8 @@ public class RedcapApiTransportTests
         Assert.Equal("xml", transport.LastDictionaryPayload["returnFormat"]);
     }
 
+    /// <summary>Verifies export project xml async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportProjectXmlAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1167,6 +1296,8 @@ public class RedcapApiTransportTests
         Assert.Equal("True", transport.LastDictionaryPayload["exportFiles"]);
     }
 
+    /// <summary>Verifies export arms async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportArmsAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1182,6 +1313,8 @@ public class RedcapApiTransportTests
         Assert.Equal("xml", transport.LastDictionaryPayload["returnFormat"]);
     }
 
+    /// <summary>Verifies export arms async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportArmsAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1196,6 +1329,8 @@ public class RedcapApiTransportTests
         Assert.Equal("1", transport.LastDictionaryPayload["arms[0]"]);
     }
 
+    /// <summary>Verifies import arms async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportArmsAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1212,6 +1347,8 @@ public class RedcapApiTransportTests
         Assert.Contains("Arm A", transport.LastDictionaryPayload["data"]);
     }
 
+    /// <summary>Verifies import arms async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportArmsAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1227,6 +1364,8 @@ public class RedcapApiTransportTests
         Assert.Contains("Arm B", transport.LastDictionaryPayload["data"]);
     }
 
+    /// <summary>Verifies import arms async content overload list redcap arm variant uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportArmsAsync_ContentOverload_ListRedcapArmVariant_UsesExpectedPayload()
     {
@@ -1242,6 +1381,8 @@ public class RedcapApiTransportTests
         Assert.Contains("Arm C", transport.LastDictionaryPayload["data"]);
     }
 
+    /// <summary>Verifies export field names async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportFieldNamesAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1256,6 +1397,8 @@ public class RedcapApiTransportTests
         Assert.Equal("record_id", transport.LastDictionaryPayload["field"]);
     }
 
+    /// <summary>Verifies export field names async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportFieldNamesAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1270,6 +1413,8 @@ public class RedcapApiTransportTests
         Assert.Equal("xml", transport.LastDictionaryPayload["returnFormat"]);
     }
 
+    /// <summary>Verifies delete arms async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteArmsAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1285,6 +1430,8 @@ public class RedcapApiTransportTests
         Assert.Equal("2", transport.LastDictionaryPayload["arms[1]"]);
     }
 
+    /// <summary>Verifies delete arms async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteArmsAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1300,6 +1447,8 @@ public class RedcapApiTransportTests
         Assert.Equal("2", transport.LastDictionaryPayload["arms[1]"]);
     }
 
+    /// <summary>Verifies delete arms async with no arms returns error message.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteArmsAsync_WithNoArms_ReturnsErrorMessage()
     {
@@ -1312,6 +1461,8 @@ public class RedcapApiTransportTests
         Assert.Null(transport.LastDictionaryPayload);
     }
 
+    /// <summary>Verifies export file async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportFileAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1339,6 +1490,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies export file async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportFileAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1365,6 +1518,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies export file async default overload with missing file path returns error message.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportFileAsync_DefaultOverload_WithMissingFilePath_ReturnsErrorMessage()
     {
@@ -1377,6 +1532,8 @@ public class RedcapApiTransportTests
         Assert.Null(transport.LastDictionaryPayload);
     }
 
+    /// <summary>Verifies export file async default overload with missing record returns error message.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportFileAsync_DefaultOverload_WithMissingRecord_ReturnsErrorMessage()
     {
@@ -1400,6 +1557,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies export file async content overload with null repeat instance omits repeat instance key.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportFileAsync_ContentOverload_WithNullRepeatInstance_OmitsRepeatInstanceKey()
     {
@@ -1424,6 +1583,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies import file async default overload uses multipart payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportFileAsync_DefaultOverload_UsesMultipartPayload()
     {
@@ -1455,6 +1616,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies import file async content overload uses multipart payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportFileAsync_ContentOverload_UsesMultipartPayload()
     {
@@ -1481,6 +1644,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies delete file async content overload uses multipart payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteFileAsync_ContentOverload_UsesMultipartPayload()
     {
@@ -1497,6 +1662,8 @@ public class RedcapApiTransportTests
         Assert.Equal("3", fields["repeat_instance"]);
     }
 
+    /// <summary>Verifies delete file async default overload uses multipart payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteFileAsync_DefaultOverload_UsesMultipartPayload()
     {
@@ -1512,6 +1679,8 @@ public class RedcapApiTransportTests
         Assert.Equal("4", fields["repeat_instance"]);
     }
 
+    /// <summary>Verifies delete file async default overload with null repeat instance defaults to one.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteFileAsync_DefaultOverload_WithNullRepeatInstance_DefaultsToOne()
     {
@@ -1525,6 +1694,8 @@ public class RedcapApiTransportTests
         Assert.Equal("1", fields["repeat_instance"]);
     }
 
+    /// <summary>Verifies delete file async content overload with null repeat instance defaults to one.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteFileAsync_ContentOverload_WithNullRepeatInstance_DefaultsToOne()
     {
@@ -1538,6 +1709,8 @@ public class RedcapApiTransportTests
         Assert.Equal("1", fields["repeat_instance"]);
     }
 
+    /// <summary>Verifies create folder file repository async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task CreateFolderFileRepositoryAsync_UsesExpectedPayload()
     {
@@ -1557,6 +1730,8 @@ public class RedcapApiTransportTests
         Assert.Equal("xml", transport.LastDictionaryPayload["returnFormat"]);
     }
 
+    /// <summary>Verifies create folder file repository async with no name returns error message.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task CreateFolderFileRepositoryAsync_WithNoName_ReturnsErrorMessage()
     {
@@ -1569,6 +1744,8 @@ public class RedcapApiTransportTests
         Assert.Null(transport.LastDictionaryPayload);
     }
 
+    /// <summary>Verifies export files folders file repository async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportFilesFoldersFileRepositoryAsync_UsesExpectedPayload()
     {
@@ -1584,6 +1761,8 @@ public class RedcapApiTransportTests
         Assert.Equal("12", transport.LastDictionaryPayload["folder_id"]);
     }
 
+    /// <summary>Verifies export file file repository async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportFileFileRepositoryAsync_UsesExpectedPayload()
     {
@@ -1599,6 +1778,8 @@ public class RedcapApiTransportTests
         Assert.Equal("xml", transport.LastDictionaryPayload["returnFormat"]);
     }
 
+    /// <summary>Verifies import file repository async sends multipart file.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportFileRepositoryAsync_SendsMultipartFile()
     {
@@ -1627,6 +1808,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies delete file repository async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteFileRepositoryAsync_UsesExpectedPayload()
     {
@@ -1642,6 +1825,8 @@ public class RedcapApiTransportTests
         Assert.Equal("xml", transport.LastDictionaryPayload["returnFormat"]);
     }
 
+    /// <summary>Verifies delete file repository async with no doc id returns error message.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task DeleteFileRepositoryAsync_WithNoDocId_ReturnsErrorMessage()
     {
@@ -1654,6 +1839,8 @@ public class RedcapApiTransportTests
         Assert.Null(transport.LastDictionaryPayload);
     }
 
+    /// <summary>Verifies export survey link async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportSurveyLinkAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1670,6 +1857,8 @@ public class RedcapApiTransportTests
         Assert.Equal("2", transport.LastDictionaryPayload["repeat_instance"]);
     }
 
+    /// <summary>Verifies export survey link async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportSurveyLinkAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1683,6 +1872,8 @@ public class RedcapApiTransportTests
         Assert.Equal("1", transport.LastDictionaryPayload["record"]);
     }
 
+    /// <summary>Verifies export survey participants async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportSurveyParticipantsAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1698,6 +1889,8 @@ public class RedcapApiTransportTests
         Assert.Equal("csv", transport.LastDictionaryPayload["format"]);
     }
 
+    /// <summary>Verifies export survey participants async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportSurveyParticipantsAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1711,6 +1904,8 @@ public class RedcapApiTransportTests
         Assert.Equal("survey_a", transport.LastDictionaryPayload["instrument"]);
     }
 
+    /// <summary>Verifies export survey queue link async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportSurveyQueueLinkAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1725,6 +1920,8 @@ public class RedcapApiTransportTests
         Assert.Equal("xml", transport.LastDictionaryPayload["returnFormat"]);
     }
 
+    /// <summary>Verifies export survey queue link async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportSurveyQueueLinkAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1738,6 +1935,8 @@ public class RedcapApiTransportTests
         Assert.Equal("1", transport.LastDictionaryPayload["record"]);
     }
 
+    /// <summary>Verifies export survey return code async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportSurveyReturnCodeAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1751,6 +1950,8 @@ public class RedcapApiTransportTests
         Assert.Equal("3", transport.LastDictionaryPayload["repeat_instance"]);
     }
 
+    /// <summary>Verifies export survey return code async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportSurveyReturnCodeAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1764,6 +1965,8 @@ public class RedcapApiTransportTests
         Assert.Equal("3", transport.LastDictionaryPayload["repeat_instance"]);
     }
 
+    /// <summary>Verifies export survey access code async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportSurveyAccessCodeAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1777,6 +1980,8 @@ public class RedcapApiTransportTests
         Assert.Equal("2", transport.LastDictionaryPayload["repeat_instance"]);
     }
 
+    /// <summary>Verifies export redcap version async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportRedcapVersionAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1790,6 +1995,8 @@ public class RedcapApiTransportTests
         Assert.Equal("xml", transport.LastDictionaryPayload["format"]);
     }
 
+    /// <summary>Verifies export redcap version async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportRedcapVersionAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1803,6 +2010,8 @@ public class RedcapApiTransportTests
         Assert.Equal("xml", transport.LastDictionaryPayload["format"]);
     }
 
+    /// <summary>Verifies export instruments async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportInstrumentsAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1816,6 +2025,8 @@ public class RedcapApiTransportTests
         Assert.Equal("json", transport.LastDictionaryPayload["format"]);
     }
 
+    /// <summary>Verifies export pdfinstruments async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportPDFInstrumentsAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1831,6 +2042,8 @@ public class RedcapApiTransportTests
         Assert.Equal("True", transport.LastDictionaryPayload["compactDisplay"]);
     }
 
+    /// <summary>Verifies export pdfinstruments async with file path uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportPDFInstrumentsAsync_WithFilePath_UsesExpectedPayload()
     {
@@ -1856,6 +2069,8 @@ public class RedcapApiTransportTests
         }
     }
 
+    /// <summary>Verifies export pdfinstruments async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportPDFInstrumentsAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1870,6 +2085,8 @@ public class RedcapApiTransportTests
         Assert.Equal("True", transport.LastDictionaryPayload["allRecords"]);
     }
 
+    /// <summary>Verifies export logging async uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportLoggingAsync_UsesExpectedPayload()
     {
@@ -1885,6 +2102,8 @@ public class RedcapApiTransportTests
         Assert.Equal("1", transport.LastDictionaryPayload["record"]);
     }
 
+    /// <summary>Verifies export instrument mapping async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportInstrumentMappingAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1898,6 +2117,8 @@ public class RedcapApiTransportTests
         Assert.Equal("1", transport.LastDictionaryPayload["arms[0]"]);
     }
 
+    /// <summary>Verifies import instrument mapping async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportInstrumentMappingAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1912,6 +2133,8 @@ public class RedcapApiTransportTests
         Assert.Contains("survey_a", transport.LastDictionaryPayload["data"]);
     }
 
+    /// <summary>Verifies export meta data async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportMetaDataAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1926,6 +2149,8 @@ public class RedcapApiTransportTests
         Assert.Equal("survey_a", transport.LastDictionaryPayload["forms[0]"]);
     }
 
+    /// <summary>Verifies export project info async content overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportProjectInfoAsync_ContentOverload_UsesExpectedPayload()
     {
@@ -1940,6 +2165,8 @@ public class RedcapApiTransportTests
         Assert.Equal("xml", transport.LastDictionaryPayload["returnFormat"]);
     }
 
+    /// <summary>Verifies import project info async default overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ImportProjectInfoAsync_DefaultOverload_UsesExpectedPayload()
     {
@@ -1955,6 +2182,8 @@ public class RedcapApiTransportTests
         Assert.Contains("Title", transport.LastDictionaryPayload["data"]);
     }
 
+    /// <summary>Verifies export project xml async contentless overload uses expected payload.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ExportProjectXmlAsync_ContentlessOverload_UsesExpectedPayload()
     {
@@ -1968,6 +2197,8 @@ public class RedcapApiTransportTests
         Assert.Equal("True", transport.LastDictionaryPayload["returnMetadataOnly"]);
     }
 
+    /// <summary>Verifies protected wrapper methods are reachable via subclass.</summary>
+    /// <returns>A task that completes when the check finishes.</returns>
     [Fact]
     public async Task ProtectedWrapperMethods_AreReachableViaSubclass()
     {
@@ -1984,6 +2215,9 @@ public class RedcapApiTransportTests
         Assert.NotNull(transport.LastDictionaryPayload);
     }
 
+    /// <summary>Reads the text fields of a multipart request into a dictionary.</summary>
+    /// <param name="payload">The form fields or multipart content to submit.</param>
+    /// <returns>The fields indexed by part name.</returns>
     private static async Task<Dictionary<string, string>> ReadMultipartFieldsAsync(MultipartFormDataContent payload)
     {
         var fields = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -2047,26 +2281,49 @@ public class RedcapApiTransportTests
 
     private sealed class TestableRedcapApi : Redcap.RedcapApi
     {
+        /// <summary>Creates a client exposing protected operations to the transport tests.</summary>
+        /// <param name="redcapApiUrl">The absolute URL of the REDCap API endpoint.</param>
+        /// <param name="transport">The transport used to capture requests.</param>
         public TestableRedcapApi(string redcapApiUrl, IRedcapTransport transport)
             : base(redcapApiUrl, transport)
         {
         }
 
+        /// <summary>Exercises the protected multipart operation.</summary>
+        /// <param name="payload">The form fields or multipart content to submit.</param>
+        /// <returns>The result returned by the protected client operation.</returns>
         public Task<string> CallMultipartWrapper(MultipartFormDataContent payload)
             => base.SendPostRequestAsync(payload, new Uri("http://localhost/"));
 
+        /// <summary>Exercises the protected dictionary stream operation.</summary>
+        /// <param name="payload">The form fields or multipart content to submit.</param>
+        /// <returns>The result returned by the protected client operation.</returns>
         public Task<Stream> CallDictionaryStreamWrapper(Dictionary<string, string> payload)
             => base.GetStreamContentAsync(payload, new Uri("http://localhost/"));
 
+        /// <summary>Exercises the protected convert int array operation.</summary>
+        /// <param name="input">The input values for the conversion.</param>
+        /// <returns>The result returned by the protected client operation.</returns>
         public Task<string> CallConvertIntArrayWrapper(int[] input)
             => base.ConvertIntArraytoString(input);
 
+        /// <summary>Exercises the protected handle format operation.</summary>
+        /// <param name="format">The REDCap data format selected by the caller.</param>
+        /// <param name="onErrorFormat">The requested format for REDCap errors.</param>
+        /// <param name="redcapDataType">The record layout used in the request.</param>
+        /// <returns>The result returned by the protected client operation.</returns>
         public Task<(string format, string onErrorFormat, string redcapDataType)> CallHandleFormatWrapper(RedcapFormat? format, RedcapReturnFormat? onErrorFormat, RedcapDataType? redcapDataType)
             => base.HandleFormat(format, onErrorFormat, redcapDataType);
 
+        /// <summary>Exercises the protected handle return content operation.</summary>
+        /// <param name="returnContent">The response content requested from REDCap after import.</param>
+        /// <returns>The result returned by the protected client operation.</returns>
         public Task<string> CallHandleReturnContentWrapper(ReturnContent returnContent)
             => base.HandleReturnContent(returnContent);
 
+        /// <summary>Exercises the protected extract behavior operation.</summary>
+        /// <param name="overwriteBehavior">Controls whether blank imported values overwrite existing values.</param>
+        /// <returns>The result returned by the protected client operation.</returns>
         public Task<string> CallExtractBehaviorWrapper(OverwriteBehavior overwriteBehavior)
             => base.ExtractBehaviorAsync(overwriteBehavior);
     }
@@ -2077,18 +2334,21 @@ public class RedcapApiTransportTests
 
         public MultipartFormDataContent? LastMultipartPayload { get; private set; }
 
+        /// <inheritdoc />
         public Task<Stream> GetStreamContentAsync(Redcap.RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             LastDictionaryPayload = new Dictionary<string, string>(payload);
             return Task.FromResult<Stream>(new MemoryStream());
         }
 
+        /// <inheritdoc />
         public Task<string> SendPostRequestAsync(Redcap.RedcapApi redcapApi, MultipartFormDataContent payload, Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             LastMultipartPayload = payload;
             return Task.FromResult("transport-response");
         }
 
+        /// <inheritdoc />
         public Task<string> SendPostRequestAsync(Redcap.RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             LastDictionaryPayload = new Dictionary<string, string>(payload);

@@ -28,8 +28,19 @@ jobs:
       - name: Restore
         run: dotnet restore
 
+      - name: Use the release tag for the package version
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF_NAME" =~ ^v?2\.0\.([0-9]+)$ ]]; then
+            echo "release_patch=${BASH_REMATCH[1]}" >> "$GITHUB_ENV"
+          else
+            echo "Expected a 2.0.x release tag" >&2
+            exit 1
+          fi
+
       - name: Build
-        run: dotnet build src/RedcapApi/RedcapApi.csproj -c Release --no-restore
+        run: dotnet build src/RedcapApi/RedcapApi.csproj -c Release --no-restore -p:RedcapBuildPatch="${release_patch:-$GITHUB_RUN_NUMBER}"
 
       - name: Pack
         run: dotnet pack src/RedcapApi/RedcapApi.csproj -c Release --no-build -o ./artifacts

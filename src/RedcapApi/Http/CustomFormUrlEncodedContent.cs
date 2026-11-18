@@ -11,15 +11,16 @@ namespace Redcap.Http
     /// </summary>
     public class CustomFormUrlEncodedContent : ByteArrayContent
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="nameValueCollection"></param>
+        /// <summary>Creates a URL-encoded form body from the supplied keys and values.</summary>
+        /// <param name="nameValueCollection">The form keys and values to encode.</param>
         public CustomFormUrlEncodedContent(IEnumerable<KeyValuePair<string, string>> nameValueCollection)
             : base(CustomFormUrlEncodedContent.GetContentByteArray(nameValueCollection))
         {
             base.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
         }
+        /// <summary>Encodes the form pairs into the HTTP request body.</summary>
+        /// <param name="nameValueCollection">The form keys and values to encode.</param>
+        /// <returns>The encoded form bytes.</returns>
         private static byte[] GetContentByteArray(IEnumerable<KeyValuePair<string, string>> nameValueCollection)
         {
             if (nameValueCollection == null)
@@ -40,6 +41,9 @@ namespace Redcap.Http
             }
             return Encoding.Default.GetBytes(stringBuilder.ToString());
         }
+        /// <summary>Escapes a single form key or value using form URL encoding.</summary>
+        /// <param name="data">The unescaped form component.</param>
+        /// <returns>The escaped component, or an empty string for null or empty input.</returns>
         private static string Encode(string data)
         {
             if (string.IsNullOrEmpty(data))

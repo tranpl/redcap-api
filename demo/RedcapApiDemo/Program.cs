@@ -15,6 +15,8 @@ namespace RedcapApiDemo
 {
     partial class Program
     {
+        /// <summary>Reads a token from standard input, suppressing interactive echo.</summary>
+        /// <returns>The token entered on standard input.</returns>
         static string ReadToken()
         {
             if(Console.IsInputRedirected)
@@ -41,6 +43,9 @@ namespace RedcapApiDemo
             }
         }
 
+        /// <summary>Selects the offline demo or a requested live operation.</summary>
+        /// <param name="args">The command-line arguments supplied to the demo.</param>
+        /// <returns>A task that completes when the demo operation finishes.</returns>
         static async Task Main(string[] args)
         {
             /*
@@ -73,6 +78,9 @@ namespace RedcapApiDemo
             }
             await InitializeDemo(methodFromArgs);
         }
+        /// <summary>Configures the live client and runs the selected examples.</summary>
+        /// <param name="methodToRun">The selected method, or null to run the live examples.</param>
+        /// <returns>A task that completes when the demo operation finishes.</returns>
         static async Task InitializeDemo(string methodToRun = null)
         {
             var devSettings = LoadDevelopmentSettings();

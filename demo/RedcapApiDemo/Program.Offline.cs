@@ -16,6 +16,8 @@ namespace RedcapApiDemo
 {
     partial class Program
     {
+        /// <summary>Imports the bundled ODM fixture into memory and verifies the two exported records.</summary>
+        /// <returns>A task that completes when the demo operation finishes.</returns>
         static async Task RunOfflineDemoAsync()
         {
             Console.WriteLine("Offline REDCap demo using synthetic records.");
@@ -36,6 +38,7 @@ namespace RedcapApiDemo
         {
             private readonly Dictionary<string, Dictionary<string, string>> records = new();
 
+            /// <inheritdoc />
             public Task<string> SendPostRequestAsync(RedcapApi api, Dictionary<string, string> payload,
                 Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
             {
@@ -61,10 +64,14 @@ namespace RedcapApiDemo
                 return Task.FromResult(JsonConvert.SerializeObject(records.Values));
             }
 
+            /// <inheritdoc />
+            /// <exception cref="NotSupportedException">The offline transport only supports form-encoded record operations.</exception>
             public Task<string> SendPostRequestAsync(RedcapApi api, MultipartFormDataContent payload,
                 Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
                 => throw new NotSupportedException();
 
+            /// <inheritdoc />
+            /// <exception cref="NotSupportedException">The offline transport only supports form-encoded record operations.</exception>
             public Task<Stream> GetStreamContentAsync(RedcapApi api, Dictionary<string, string> payload,
                 Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
                 => throw new NotSupportedException();

@@ -20,8 +20,8 @@ namespace Redcap.Utilities
         /// <summary>
         /// Method gets the display string for an enum
         /// </summary>
-        /// <param name="enumString"></param>
-        /// <returns></returns>
+        /// <param name="enumString">The enumeration value carrying the display attribute.</param>
+        /// <returns>The display name associated with the enumeration value.</returns>
         public static string GetDisplayName(this Enum enumString)
         {
             var returnvalue = enumString
@@ -37,13 +37,13 @@ namespace Redcap.Utilities
         /// <summary>
         /// Extension method reads a stream and saves content to a local file.
         /// </summary>
-        /// <param name="httpContent"></param>
-        /// <param name="fileName"></param>
-        /// <param name="path"></param>
-        /// <param name="overwrite"></param>
-        /// <param name="fileExtension"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns>HttpContent</returns>
+        /// <param name="httpContent">The HTTP response content to save.</param>
+        /// <param name="fileName">The file name within the selected directory.</param>
+        /// <param name="path">The destination directory.</param>
+        /// <param name="overwrite">Whether an existing file can be replaced.</param>
+        /// <param name="fileExtension">The extension to append, or an empty string to keep the supplied file name.</param>
+        /// <param name="cancellationToken">A token that can cancel the request.</param>
+        /// <returns>A task that completes after the file is written.</returns>
         public static async Task ReadAsFileAsync(this HttpContent httpContent, string fileName, string path, bool overwrite, string fileExtension = "pdf", CancellationToken cancellationToken = default)
         {
             fileName = fileName?.Trim('"');
@@ -87,6 +87,7 @@ namespace Redcap.Utilities
         /// <summary>Indicates whether the specified array is null or has a length of zero.</summary>
         /// <param name="array">The array to test.</param>
         /// <returns>true if the array parameter is null or has a length of zero; otherwise, false.</returns>
+        /// <typeparam name="T">The array element type.</typeparam>
         public static bool IsNullOrEmpty<T>(this T[] array)
         {
             return (array == null || array.Length == 0);
@@ -96,9 +97,10 @@ namespace Redcap.Utilities
         /// gets converted to "["firstName","lastName","age"]" 
         /// This is used as optional arguments for the Redcap Api
         /// </summary>
-        /// <param name="redcapApi"></param>
-        /// <param name="inputArray"></param>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
+        /// <param name="inputArray">The array of values to process.</param>
         /// <returns>string[]</returns>
+        /// <typeparam name="T">The array element type.</typeparam>
         public static async Task<string> ConvertArraytoString<T>(this RedcapApi redcapApi, T[] inputArray)
         {
             try
@@ -134,8 +136,8 @@ namespace Redcap.Utilities
         /// gets converted to "["1","2","3"]" 
         /// This is used as optional arguments for the Redcap Api
         /// </summary>
-        /// <param name="redcapApi"></param>
-        /// <param name="inputArray"></param>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
+        /// <param name="inputArray">The array of values to process.</param>
         /// <returns>string</returns>
         public static async Task<string> ConvertIntArraytoString(this RedcapApi redcapApi, int[] inputArray)
         {
@@ -167,8 +169,8 @@ namespace Redcap.Utilities
         ///The method hands the return content from a request, the response.
         /// The method allows the calling method to choose a return type.
         /// </summary>
-        /// <param name="redcapApi"></param>
-        /// <param name="returnContent"></param>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
+        /// <param name="returnContent">The response content requested from REDCap after import.</param>
         /// <returns>string</returns>
         public static async Task<string> HandleReturnContent(this RedcapApi redcapApi, ReturnContent returnContent = ReturnContent.count)
         {
@@ -198,10 +200,10 @@ namespace Redcap.Utilities
         /// <summary>
         /// Tuple that returns both inputFormat and redcap returnFormat
         /// </summary>
-        /// <param name="redcapApi"></param>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
         /// <param name="format">csv, json[default], xml , odm ('odm' refers to CDISC ODM XML format, specifically ODM version 1.3.1)</param>
-        /// <param name="onErrorFormat"></param>
-        /// <param name="redcapDataType"></param>
+        /// <param name="onErrorFormat">The requested format for REDCap errors.</param>
+        /// <param name="redcapDataType">The record layout used in the request.</param>
         /// <returns>tuple, string, string, string</returns>
         public static async Task<(string format, string onErrorFormat, string redcapDataType)> HandleFormat(this RedcapApi redcapApi, RedcapFormat? format = RedcapFormat.json, RedcapReturnFormat? onErrorFormat = RedcapReturnFormat.json, RedcapDataType? redcapDataType = RedcapDataType.flat)
         {
@@ -279,8 +281,8 @@ namespace Redcap.Utilities
         /// <summary>
         /// Method gets the overwrite behavior type and converts into string
         /// </summary>
-        /// <param name="redcapApi"></param>
-        /// <param name="overwriteBehavior"></param>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
+        /// <param name="overwriteBehavior">Controls whether blank imported values overwrite existing values.</param>
         /// <returns>string</returns>
         public static async Task<string> ExtractBehaviorAsync(this RedcapApi redcapApi, OverwriteBehavior overwriteBehavior)
         {
@@ -310,7 +312,7 @@ namespace Redcap.Utilities
         /// <summary>
         /// This method extracts and converts an object's properties and associated values to redcap type and values.
         /// </summary>
-        /// <param name="redcapApi"></param>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
         /// <param name="input">Object</param>
         /// <returns>Dictionary of key value pair.</returns>
         public static async Task<Dictionary<string, string>> GetProperties(this RedcapApi redcapApi, object input)
@@ -378,8 +380,8 @@ namespace Redcap.Utilities
         /// <summary>
         /// Method extracts events into list from string
         /// </summary>
-        /// <param name="redcapApi"></param>
-        /// <param name="events"></param>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
+        /// <param name="events">The event identifiers to process.</param>
         /// <param name="delimiters">char[] e.g [';',',']</param>
         /// <returns>List of string</returns>
         public static async Task<List<string>> ExtractEventsAsync(this RedcapApi redcapApi, string events, char[] delimiters)
@@ -407,8 +409,8 @@ namespace Redcap.Utilities
         /// <summary>
         /// Method gets / extracts fields into list from string
         /// </summary>
-        /// <param name="redcapApi"></param>
-        /// <param name="fields"></param>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
+        /// <param name="fields">The field names to process.</param>
         /// <param name="delimiters">char[] e.g [';',',']</param>
         /// <returns>List of string</returns>
         public static async Task<List<string>> ExtractFieldsAsync(this RedcapApi redcapApi, string fields, char[] delimiters)
@@ -436,8 +438,8 @@ namespace Redcap.Utilities
         /// <summary>
         /// Method gets / extract records into list from string
         /// </summary>
-        /// <param name="redcapApi"></param>
-        /// <param name="records"></param>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
+        /// <param name="records">The record identifiers to process.</param>
         /// <param name="delimiters">char[] e.g [';',',']</param>
         /// <returns>List of string</returns>
         public static async Task<List<string>> ExtractRecordsAsync(this RedcapApi redcapApi, string records, char[] delimiters)
@@ -465,8 +467,8 @@ namespace Redcap.Utilities
         /// <summary>
         /// Method gets / extracts forms into list from string
         /// </summary>
-        /// <param name="redcapApi"></param>
-        /// <param name="forms"></param>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
+        /// <param name="forms">The instrument names to process.</param>
         /// <param name="delimiters">char[] e.g [';',',']</param>
         /// <returns>A list of string</returns>
         public static async Task<List<string>> ExtractFormsAsync(this RedcapApi redcapApi, string forms, char[] delimiters)
@@ -494,9 +496,12 @@ namespace Redcap.Utilities
         /// <summary>
         /// Creates a handler with standard certificate validation and automatic redirects disabled.
         /// </summary>
+        /// <returns>A new HTTP handler with automatic redirects disabled.</returns>
         public static HttpClientHandler GetHttpHandler() => new HttpClientHandler { AllowAutoRedirect = false };
 
         /// <summary>Creates an HTTP handler using this client's certificate settings.</summary>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
+        /// <returns>A new HTTP handler with automatic redirects disabled.</returns>
         public static HttpClientHandler GetHttpHandler(this RedcapApi redcapApi)
         {
             var handler = GetHttpHandler();
@@ -508,6 +513,10 @@ namespace Redcap.Utilities
             return handler;
         }
 
+        /// <summary>Validates the endpoint scheme and creates a handler with the client's certificate policy.</summary>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
+        /// <param name="uri">The URL of the REDCap endpoint.</param>
+        /// <returns>A handler for the validated endpoint.</returns>
         private static HttpClientHandler CreateRequestHandler(RedcapApi redcapApi, Uri uri)
         {
             if(uri.Scheme != Uri.UriSchemeHttps && !(uri.Scheme == Uri.UriSchemeHttp && uri.IsLoopback))
@@ -516,14 +525,12 @@ namespace Redcap.Utilities
             }
             return redcapApi.GetHttpHandler();
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="redcapApi"></param>
+        /// <summary>Posts the form fields and returns the downloaded response as a stream.</summary>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
         /// <param name="payload">data</param>
         /// <param name="uri">URI of the api instance</param>
-        /// <param name="cancellationToken"></param>
-        /// <param name="timeOutSeconds"></param>
+        /// <param name="cancellationToken">A token that can cancel the request.</param>
+        /// <param name="timeOutSeconds">The HTTP request timeout in seconds.</param>
         /// <returns>Stream</returns>
         public static async Task<Stream> GetStreamContentAsync(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
@@ -544,10 +551,10 @@ namespace Redcap.Utilities
         /// Method to send http request using MultipartFormDataContent
         /// Requests with attachments
         /// </summary>
-        /// <param name="redcapApi"></param>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
         /// <param name="payload">data</param>
         /// <param name="uri">URI of the api instance</param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellationToken">A token that can cancel the request.</param>
         /// <param name="timeOutSeconds">100</param>
         /// <returns>string</returns>
         public static async Task<string> SendPostRequestAsync(this RedcapApi redcapApi, MultipartFormDataContent payload, Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
@@ -580,12 +587,12 @@ namespace Redcap.Utilities
         /// <summary>
         /// Sends request using http
         /// </summary>
-        /// <param name="redcapApi"></param>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
         /// <param name="payload">data</param>
         /// <param name="uri">URI of the api instance</param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellationToken">A token that can cancel the request.</param>
         /// <param name="timeOutSeconds">100</param>
-        /// <returns></returns>
+        /// <returns>The REDCap response body as text.</returns>
         public static async Task<string> SendPostRequestAsync(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
         {
             try
@@ -652,10 +659,10 @@ namespace Redcap.Utilities
         /// <summary>
         /// Sends http request to api
         /// </summary>
-        /// <param name="redcapApi"></param>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
         /// <param name="payload">data </param>
         /// <param name="uri">URI of the api instance</param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellationToken">A token that can cancel the request.</param>
         /// <param name="timeOutSeconds">100</param>
         /// <returns>string</returns>
         public static async Task<string> SendPostRequest(this RedcapApi redcapApi, Dictionary<string, string> payload, Uri uri, CancellationToken cancellationToken = default, long timeOutSeconds = 100)
@@ -678,11 +685,11 @@ namespace Redcap.Utilities
         /// <summary>
         /// Method obtains list of string from comma seperated strings
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="redcapApi"></param>
-        /// <param name="arms"></param>
-        /// <param name="delimiters"></param>
-        /// <param name="cancellationToken"></param>
+        /// <typeparam name="T">Reserved for compatibility with the original signature.</typeparam>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
+        /// <param name="arms">The delimited arm numbers.</param>
+        /// <param name="delimiters">The characters that separate items in the input.</param>
+        /// <param name="cancellationToken">A token that can cancel the request.</param>
         /// <returns>List of string</returns>
         public static async Task<List<string>> ExtractArmsAsync<T>(this RedcapApi redcapApi, string arms, char[] delimiters, CancellationToken cancellationToken = default)
         {
@@ -710,9 +717,8 @@ namespace Redcap.Utilities
         /// <summary>
         /// Checks if the string passed is null or empty.
         /// </summary>
-        /// <param name="redcapApi"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
+        /// <param name="redcapApi">The client whose transport settings apply to this operation.</param>
+        /// <param name="token">The project API token for this operation.</param>
         public static void CheckToken(this RedcapApi redcapApi, string token)
         {
             /*
